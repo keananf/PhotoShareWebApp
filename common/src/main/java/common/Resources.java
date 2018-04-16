@@ -1,0 +1,51 @@
+package common;
+
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
+/**
+ * Abstract class used for maintaining information about resource location.
+ */
+public abstract class Resources {
+    public static final Charset CHARSET = StandardCharsets.UTF_8;
+    public static final String CHARSET_STRING = CHARSET.name();
+
+    // Base URI the Grizzly HTTP server will listen on
+    public static final String BASE_URL = "http://localhost:8080/photoshare/";
+
+    // Resources regarding users
+    public static final String USERS_PATH = "/users";
+    public static final String ADD_USER = "/adduser";
+    public static final String LOGIN_USER = "/login";
+    public static final String ADD_USER_PATH = USERS_PATH + ADD_USER;
+    public static final String LOGIN_USER_PATH = USERS_PATH + LOGIN_USER;
+
+    // Resources regarding photos
+    public static final String ID = "/ids";
+    public static final String PHOTOS_PATH = "/photos";
+    public static final String UPLOAD_PHOTO = "/upload";
+    public static final String UPLOAD_PHOTO_PATH = PHOTOS_PATH + UPLOAD_PHOTO;
+    public static final String GET_PHOTO_BY_ID_PATH = PHOTOS_PATH + ID;
+    public static final String GET_USER_PHOTOS_PATH = PHOTOS_PATH + USERS_PATH;
+
+    // Resources regarding comments
+    public static final String COMMENTS_PATH = "/comments";
+    public static final String ADD_COMMENT = "/addcomment";
+    public static final String ADD_COMMENT_PATH = COMMENTS_PATH + ADD_COMMENT;
+    public static final String REPLY_PATH = "/replies";
+    public static final String GET_ALL_REPLIES_PATH = COMMENTS_PATH + REPLY_PATH;
+    public static final String GET_ALL_PHOTO_COMMENTS_PATH = COMMENTS_PATH + PHOTOS_PATH;
+    public static final String DOWNVOTE = "/downvote";
+    public static final String UPVOTE = "/upvote";
+    public static final String DOWNVOTE_PATH = COMMENTS_PATH + DOWNVOTE;
+    public static final String UPVOTE_PATH = COMMENTS_PATH + UPVOTE;
+
+    // Resources regarding admins
+    public static final String ADMIN_PATH = "/admin";
+    public static final String REMOVE_COMMENT = "/removecomment";
+    public static final String ADMIN_REMOVE_COMMENT_PATH = ADMIN_PATH + REMOVE_COMMENT;
+    public static final String REMOVAL_STRING = "Removed By Admin.";
+
+    // Resources regarding notifications
+    public static final String NOTIFICATIONS_PATH = "/notifications";
+}

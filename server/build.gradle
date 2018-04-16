@@ -1,0 +1,62 @@
+version '1.0'
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'findbugs'
+
+// Makes the command './gradlew run' run the given main class.
+apply plugin: 'application'
+mainClassName = 'server.ServerMain'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+// Modify run task such that it uses stdin for input from the user
+// and also supply the main method with provided arguments.
+run {
+    standardInput = System.in
+    if (project.hasProperty("appArgs")) {
+        args Eval.me(appArgs)
+    }
+}
+
+// Ensure findBugs returns an html report
+tasks.withType(FindBugs) {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+    effort = "max"
+    reportLevel = "low"
+    ignoreFailures = true
+}
+
+// Adjusting this variable automatically changes the imported jersey libraries
+ext.jerseyVersion = '2.26'
+
+dependencies {
+    // Import Jersey
+    compile 'org.glassfish.jersey.core:jersey-server:'+jerseyVersion
+    compile 'org.glassfish.jersey.core:jersey-common:'+jerseyVersion
+    compile 'org.glassfish.jersey.inject:jersey-hk2:'+jerseyVersion
+    compile 'org.glassfish.jersey.containers:jersey-container-grizzly2-http:'+jerseyVersion
+    compile 'org.glassfish.jersey.connectors:jersey-grizzly-connector:'+jerseyVersion
+
+    // Gson for JSON parsing.
+    compile 'com.google.code.gson:gson:2.4'
+
+    // The production code uses the SLF4J logging API at compile time
+    compile 'org.slf4j:slf4j-api:1.7.21'
+
+    // H2 database integration
+    compile group: 'com.h2database', name: 'h2', version: '1.3.148'
+
+    // Client / Server Common dependencies
+    compile files('common-1.0.jar')
+
+    // Junit for tests
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+}

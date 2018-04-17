@@ -1,0 +1,182 @@
+/* Import OpenSans font */
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,400i,600,700');
+
+body {
+    background: #f6f6f6;
+    font-family: 'Open Sans', 'Lato', 'Arial', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+header#page-header {
+    background: #fff;
+    border-bottom: 1px solid #e1e1e1;
+    padding: 35px 0;
+    margin-bottom: 25px;
+}
+
+header #logo {
+    max-width: 100%;
+    cursor: pointer;
+}
+
+nav span {
+    display: inline-block;
+    color: #0d8bcc;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 3px 10px;
+    margin-left: 10px;
+    transition: all 0.3s;
+    border-radius: 5px;
+}
+
+nav span:hover {
+    color: #0d6997;
+}
+
+nav .nav-button {
+    background: #7c2bc0;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+nav .nav-button:hover {
+    color: #fff;
+    background: #9a33ec;
+}
+
+nav .nav-strong {
+    font-weight: 600;
+}
+
+nav .nav-danger {
+    color: #e2652e;
+}
+
+nav .nav-danger:hover {
+    color: #c32c1c;
+}
+
+nav .nav-search input {
+    padding: 3px 10px;
+    border: 0;
+    border-left: 1px solid #ccc;
+    outline: 0;
+    transition: all 0.4s;
+}
+
+nav .nav-search input:focus {
+    background: #eee;
+}
+
+nav .nav-search .clear-icon {
+    font-size: 90%;
+    color: #ccc;
+    margin-left: -27px;
+}
+
+.post {
+    background: #fff;
+    font-size: 14px;
+    box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 25px;
+}
+
+.post header {
+    padding: 15px;
+}
+
+.post .post-image img {
+    width: 100%;
+    cursor: pointer;
+}
+
+.post header .username {
+    color: #222;
+    font-weight: 600;
+}
+
+.post header .username:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.post header .date {
+    float: right;
+    display: inline-block;
+    color: #a2a2a2;
+}
+
+.post footer {
+    padding: 5px 15px 15px;
+}
+
+.post footer .comments {
+    color: #0d8bcc;
+    font-size: 18px;
+    font-weight: 600;
+    margin-top: 10px;
+    display: inline-block;
+}
+
+.post footer .comments:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.post footer .likes {
+    float: right;
+    display: inline-block;
+    font-size: 30px;
+    color: #a21616;
+}
+
+.post footer .likes button {
+    background: 0;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    color: #ddd;
+}
+
+.post footer .likes button:hover {
+    color: #db5c5f;
+}
+
+.post footer .likes.liked button:hover {
+    color: #db4646;
+}
+
+.side-panel {
+    margin-bottom: 25px;
+}
+
+.side-panel .panel-heading {
+    font-size: 24px;
+    color: #151515;
+    font-weight: 300;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #d3d3d3;
+}
+
+.side-panel ul {
+    font-size: 18px;
+    padding-left: 20px;
+    list-style-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><circle fill="#757575" cx="10" cy="10" r="7"/></svg>');
+}
+
+.side-panel ul .muted router-link {
+    color: #072f44;
+}
+
+.side-panel router-link {
+    color: #2885b5;
+    cursor: pointer;
+}
+
+.side-panel router-link:hover {
+    text-decoration: underline;
+}

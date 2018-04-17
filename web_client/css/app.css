@@ -42,6 +42,10 @@ nav .nav-button {
     font-weight: 600;
 }
 
+nav .nav-button a {
+    color: inherit;
+}
+
 nav .nav-button:hover {
     color: #fff;
     background: #9a33ec;
@@ -168,15 +172,15 @@ nav .nav-search .clear-icon {
     list-style-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><circle fill="#757575" cx="10" cy="10" r="7"/></svg>');
 }
 
-.side-panel ul .muted router-link {
+.side-panel ul .muted a {
     color: #072f44;
 }
 
-.side-panel router-link {
+.side-panel a {
     color: #2885b5;
     cursor: pointer;
 }
 
-.side-panel router-link:hover {
+.side-panel a:hover {
     text-decoration: underline;
 }

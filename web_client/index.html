@@ -14,159 +14,61 @@
 </head>
 <body>
 
-<header id="page-header">
-    <div class="container">
-        <div class="row">
-            <div class="col-sm-4 col-md-3">
+<div id="photoshare-app">
 
-                <router-link to="/">
-                    <img src="images/logo.png" alt="PhotoShare" id="logo"/>
-                </router-link>
+    <header id="page-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-4 col-md-3">
 
-            </div>
-            <div class="col-sm-8 col-md-9 text-right">
+                    <router-link to="/">
+                        <img src="images/logo.png" alt="PhotoShare" id="logo"/>
+                    </router-link>
 
-                <nav>
-                    <span class="nav-button">
-                        <router-link to="/">
-                            <i class="fa fa-plus"></i>
-                            Upload
-                        </router-link>
-                    </span>
-                    <span class="nav-strong">
-                        <router-link to="/">
-                            My Feed
-                        </router-link>
-                    </span>
-                    <span>
-                        <router-link to="/">
-                            Profile
-                        </router-link>
-                    </span>
-                    <span>
-                        <router-link to="/">
-                            Settings
-                        </router-link>
-                    </span>
-                    <span class="nav-danger">
-                        <router-link to="/">
+                </div>
+                <div class="col-sm-8 col-md-9 text-right">
+
+                    <nav>
+                        <span class="nav-button">
+                            <router-link to="/">
+                                <i class="fa fa-plus"></i>
+                                Upload
+                            </router-link>
+                        </span>
+                        <span class="nav-strong">
+                            <router-link to="/">
+                                My Feed
+                            </router-link>
+                        </span>
+                        <span>
+                            <router-link to="/">
+                                Profile
+                            </router-link>
+                        </span>
+                        <span>
+                            <router-link to="/">
+                                Settings
+                            </router-link>
+                        </span>
+                        <span class="nav-danger">
                             <i class="fa fa-power-off"></i>
                             Logout
-                        </router-link>
-                    </span>
-                    <span class="nav-search">
-                        <input type="text" placeholder="Search"/>
-                        <i class="fa fa-times clear-icon" style="display: none;"></i>
-                    </span>
-                </nav>
+                        </span>
+                        <span class="nav-search">
+                            <input type="text" placeholder="Search"/>
+                            <i class="fa fa-times clear-icon" style="display: none;"></i>
+                        </span>
+                    </nav>
 
+                </div>
             </div>
         </div>
-    </div>
-</header>
+    </header>
 
-<div class="container" id="main-content">
+    <div class="container" id="main-content">
 
-    <div class="row">
-        <div class="col-sm-8">
+        <router-view></router-view>
 
-            <article class="post">
-                <header>
-                    <span class="username">giedriusk</span>
-                    <span class="date">18 minutes ago</span>
-                </header>
-                <div class="post-image">
-                    <img src="https://img00.deviantart.net/95e7/i/2014/007/d/3/google_abstract_by_dynamicz34-d718hzj.png"/>
-                </div>
-                <footer>
-                    <span class="comments">
-                        <router-link to="/">
-                            4 comments
-                        </router-link>
-                    </span>
-                    <span class="likes">
-                        47
-                        <button title="Like">
-                            <i class="fa fa-heart"></i>
-                        </button>
-                    </span>
-                </footer>
-            </article>
-
-            <article class="post">
-                <header>
-                    <span class="username">giedriusk</span>
-                    <span class="date">18 minutes ago</span>
-                </header>
-                <div class="post-image">
-                    <img src="https://img00.deviantart.net/95e7/i/2014/007/d/3/google_abstract_by_dynamicz34-d718hzj.png"/>
-                </div>
-                <footer>
-                    <span class="comments">
-                        <router-link to="/">
-                            4 comments
-                        </router-link>
-                    </span>
-                    <span class="likes">
-                        47
-                        <button title="Like">
-                            <i class="fa fa-heart"></i>
-                        </button>
-                    </span>
-                </footer>
-            </article>
-
-        </div>
-
-        <div class="col-sm-4">
-
-            <div class="side-panel">
-                <div class="panel-heading">
-                    Following
-                </div>
-                <ul>
-                    <li>
-                        <router-link to="/">username1</router-link>
-                    </li>
-                    <li>
-                        <router-link to="/">username2</router-link>
-                    </li>
-                    <li>
-                        <router-link to="/">username3</router-link>
-                    </li>
-                    <li>
-                        <router-link to="/">username4</router-link>
-                    </li>
-                    <li class="muted">
-                        <router-link to="/">view all..</router-link>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="side-panel">
-                <div class="panel-heading">
-                    Your Followers
-                </div>
-                <ul>
-                    <li>
-                        <router-link to="/">username1</router-link>
-                    </li>
-                    <li>
-                        <router-link to="/">username2</router-link>
-                    </li>
-                    <li>
-                        <router-link to="/">username3</router-link>
-                    </li>
-                    <li>
-                        <router-link to="/">username4</router-link>
-                    </li>
-                    <li class="muted">
-                        <router-link to="/">view all..</router-link>
-                    </li>
-                </ul>
-            </div>
-
-        </div>
     </div>
 
 </div>
@@ -179,6 +81,17 @@
 <script src="js/vendor/popper.min.js"></script> <!-- Popper - Bootstrap Prerequisite -->
 <script src="js/vendor/bootstrap.min.js"></script> <!-- Bootstrap 4 - Required for the CSS framework -->
 <script src="js/vendor/font-awesome.5.0.10.js"></script> <!-- FontAwesome - Easy to use extensive icon pack -->
+
+<!-- Application -->
+<!-- Some basic set up in the structure -->
+<script src="js/setup.js"></script>
+
+
+<!-- Import Components Used Manually (as webpack is not used) -->
+<script src="js/components/pages/Feed.js"></script>
+
+<!-- Main App File -->
+<script src="js/app.js"></script>
 
 </body>
 </html>

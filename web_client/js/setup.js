@@ -1,5 +1,9 @@
 (function () {
     window.Components = {
-        Pages: {}
+        Pages: {},
+        Panels: {},
+        Common: {}
     }
+
+    window.Models = {}
 })()

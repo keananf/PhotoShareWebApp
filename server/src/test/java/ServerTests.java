@@ -1,8 +1,7 @@
 import org.junit.Test;
 
-import common.Resources;
-import common.requests.*;
-import common.*;
+import server.objects.Resources;
+import server.objects.requests.*;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.objects.*;
 
@@ -12,7 +11,7 @@ import java.util.List;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static common.CommentType.*;
+import static server.objects.CommentType.*;
 
 /**
  * Tests Server behaviour in response to RESTful API calls

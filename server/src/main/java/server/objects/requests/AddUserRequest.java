@@ -1,4 +1,4 @@
-package common.requests;
+package server.objects.requests;
 
 /**
  * A simple Add user request

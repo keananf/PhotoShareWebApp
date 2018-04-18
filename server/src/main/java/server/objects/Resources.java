@@ -1,4 +1,4 @@
-package common;
+package server.objects;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;

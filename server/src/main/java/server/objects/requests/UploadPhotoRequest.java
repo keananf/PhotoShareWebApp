@@ -1,6 +1,6 @@
-package common.requests;
+package server.objects.requests;
 
-import common.Auth;
+import server.objects.Auth;
 
 import java.util.Base64;
 

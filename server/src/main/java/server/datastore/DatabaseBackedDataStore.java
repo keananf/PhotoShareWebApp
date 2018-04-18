@@ -1,12 +1,7 @@
 package server.datastore;
 
-import common.Resources;
-import common.*;
+import server.objects.*;
 import server.datastore.exceptions.InvalidResourceRequestException;
-import server.objects.Comment;
-import server.objects.Notification;
-import server.objects.Photo;
-import server.objects.User;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -18,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
-import static common.Resources.REMOVAL_STRING;
+import static server.objects.Resources.REMOVAL_STRING;
 import static server.datastore.DatabaseResources.*;
 
 /**

@@ -1,19 +1,19 @@
 package client;
 
 import com.google.gson.Gson;
-import common.Auth;
-import common.CommentType;
-import common.requests.AddCommentRequest;
-import common.requests.AddUserRequest;
-import common.requests.AuthRequest;
-import common.requests.UploadPhotoRequest;
+import server.objects.Auth;
+import server.objects.CommentType;
+import server.objects.requests.AddCommentRequest;
+import server.objects.requests.AddUserRequest;
+import server.objects.requests.AuthRequest;
+import server.objects.requests.UploadPhotoRequest;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
-import static common.Resources.*;
+import static server.objects.Resources.*;
 
 /**
  * Class representing a client to the restful api.

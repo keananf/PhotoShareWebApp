@@ -1,8 +1,8 @@
 package server.datastore;
 
-import common.Auth;
-import common.CommentType;
-import common.requests.AddCommentRequest;
+import server.objects.Auth;
+import server.objects.CommentType;
+import server.objects.requests.AddCommentRequest;
 import server.datastore.exceptions.ExistingException;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.datastore.exceptions.UnauthorisedException;

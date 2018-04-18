@@ -4,7 +4,7 @@ import server.datastore.exceptions.InvalidResourceRequestException;
 
 import javax.ws.rs.core.Response;
 
-import static common.CommentType.*;
+import static server.objects.CommentType.*;
 import static org.junit.Assert.assertEquals;
 
 /**

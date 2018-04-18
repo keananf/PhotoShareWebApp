@@ -6,7 +6,7 @@ import javax.ws.rs.core.Response;
 
 import java.util.List;
 
-import static common.CommentType.*;
+import static server.objects.CommentType.*;
 import static org.junit.Assert.assertEquals;
 
 /**

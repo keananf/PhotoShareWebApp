@@ -1,4 +1,4 @@
-package common;
+package server.objects;
 
 /**
  * Enum representing the type of comment (photo comment / reply)

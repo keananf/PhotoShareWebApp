@@ -77,13 +77,11 @@ public final class RequestResolver {
      * @param albumId the id of the album this photo belongs to
      */
     public Receipt uploadPhoto(String encodedPhotoContents, String photoName, String user, long albumId)
-            throws InvalidResourceRequestException {
+            throws InvalidResourceRequestException, DoesNotOwnAlbumException {
         // Ensure user is known
-        // TODO test case for this being invalid
         getUser(user);
 
         // Ensure albumId is known, and that it belongs to the user
-        // TODO test cases checking for both exceptions, as well as unauthorised
         Album album = getAlbum(albumId);
         if(!album.getAuthorName().equals(user)) throw new DoesNotOwnAlbumException(albumId, user);
 
@@ -127,7 +125,6 @@ public final class RequestResolver {
     public Receipt addAlbum(String author, String albumName, String description)
             throws InvalidResourceRequestException {
         // Ensure user is known
-        // TODO test case for this being invalid
         getUser(author);
 
         // Create photo and persist it
@@ -145,7 +142,6 @@ public final class RequestResolver {
      * @throws InvalidResourceRequestException if the id does not correspond to an album
      */
     public Album getAlbum(long albumId) throws InvalidResourceRequestException {
-        // TODO test this api
         return dataStore.getAlbum(albumId);
     }
 
@@ -157,7 +153,7 @@ public final class RequestResolver {
     public List<Album> getAlbums(String user) throws InvalidResourceRequestException {
         // Ensure user exists
         getUser(user);
-        // TODO test this api
+
         return dataStore.getAlbums(user);
     }
 

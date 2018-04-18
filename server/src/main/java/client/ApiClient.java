@@ -188,6 +188,32 @@ public final class ApiClient {
     }
 
     /**
+     * Download all albums from a given user
+     *
+     * @param name the name of the user to retrieve albums from
+     * @return the response of the request
+     */
+    public Response getAllAlbums(String name) {
+        // Encode request and POST
+        String path = String.format("%s/%s", GET_USER_ALBUMS_PATH, name);
+        String authJson = getSerialisedAuthRequest(path, user, password);
+        return connector.postToUrl(baseTarget, path, authJson);
+    }
+
+    /**
+     * Retrieve the given album
+     *
+     * @param id the album's id
+     * @return the response of the request
+     */
+    public Response getAlbum(long id) {
+        // Encode request and POST
+        String path = String.format("%s/%s", GET_ALBUM_BY_ID_PATH, id);
+        String authJson = getSerialisedAuthRequest(path, user, password);
+        return connector.postToUrl(baseTarget, path, authJson);
+    }
+
+    /**
      * Download all comments from a given user
      *
      * @param name the name of the user to retrieve comments from

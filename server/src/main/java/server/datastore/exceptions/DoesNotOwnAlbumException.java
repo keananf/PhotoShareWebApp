@@ -3,7 +3,7 @@ package server.datastore.exceptions;
 /**
  * Exception thrown when a user tries to manipulate an album which is not theirs
  */
-public class DoesNotOwnAlbumException extends RuntimeException {
+public class DoesNotOwnAlbumException extends Exception {
     private final String message;
 
     public DoesNotOwnAlbumException(long albumId, String user) {

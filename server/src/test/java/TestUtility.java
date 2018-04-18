@@ -16,7 +16,7 @@ import static org.junit.Assert.assertTrue;
  */
 public abstract class TestUtility {
     // Default user information
-    String name = "John";
+    String username = "John";
     String pw = "1";
 
     // Default album information
@@ -56,12 +56,12 @@ public abstract class TestUtility {
     }
 
     /**
-     * Creates a user with the given name and default password
+     * Creates a user with the given username and default password
      * and sets it up as the registered user for this client.
      * Also, a default album is set up.
-     * @param name the name of the user
+     * @param name the username of the user
      */
-    void addUserAndLogin(String name) {
+    void loginAndSetupNewUser(String name) {
         // Add user to server
         addUser(name);
 
@@ -76,8 +76,8 @@ public abstract class TestUtility {
     }
 
     /**
-     * Attempts to add a user with the given name
-     * @param name the name
+     * Attempts to add a user with the given username
+     * @param name the username
      */
     void addUser(String name) {
         // Call the persistAddUser API from the client

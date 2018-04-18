@@ -9,8 +9,8 @@ Simply navigate to the project's top-level directory and run the following comma
 ./gradlew build
 
 Please note, a more recent version of gradle may be needed when building. If so, run the following commands.
-./gradlew wrapper --gradle-version 4.2.1
-./gradlew --version
+- ./gradlew wrapper --gradle-version 4.7
+- ./gradlew --version
 
 ### Running Server
 Simply navigate to the project's top-level directory and run the following command: 

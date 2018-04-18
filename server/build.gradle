@@ -52,7 +52,7 @@ dependencies {
     compile 'org.slf4j:slf4j-api:1.7.21'
 
     // H2 database integration
-    compile group: 'com.h2database', name: 'h2', version: '1.3.148'
+    compile group: 'com.h2database', name: 'h2', version: '1.3.171'
 
     // Client / Server Common dependencies
     compile files('common-1.0.jar')

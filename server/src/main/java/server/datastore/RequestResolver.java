@@ -1,12 +1,11 @@
 package server.datastore;
 
-import server.objects.Auth;
-import server.objects.CommentType;
-import server.objects.requests.AddCommentRequest;
+import server.datastore.exceptions.DoesNotOwnAlbumException;
 import server.datastore.exceptions.ExistingException;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.datastore.exceptions.UnauthorisedException;
 import server.objects.*;
+import server.requests.AddCommentRequest;
 
 import java.util.List;
 
@@ -62,7 +61,6 @@ public final class RequestResolver {
      * Logs in the provided auth
      * @param endPoint the api being accessed.
      * @param auth the auth info corresponding to the user to login
-     * @return the new session object to be serialised
      * @throws UnauthorisedException if invalid password presented
      * @throws InvalidResourceRequestException if invalid user presented
      */
@@ -76,12 +74,21 @@ public final class RequestResolver {
      * @param encodedPhotoContents the base 64 encoded photo contents
      * @param photoName the name of the photo
      * @param user the user who posted the photo
+     * @param albumId the id of the album this photo belongs to
      */
-    public Receipt uploadPhoto(String encodedPhotoContents, String photoName, String user) {
-        // Create photo object
-        Photo newPhoto = new Photo(encodedPhotoContents, user, photoName, CURRENT_ID++, System.nanoTime());
+    public Receipt uploadPhoto(String encodedPhotoContents, String photoName, String user, long albumId)
+            throws InvalidResourceRequestException {
+        // Ensure user is known
+        // TODO test case for this being invalid
+        getUser(user);
 
-        // Add photo to main photo collection
+        // Ensure albumId is known, and that it belongs to the user
+        // TODO test cases checking for both exceptions, as well as unauthorised
+        Album album = getAlbum(albumId);
+        if(!album.getAuthorName().equals(user)) throw new DoesNotOwnAlbumException(albumId, user);
+
+        // Create photo and persist it
+        Photo newPhoto = new Photo(encodedPhotoContents, user, photoName, CURRENT_ID++, albumId, System.nanoTime());
         dataStore.persistUploadPhoto(newPhoto);
 
         // Return receipt confirming photo was created
@@ -109,6 +116,49 @@ public final class RequestResolver {
      */
     public Photo getPhoto(long id) throws InvalidResourceRequestException {
         return dataStore.getPhoto(id);
+    }
+
+    /**
+     * Creates and persists the newly created album
+     * @param author the author of the new album
+     * @param albumName the name of the new album
+     * @param description the description of the new album
+     */
+    public Receipt addAlbum(String author, String albumName, String description)
+            throws InvalidResourceRequestException {
+        // Ensure user is known
+        // TODO test case for this being invalid
+        getUser(author);
+
+        // Create photo and persist it
+        Album newAlbum = new Album(CURRENT_ID++, albumName, author, description, System.nanoTime());
+        dataStore.persistAddAlbum(newAlbum);
+
+        // Return receipt confirming photo was created
+        return new Receipt(newAlbum.getAlbumId());
+    }
+
+    /**
+     * Retrieves the album associated with the given id.
+     * @param albumId the id of the album to retrieve
+     * @return the album with the given id
+     * @throws InvalidResourceRequestException if the id does not correspond to an album
+     */
+    public Album getAlbum(long albumId) throws InvalidResourceRequestException {
+        // TODO test this api
+        return dataStore.getAlbum(albumId);
+    }
+
+    /**
+     * Retrieves all albums a user has made.
+     * @param user the user's name
+     * @return the list of albums this user has made
+     */
+    public List<Album> getAlbums(String user) throws InvalidResourceRequestException {
+        // Ensure user exists
+        getUser(user);
+        // TODO test this api
+        return dataStore.getAlbums(user);
     }
 
     /**

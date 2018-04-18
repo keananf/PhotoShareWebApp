@@ -1,6 +1,7 @@
 package server.objects;
 
-import server.objects.requests.AddCommentRequest;
+import server.Resources;
+import server.requests.AddCommentRequest;
 
 import java.util.HashMap;
 import java.util.List;

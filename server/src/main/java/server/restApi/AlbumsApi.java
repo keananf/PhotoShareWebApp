@@ -1,13 +1,14 @@
 package server.restApi;
 
 import com.google.gson.Gson;
-import server.objects.Auth;
 import server.Resources;
-import server.requests.*;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.datastore.exceptions.UnauthorisedException;
-import server.objects.Photo;
+import server.objects.Album;
+import server.objects.Auth;
 import server.objects.Receipt;
+import server.requests.AddAlbumRequest;
+import server.requests.AuthRequest;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -17,33 +18,32 @@ import java.util.List;
 import static server.ServerMain.RESOLVER;
 
 /**
- * Class describing the behaviour of the api at PHOTOS_PATH
+ * Class describing the behaviour of the api at ALBUMS_PATH
  */
-@Path(Resources.PHOTOS_PATH)
-public class PhotosApi {
+@Path(Resources.ALBUMS_PATH)
+public class AlbumsApi {
     private final Gson gson = new Gson();
 
     /**
-     * Attempts to parse the message and upload a photo
+     * Attempts to parse the message and add an album
      *
-     * @param message the auth information and encoded photo contents
+     * @param message the auth information and new album information
      * @return a response object containing the result of the request
      */
     @POST
-    @Path(Resources.UPLOAD_PHOTO)
+    @Path(Resources.ADD_ALBUM)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response uploadPhoto(String message) {
+    public Response addAlbum(String message) {
         // Retrieve request wrapper
         try {
-            UploadPhotoRequest request = gson.fromJson(message, UploadPhotoRequest.class);
+            AddAlbumRequest request = gson.fromJson(message, AddAlbumRequest.class);
 
-            // Retrieve provided auth info
+            // Retrieve and verify provided auth info
             Auth auth = request.getAuth();
-            RESOLVER.verifyAuth(Resources.UPLOAD_PHOTO_PATH, auth);
+            RESOLVER.verifyAuth(Resources.ADD_ALBUM_PATH, auth);
 
-            // Upload encoded photo to the data store
-            Receipt receipt = RESOLVER.uploadPhoto(request.getEncodedPhotoContents(),
-                    request.getPhotoName(), auth.getUser(), request.getAlbumId());
+            // Upload new album to the data store
+            Receipt receipt = RESOLVER.addAlbum(auth.getUser(), request.getAlbumName(), request.getDescription());
             return Response.ok(gson.toJson(receipt)).build();
         }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
@@ -51,25 +51,26 @@ public class PhotosApi {
     }
 
     /**
+     * Retrieves all albums a user has made
      * @param username the provided username in the URL
      * @param jsonAuth the serialised AuthRequest passed as the request body.
-     * @return a parsed list of all photos from the requested user in the system
+     * @return a parsed list of all albums from the requested user in the system
      */
     @POST
     @Path(Resources.USERS_PATH + "/{username}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response getAllPhotos(@PathParam("username") String username, String jsonAuth) {
+    public Response getAllAlbums(@PathParam("username") String username, String jsonAuth) {
         // Retrieve provided auth info
         try {
             AuthRequest auth = gson.fromJson(jsonAuth, AuthRequest.class);
-            String path = String.format("%s/%s", Resources.GET_USER_PHOTOS_PATH, username);
+            String path = String.format("%s/%s", Resources.GET_USER_ALBUMS_PATH, username);
             RESOLVER.verifyAuth(path, auth.getAuth());
 
             // Retrieve list retrieved from data manipulation layer
-            // and convert photos into JSON array
-            List<Photo> photos = RESOLVER.getPhotos(username);
-            return Response.ok(gson.toJson(photos)).build();
+            // and convert albums into JSON array
+            List<Album> albums = RESOLVER.getAlbums(username);
+            return Response.ok(gson.toJson(albums)).build();
 
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
@@ -77,8 +78,9 @@ public class PhotosApi {
     }
 
     /**
-     * @param message the serialised GetPhotoRequest
-     * @return a parsed list of all photos from the requested user in the system
+     * Retrieves a given photo from the server
+     * @param message the serialised auth information
+     * @return the serialised response
      */
     @POST
     @Path(Resources.ID + "/{id}")
@@ -91,12 +93,12 @@ public class PhotosApi {
 
             // Retrieve provided auth info
             Auth auth = request.getAuth();
-            String path = String.format("%s/%s", Resources.GET_PHOTO_BY_ID_PATH, id);
+            String path = String.format("%s/%s", Resources.GET_ALBUM_BY_ID_PATH, id);
             RESOLVER.verifyAuth(path, auth);
 
-            // Upload encoded photo to the data store
-            Photo photo = RESOLVER.getPhoto(id);
-            return Response.ok(gson.toJson(photo)).build();
+            // Upload encoded album to the data store
+            Album album = RESOLVER.getAlbum(id);
+            return Response.ok(gson.toJson(album)).build();
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}

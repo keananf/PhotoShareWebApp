@@ -1,4 +1,4 @@
-package server.objects.requests;
+package server.requests;
 
 import server.objects.Auth;
 import server.objects.CommentType;

@@ -52,11 +52,11 @@ class TableCreator {
      * Creates the albums table
      */
     private void createAlbumsTable() {
-        // Construct create photos table query
+        // Construct create albums table query
         String query = "CREATE TABLE IF NOT EXISTS "+ALBUMS_TABLE+" ("+ALBUMS_ID+" BIGINT, " +
                 ALBUMS_NAME+" varchar(25) NOT NULL," +
                 USERNAME+" varchar(25) NOT NULL," +
-                ALBUMS_DESCRIPTION+" BLOB NOT NULL," +
+                ALBUMS_DESCRIPTION+" varchar(255) NOT NULL," +
                 ALBUMS_TIME+" TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
                 "PRIMARY KEY ("+ALBUMS_ID+"), " +
                 "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+"))";
@@ -78,6 +78,7 @@ class TableCreator {
         String query = "CREATE TABLE IF NOT EXISTS "+PHOTOS_TABLE+" ("+PHOTOS_ID+" BIGINT, " +
                 PHOTOS_NAME+" varchar(25) NOT NULL," +
                 USERNAME+" varchar(25) NOT NULL," +
+                ALBUMS_ID+" BIGINT," +
                 PHOTOS_CONTENTS+" BLOB NOT NULL," +
                 PHOTOS_TIME+" TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
                 "PRIMARY KEY ("+PHOTOS_ID+"), " +

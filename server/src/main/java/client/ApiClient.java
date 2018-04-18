@@ -3,17 +3,14 @@ package client;
 import com.google.gson.Gson;
 import server.objects.Auth;
 import server.objects.CommentType;
-import server.objects.requests.AddCommentRequest;
-import server.objects.requests.AddUserRequest;
-import server.objects.requests.AuthRequest;
-import server.objects.requests.UploadPhotoRequest;
+import server.requests.*;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
-import static server.objects.Resources.*;
+import static server.Resources.*;
 
 /**
  * Class representing a client to the restful api.
@@ -104,16 +101,34 @@ public final class ApiClient {
     }
 
     /**
+     * Adds a new album to the system
+     *
+     * @param albumName the album's name
+     * @param description the album's description
+     * @param user     the author of the album
+     * @return the response of the request.
+     */
+    public Response addAlbum(String albumName, String description, String user) {
+        // Convert the request into JSON
+        String albumJSON = gson.toJson(new AddAlbumRequest(getAuth(ADD_ALBUM_PATH, user, password).getAuth(),
+                albumName, description));
+
+        // POST jsonUser to the resource for adding users.
+        return connector.postToUrl(baseTarget, ADD_ALBUM_PATH, albumJSON);
+    }
+
+    /**
      * Encoded and uploads the given file
      *
      * @param photoName     the name of the photo
+     * @param albumId the id of the album this photo is to be uploaded to
      * @param photoContents the byte[] representing the photo's contents
      * @return the response of the request.
      */
-    public Response uploadPhoto(String photoName, byte[] photoContents) {
+    public Response uploadPhoto(String photoName, long albumId, byte[] photoContents) {
         // Construct request
         UploadPhotoRequest request = new UploadPhotoRequest(getAuth(UPLOAD_PHOTO_PATH, user, password)
-                .getAuth(), photoName, photoContents);
+                .getAuth(), photoName, photoContents, albumId);
 
         // Encode request and POST
         return connector.postToUrl(baseTarget, UPLOAD_PHOTO_PATH, gson.toJson(request));

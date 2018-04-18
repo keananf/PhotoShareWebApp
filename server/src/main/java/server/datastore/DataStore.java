@@ -1,10 +1,7 @@
 package server.datastore;
 
 import server.datastore.exceptions.InvalidResourceRequestException;
-import server.objects.Comment;
-import server.objects.Notification;
-import server.objects.Photo;
-import server.objects.User;
+import server.objects.*;
 
 import java.util.List;
 
@@ -35,6 +32,28 @@ interface DataStore {
      * @throws InvalidResourceRequestException if the photo doesn't exist
      */
     Photo getPhoto(long id) throws InvalidResourceRequestException;
+
+
+    /**
+     * Adds the given album
+     * @param album the new album to add
+     */
+    void persistAddAlbum(Album album) throws InvalidResourceRequestException;
+
+    /**
+     * Retreives the album associated with the given id.
+     * @param albumId the id of the album to retrieve
+     * @return the album with the given id
+     * @throws InvalidResourceRequestException if the id does not correspond to an album
+     */
+    Album getAlbum(long albumId) throws InvalidResourceRequestException;
+
+    /**
+     * Retrieves all albums a user has made.
+     * @param user the user's name
+     * @return the list of albums this user has made
+     */
+    List<Album> getAlbums(String user);
 
     /**
      * Retrieves the given comment
@@ -137,5 +156,4 @@ interface DataStore {
      * Empties the data store
      */
     void clear();
-
 }

@@ -1,5 +1,6 @@
 package server.datastore;
 
+import server.Resources;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.objects.*;
 
@@ -14,13 +15,13 @@ import java.util.List;
 import java.util.Scanner;
 
 import static server.datastore.DatabaseResources.*;
-import static server.objects.Resources.REMOVAL_STRING;
+import static server.Resources.REMOVAL_STRING;
 
 /**
  * DataStore implemented in terms of a H2 database
  */
 final class DatabaseBackedDataStore implements DataStore {
-    private static final String db_url = "jdbc:h2:~/Documents/CS5031/P2/Code/server/database";
+    private static final String db_url = "jdbc:h2:~/Documents/CS5031/P3/Code/server/database";
     private static final String DB_CONFIG = "src/main/resources/db_config.txt";
     private static String uname;
     private static String pw;
@@ -29,7 +30,7 @@ final class DatabaseBackedDataStore implements DataStore {
     // Read in the username and password for accessing the database
     static {
         try {
-            Scanner reader = new Scanner(new File(DB_CONFIG), Resources.CHARSET_STRING);
+            Scanner reader = new Scanner(new File(DB_CONFIG), Resources.CHARSET_AS_STRING);
             uname= reader.nextLine();
             pw = reader.nextLine();
         }
@@ -54,7 +55,7 @@ final class DatabaseBackedDataStore implements DataStore {
     public void persistUploadPhoto(Photo newPhoto) {
         // Set up query for inserting a new photo into the table
         String query = "INSERT INTO "+PHOTOS_TABLE+"("+PHOTOS_ID+","+PHOTOS_NAME+","
-                +USERNAME+","+PHOTOS_CONTENTS+") values(?, ?, ?, ?)";
+                +USERNAME+","+PHOTOS_CONTENTS+","+PHOTOS_TIME+") values(?, ?, ?, ?, ?)";
 
         // Persist photo
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -63,6 +64,7 @@ final class DatabaseBackedDataStore implements DataStore {
             stmt.setString(2, newPhoto.getPhotoName());
             stmt.setString(3, newPhoto.getPostedBy());
             stmt.setBlob(4, new ByteArrayInputStream(newPhoto.getPhotoContents().getBytes(StandardCharsets.UTF_8)));
+            stmt.setTimestamp(5, new Timestamp(newPhoto.getTimestamp()));
 
             // Persist data
             stmt.executeUpdate();
@@ -88,13 +90,14 @@ final class DatabaseBackedDataStore implements DataStore {
                 long id = rs.getLong(1);
                 String photoName = rs.getString(2);
                 String username = rs.getString(3);
-                Blob photoContents = rs.getBlob(4);
-                Timestamp timestamp = rs.getTimestamp(5);
+                long albumId = rs.getLong(4);
+                Blob photoContents = rs.getBlob(5);
+                Timestamp timestamp = rs.getTimestamp(6);
 
                 // Retrieve base 64 encoded contents
-                Scanner s = new Scanner(photoContents.getBinaryStream(), Resources.CHARSET_STRING).useDelimiter("\\A");
+                Scanner s = new Scanner(photoContents.getBinaryStream(), Resources.CHARSET_AS_STRING).useDelimiter("\\A");
                 String encodedPhotoContents = s.hasNext() ? s.next() : "";
-                photos.add(new Photo(encodedPhotoContents, username, photoName, id, timestamp.getTime()));
+                photos.add(new Photo(encodedPhotoContents, username, photoName, id, albumId, timestamp.getTime()));
             }
             stmt.close();
         }
@@ -120,13 +123,14 @@ final class DatabaseBackedDataStore implements DataStore {
                 // Create photos
                 String photoName = rs.getString(2);
                 String username = rs.getString(3);
-                Blob photoContents = rs.getBlob(4);
-                Timestamp timestamp = rs.getTimestamp(5);
+                long albumId = rs.getLong(4);
+                Blob photoContents = rs.getBlob(5);
+                Timestamp timestamp = rs.getTimestamp(6);
 
                 // Retrieve base 64 encoded contents
-                Scanner s = new Scanner(photoContents.getBinaryStream(), Resources.CHARSET_STRING).useDelimiter("\\A");
+                Scanner s = new Scanner(photoContents.getBinaryStream(), Resources.CHARSET_AS_STRING).useDelimiter("\\A");
                 String encodedPhotoContents = s.hasNext() ? s.next() : "";
-                photos.add(new Photo(encodedPhotoContents, username, photoName, id, timestamp.getTime()));
+                photos.add(new Photo(encodedPhotoContents, username, photoName, id, albumId, timestamp.getTime()));
             }
             stmt.close();
         }
@@ -137,6 +141,92 @@ final class DatabaseBackedDataStore implements DataStore {
 
         // Return found photo
         return photos.get(0);
+    }
+
+    @Override
+    public void persistAddAlbum(Album album) throws InvalidResourceRequestException {
+        // Set up query for inserting a new album into the table
+        String query = "INSERT INTO "+ALBUMS_TABLE+"("+ALBUMS_ID+","+ALBUMS_NAME+","
+                +USERNAME+","+ALBUMS_DESCRIPTION+","+ALBUMS_TIME+") values(?, ?, ?, ?, ?)";
+
+        // Persist photo
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            // Insert user info into prepared statement
+            stmt.setLong(1, album.getAlbumId());
+            stmt.setString(2, album.getAlbumName());
+            stmt.setString(3, album.getAuthorName());
+            stmt.setString(4, album.getAlbumDescription());
+            stmt.setTimestamp(5, new Timestamp(album.getAlbumTime()));
+
+            // Persist data
+            stmt.executeUpdate();
+            stmt.close();
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public Album getAlbum(long albumId) throws InvalidResourceRequestException {
+        // Set up query to retrieve the requested album in the albums table
+        String query = "SELECT * FROM "+ALBUMS_TABLE+" WHERE "+ALBUMS_ID+" = ?";
+        List<Album> albums = new ArrayList<>();
+
+        // Execute query on database
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setLong(1, albumId);
+            ResultSet rs = stmt.executeQuery();
+
+            // Iterate through result set, constructing the Album object
+            while(rs.next()) {
+                // Create albums
+                String albumName = rs.getString(2);
+                String authorName = rs.getString(3);
+                String description = rs.getString(4);
+                Timestamp timestamp = rs.getTimestamp(5);
+
+                albums.add(new Album(albumId, albumName, authorName, description, timestamp.getTime()));
+            }
+            stmt.close();
+        }
+        catch (SQLException e) { throw new InvalidResourceRequestException(albumId); }
+
+        // If no albums found, throw exception
+        if(albums.size() == 0) throw new InvalidResourceRequestException(albumId);
+
+        // Return found album
+        return albums.get(0);
+    }
+
+    @Override
+    public List<Album> getAlbums(String author) {
+        // Set up query to retrieve the requested album in the albums table
+        String query = "SELECT * FROM "+ALBUMS_TABLE+" WHERE "+USERNAME+" = ?";
+        List<Album> albums = new ArrayList<>();
+
+        // Execute query on database
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, author);
+            ResultSet rs = stmt.executeQuery();
+
+            // Iterate through result set, constructing the Album object
+            while(rs.next()) {
+                // Create albums
+                long albumId = rs.getLong(1);
+                String albumName = rs.getString(2);
+                String authorName = rs.getString(3);
+                String description = rs.getString(4);
+                Timestamp timestamp = rs.getTimestamp(5);
+
+                albums.add(new Album(albumId, albumName, authorName, description, timestamp.getTime()));
+            }
+            stmt.close();
+        }
+        catch (SQLException e) { e.printStackTrace(); }
+
+        // Return found albums
+        return albums;
     }
 
     @Override
@@ -516,7 +606,7 @@ final class DatabaseBackedDataStore implements DataStore {
     public void clear() {
         String query = "DELETE FROM ";
         String[] tables = new String[]
-                {USERS_TABLE,PHOTOS_TABLE,COMMENTS_TABLE,COMMENTS_VOTES_TABLE,NOTIFICATIONS_TABLE};
+                {USERS_TABLE,ALBUMS_TABLE,PHOTOS_TABLE,COMMENTS_TABLE,COMMENTS_VOTES_TABLE,NOTIFICATIONS_TABLE};
 
         // Disable foreign key
         try (Statement stmt = conn.createStatement()) {

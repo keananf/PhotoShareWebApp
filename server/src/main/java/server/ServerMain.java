@@ -8,7 +8,7 @@ import server.datastore.RequestResolver;
 import java.io.IOException;
 import java.net.URI;
 
-import static server.objects.Resources.BASE_URL;
+import static server.Resources.BASE_URL;
 
 /**
  * Jersey RESTful server wrapped in Grizzly HTTP server

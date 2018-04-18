@@ -1,7 +1,7 @@
 package server.datastore;
 
-import server.objects.*;
 import server.datastore.exceptions.InvalidResourceRequestException;
+import server.objects.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -13,8 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
-import static server.objects.Resources.REMOVAL_STRING;
 import static server.datastore.DatabaseResources.*;
+import static server.objects.Resources.REMOVAL_STRING;
 
 /**
  * DataStore implemented in terms of a H2 database
@@ -26,7 +26,7 @@ final class DatabaseBackedDataStore implements DataStore {
     private static String pw;
     private Connection conn;
 
-
+    // Read in the username and password for accessing the database
     static {
         try {
             Scanner reader = new Scanner(new File(DB_CONFIG), Resources.CHARSET_STRING);
@@ -38,131 +38,16 @@ final class DatabaseBackedDataStore implements DataStore {
         }
     }
 
-    public DatabaseBackedDataStore()
-    {
+    DatabaseBackedDataStore() {
         try {
+            // Create database connection, and create all database tables (if they don't already exist)
             conn = DriverManager.getConnection(db_url, uname, pw);
-            createTables();
+            new TableCreator(conn).createTables();
             System.out.println("Connected");
         }
         catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * Creates all tables for this database
-     */
-    private void createTables() {
-        createUsersTable();
-        createPhotosTable();
-        createCommentsTable();
-        createVoteTables();
-        createNotificationsTable();
-    }
-
-    /**
-     * Creates the users table
-     */
-    private void createUsersTable() {
-        // Construct create users table query
-        String query = "CREATE TABLE IF NOT EXISTS "+USERS_TABLE+" ("+USERNAME+" varchar(25) NOT NULL, " +
-                                                    PASSWORD+" int NOT NULL," +
-                                                    USERS_ADMIN+" boolean NOT NULL," +
-                                                    "PRIMARY KEY("+USERNAME+"))";
-
-        // Execute statement such that table is made
-        try (Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate(query);
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Creates the photos table
-     */
-    private void createPhotosTable() {
-        // Construct create photos table query
-        String query = "CREATE TABLE IF NOT EXISTS "+PHOTOS_TABLE+" ("+PHOTOS_ID+" BIGINT, " +
-                        PHOTOS_NAME+" varchar(25) NOT NULL," +
-                        USERNAME+" varchar(25) NOT NULL," +
-                        PHOTOS_CONTENTS+" BLOB NOT NULL," +
-                        PHOTOS_TIME+" TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
-                        "PRIMARY KEY ("+PHOTOS_ID+"), " +
-                        "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+"))";
-
-        // Execute statement such that table is made
-        try (Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate(query);
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Creates the comments table
-     */
-    private void createCommentsTable() {
-        // Construct create comments table query
-        String query = "CREATE TABLE IF NOT EXISTS "+COMMENTS_TABLE+" ("+COMMENTS_ID+" BIGINT, " +
-                        USERNAME+" varchar(25) NOT NULL," +
-                        COMMENTS_CONTENTS+" varchar(255) NOT NULL," +
-                        COMMENT_TYPE+" boolean," +
-                        COMMENTS_TIME+" TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
-                        REFERENCE_ID+" BIGINT," +
-                        "PRIMARY KEY ("+COMMENTS_ID+"), " +
-                        "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+"))";
-
-        // Execute statement such that table is made
-        try (Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate(query);
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Creates the comments table
-     */
-    private void createVoteTables() {
-        // Construct create replies table query
-        String commentVoteQuery = "CREATE TABLE IF NOT EXISTS "+COMMENTS_VOTES_TABLE+" " +
-                        "("+REFERENCE_ID+" BIGINT, " +
-                        USERNAME+" varchar(25) NOT NULL," +
-                        VOTE+" boolean," +
-                        "PRIMARY KEY ("+REFERENCE_ID+", "+USERNAME+"), " +
-                "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+"))";
-
-        // Execute statement such that table is made
-        try (Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate(commentVoteQuery);
-        }
-        catch (SQLException e) {e.printStackTrace();}
-    }
-
-    /**
-     * Creates the notifications table
-     */
-    private void createNotificationsTable() {
-        // Construct create users table query
-        String query = "CREATE TABLE IF NOT EXISTS "+NOTIFICATIONS_TABLE+" ("+COMMENTS_ID+" bigint, " +
-                        REFERENCE_ID+" bigint," +
-                        PARENTNAME+" varchar(25) NOT NULL," +
-                        USERNAME+" varchar(25) NOT NULL," +
-                        COMMENT_TYPE+" boolean," +
-                        "PRIMARY KEY("+COMMENTS_ID+", "+REFERENCE_ID+")," +
-                        "FOREIGN KEY("+COMMENTS_ID+") references "+COMMENTS_TABLE+"("+COMMENTS_ID+")," +
-                        "FOREIGN KEY("+PARENTNAME+") references "+USERS_TABLE+"("+USERNAME+"))";
-
-        // Execute statement such that table is made
-        try (Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate(query);
-        }
-        catch (SQLException e) {e.printStackTrace();}
     }
 
     @Override

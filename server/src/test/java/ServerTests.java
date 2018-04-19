@@ -49,7 +49,7 @@ public final class ServerTests extends TestUtility {
         // Check server has record of album
         Album album = resolver.getAlbum(albumId);
         assertEquals(albumName, album.getAlbumName());
-        assertEquals(description, album.getAlbumDescription());
+        assertEquals(description, album.getDescription());
     }
 
     @Test
@@ -64,7 +64,7 @@ public final class ServerTests extends TestUtility {
         // Check server has record of both albums
         for(Album album : resolver.getAlbums(username)) {
             assertEquals(albumName, album.getAlbumName());
-            assertEquals(description, album.getAlbumDescription());
+            assertEquals(description, album.getDescription());
         }
     }
 

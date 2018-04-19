@@ -155,7 +155,7 @@ final class DatabaseBackedDataStore implements DataStore {
             stmt.setLong(1, album.getAlbumId());
             stmt.setString(2, album.getAlbumName());
             stmt.setString(3, album.getAuthorName());
-            stmt.setString(4, album.getAlbumDescription());
+            stmt.setString(4, album.getDescription());
             stmt.setTimestamp(5, new Timestamp(album.getAlbumTime()));
 
             // Persist data

@@ -163,4 +163,23 @@ public class AuthorisationTests extends TestUtility {
         Response response = apiClient.getAllReplies(randomId);
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
+
+    @Test
+    public void unauthorisedFollowTest() {
+
+        // Assert unauthorised request
+        String random_username = "Edwin";
+        Response response = apiClient.followUser(random_username);
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void unauthorisedUnfollowTest() {
+
+        // Assert unauthorised request
+        String random_username = "Edwin";
+        Response response = apiClient.unfollowUser(random_username);
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
+    }
+
 }

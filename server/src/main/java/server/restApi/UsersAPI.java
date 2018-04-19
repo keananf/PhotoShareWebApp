@@ -2,17 +2,16 @@ package server.restApi;
 
 import com.google.gson.Gson;
 import server.Resources;
+import server.objects.Auth;
 import server.requests.AddUserRequest;
 import server.requests.AuthRequest;
 import server.datastore.exceptions.ExistingException;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.datastore.exceptions.UnauthorisedException;
 import server.objects.User;
+import server.requests.FollowUserRequest;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -98,5 +97,93 @@ public final class UsersAPI {
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
+    }
+
+    /**
+     *
+     * Attempts to follow a user
+     *
+     * @param json the serialised FollowUserRequest passed as the request body.
+     * @return a parsed list of all photos from the requested user in the system
+     */
+
+    @POST
+    @Path(Resources.FOLLOW)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response postFollow(String json) {
+
+        // Retrieve provided auth info
+        FollowUserRequest request = gson.fromJson(json, FollowUserRequest.class);
+
+
+        // Retrieve provided auth info
+        Auth auth = request.getAuth();
+
+        try {
+
+            // Process Request
+            RESOLVER.verifyAuth( Resources.USERS_PATH + Resources.FOLLOW, auth);
+
+            String userFrom = request.getUserFrom();
+            String userTo = request.getUserTo();
+
+            RESOLVER.followUser(userFrom, userTo);
+
+        } catch (InvalidResourceRequestException ie) {
+
+            return Response.status(Response.Status.BAD_REQUEST).build();
+
+        } catch (UnauthorisedException e) {
+
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+
+        } catch (ExistingException e){
+            return Response.status(Response.Status.CONFLICT).build();
+        }
+
+        return Response.noContent().build();
+    }
+
+    /**
+     *
+     * Attempts to unfollow user
+     *
+     * @param json the serialised FollowUserRequest passed as the request body.
+     * @return a parsed list of all photos from the requested user in the system
+     */
+
+    @POST
+    @Path(Resources.UNFOLLOW)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response postUnfollow(String json) {
+        // Retrieve provided auth info
+
+        FollowUserRequest request = gson.fromJson(json, FollowUserRequest.class);
+
+        // Retrieve provided auth info
+        Auth auth = request.getAuth();
+
+        String userFrom = request.getUserFrom();
+        String userTo = request.getUserTo();
+
+        try {
+
+            // Process Request
+            RESOLVER.verifyAuth(Resources.USERS_PATH + Resources.UNFOLLOW, auth);
+            RESOLVER.unfollowUser(userFrom, userTo);
+
+        } catch (UnauthorisedException e) {
+
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+
+        } catch (InvalidResourceRequestException e) {
+
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+
+        return Response.noContent().build();
     }
 }

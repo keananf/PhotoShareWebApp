@@ -1,7 +1,7 @@
-package common.requests;
+package server.requests;
 
-import common.Auth;
-import common.CommentType;
+import server.objects.Auth;
+import server.objects.CommentType;
 
 /**
  * Request wrapper for add comment common

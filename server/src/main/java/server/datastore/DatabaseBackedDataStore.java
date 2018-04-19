@@ -1,12 +1,8 @@
 package server.datastore;
 
-import common.Resources;
-import common.*;
+import server.Resources;
 import server.datastore.exceptions.InvalidResourceRequestException;
-import server.objects.Comment;
-import server.objects.Notification;
-import server.objects.Photo;
-import server.objects.User;
+import server.objects.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -17,24 +13,26 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.ThreadLocalRandom;
 
-import static common.Resources.REMOVAL_STRING;
+import static server.Resources.REMOVAL_STRING;
 import static server.datastore.DatabaseResources.*;
+import static server.datastore.DatabaseResources.USER_TO;
 
 /**
  * DataStore implemented in terms of a H2 database
  */
 final class DatabaseBackedDataStore implements DataStore {
-    private static final String db_url = "jdbc:h2:~/Documents/CS5031/P2/Code/server/database";
+    private static final String db_url = "jdbc:h2:~/Documents/CS5031/P3/Code/server/database";
     private static final String DB_CONFIG = "src/main/resources/db_config.txt";
     private static String uname;
     private static String pw;
     private Connection conn;
 
-
+    // Read in the username and password for accessing the database
     static {
         try {
-            Scanner reader = new Scanner(new File(DB_CONFIG), Resources.CHARSET_STRING);
+            Scanner reader = new Scanner(new File(DB_CONFIG), Resources.CHARSET_AS_STRING);
             uname= reader.nextLine();
             pw = reader.nextLine();
         }
@@ -43,11 +41,11 @@ final class DatabaseBackedDataStore implements DataStore {
         }
     }
 
-    public DatabaseBackedDataStore()
-    {
+    DatabaseBackedDataStore() {
         try {
+            // Create database connection, and create all database tables (if they don't already exist)
             conn = DriverManager.getConnection(db_url, uname, pw);
-            createTables();
+            new TableCreator(conn).createTables();
             System.out.println("Connected");
         }
         catch (SQLException e) {
@@ -55,126 +53,11 @@ final class DatabaseBackedDataStore implements DataStore {
         }
     }
 
-    /**
-     * Creates all tables for this database
-     */
-    private void createTables() {
-        createUsersTable();
-        createPhotosTable();
-        createCommentsTable();
-        createVoteTables();
-        createNotificationsTable();
-    }
-
-    /**
-     * Creates the users table
-     */
-    private void createUsersTable() {
-        // Construct create users table query
-        String query = "CREATE TABLE IF NOT EXISTS "+USERS_TABLE+" ("+USERNAME+" varchar(25) NOT NULL, " +
-                                                    PASSWORD+" int NOT NULL," +
-                                                    USERS_ADMIN+" boolean NOT NULL," +
-                                                    "PRIMARY KEY("+USERNAME+"))";
-
-        // Execute statement such that table is made
-        try (Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate(query);
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Creates the photos table
-     */
-    private void createPhotosTable() {
-        // Construct create photos table query
-        String query = "CREATE TABLE IF NOT EXISTS "+PHOTOS_TABLE+" ("+PHOTOS_ID+" BIGINT, " +
-                        PHOTOS_NAME+" varchar(25) NOT NULL," +
-                        USERNAME+" varchar(25) NOT NULL," +
-                        PHOTOS_CONTENTS+" BLOB NOT NULL," +
-                        PHOTOS_TIME+" TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
-                        "PRIMARY KEY ("+PHOTOS_ID+"), " +
-                        "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+"))";
-
-        // Execute statement such that table is made
-        try (Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate(query);
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Creates the comments table
-     */
-    private void createCommentsTable() {
-        // Construct create comments table query
-        String query = "CREATE TABLE IF NOT EXISTS "+COMMENTS_TABLE+" ("+COMMENTS_ID+" BIGINT, " +
-                        USERNAME+" varchar(25) NOT NULL," +
-                        COMMENTS_CONTENTS+" varchar(255) NOT NULL," +
-                        COMMENT_TYPE+" boolean," +
-                        COMMENTS_TIME+" TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
-                        REFERENCE_ID+" BIGINT," +
-                        "PRIMARY KEY ("+COMMENTS_ID+"), " +
-                        "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+"))";
-
-        // Execute statement such that table is made
-        try (Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate(query);
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Creates the comments table
-     */
-    private void createVoteTables() {
-        // Construct create replies table query
-        String commentVoteQuery = "CREATE TABLE IF NOT EXISTS "+COMMENTS_VOTES_TABLE+" " +
-                        "("+REFERENCE_ID+" BIGINT, " +
-                        USERNAME+" varchar(25) NOT NULL," +
-                        VOTE+" boolean," +
-                        "PRIMARY KEY ("+REFERENCE_ID+", "+USERNAME+"), " +
-                "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+"))";
-
-        // Execute statement such that table is made
-        try (Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate(commentVoteQuery);
-        }
-        catch (SQLException e) {e.printStackTrace();}
-    }
-
-    /**
-     * Creates the notifications table
-     */
-    private void createNotificationsTable() {
-        // Construct create users table query
-        String query = "CREATE TABLE IF NOT EXISTS "+NOTIFICATIONS_TABLE+" ("+COMMENTS_ID+" bigint, " +
-                        REFERENCE_ID+" bigint," +
-                        PARENTNAME+" varchar(25) NOT NULL," +
-                        USERNAME+" varchar(25) NOT NULL," +
-                        COMMENT_TYPE+" boolean," +
-                        "PRIMARY KEY("+COMMENTS_ID+", "+REFERENCE_ID+")," +
-                        "FOREIGN KEY("+COMMENTS_ID+") references "+COMMENTS_TABLE+"("+COMMENTS_ID+")," +
-                        "FOREIGN KEY("+PARENTNAME+") references "+USERS_TABLE+"("+USERNAME+"))";
-
-        // Execute statement such that table is made
-        try (Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate(query);
-        }
-        catch (SQLException e) {e.printStackTrace();}
-    }
-
     @Override
     public void persistUploadPhoto(Photo newPhoto) {
         // Set up query for inserting a new photo into the table
         String query = "INSERT INTO "+PHOTOS_TABLE+"("+PHOTOS_ID+","+PHOTOS_NAME+","
-                +USERNAME+","+PHOTOS_CONTENTS+") values(?, ?, ?, ?)";
+                +USERNAME+","+PHOTOS_CONTENTS+","+PHOTOS_TIME+") values(?, ?, ?, ?, ?)";
 
         // Persist photo
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -183,6 +66,7 @@ final class DatabaseBackedDataStore implements DataStore {
             stmt.setString(2, newPhoto.getPhotoName());
             stmt.setString(3, newPhoto.getPostedBy());
             stmt.setBlob(4, new ByteArrayInputStream(newPhoto.getPhotoContents().getBytes(StandardCharsets.UTF_8)));
+            stmt.setTimestamp(5, new Timestamp(newPhoto.getTimestamp()));
 
             // Persist data
             stmt.executeUpdate();
@@ -208,13 +92,14 @@ final class DatabaseBackedDataStore implements DataStore {
                 long id = rs.getLong(1);
                 String photoName = rs.getString(2);
                 String username = rs.getString(3);
-                Blob photoContents = rs.getBlob(4);
-                Timestamp timestamp = rs.getTimestamp(5);
+                long albumId = rs.getLong(4);
+                Blob photoContents = rs.getBlob(5);
+                Timestamp timestamp = rs.getTimestamp(6);
 
                 // Retrieve base 64 encoded contents
-                Scanner s = new Scanner(photoContents.getBinaryStream(), Resources.CHARSET_STRING).useDelimiter("\\A");
+                Scanner s = new Scanner(photoContents.getBinaryStream(), Resources.CHARSET_AS_STRING).useDelimiter("\\A");
                 String encodedPhotoContents = s.hasNext() ? s.next() : "";
-                photos.add(new Photo(encodedPhotoContents, username, photoName, id, timestamp.getTime()));
+                photos.add(new Photo(encodedPhotoContents, username, photoName, id, albumId, timestamp.getTime()));
             }
             stmt.close();
         }
@@ -240,13 +125,14 @@ final class DatabaseBackedDataStore implements DataStore {
                 // Create photos
                 String photoName = rs.getString(2);
                 String username = rs.getString(3);
-                Blob photoContents = rs.getBlob(4);
-                Timestamp timestamp = rs.getTimestamp(5);
+                long albumId = rs.getLong(4);
+                Blob photoContents = rs.getBlob(5);
+                Timestamp timestamp = rs.getTimestamp(6);
 
                 // Retrieve base 64 encoded contents
-                Scanner s = new Scanner(photoContents.getBinaryStream(), Resources.CHARSET_STRING).useDelimiter("\\A");
+                Scanner s = new Scanner(photoContents.getBinaryStream(), Resources.CHARSET_AS_STRING).useDelimiter("\\A");
                 String encodedPhotoContents = s.hasNext() ? s.next() : "";
-                photos.add(new Photo(encodedPhotoContents, username, photoName, id, timestamp.getTime()));
+                photos.add(new Photo(encodedPhotoContents, username, photoName, id, albumId, timestamp.getTime()));
             }
             stmt.close();
         }
@@ -257,6 +143,92 @@ final class DatabaseBackedDataStore implements DataStore {
 
         // Return found photo
         return photos.get(0);
+    }
+
+    @Override
+    public void persistAddAlbum(Album album) throws InvalidResourceRequestException {
+        // Set up query for inserting a new album into the table
+        String query = "INSERT INTO "+ALBUMS_TABLE+"("+ALBUMS_ID+","+ALBUMS_NAME+","
+                +USERNAME+","+ALBUMS_DESCRIPTION+","+ALBUMS_TIME+") values(?, ?, ?, ?, ?)";
+
+        // Persist photo
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            // Insert user info into prepared statement
+            stmt.setLong(1, album.getAlbumId());
+            stmt.setString(2, album.getAlbumName());
+            stmt.setString(3, album.getAuthorName());
+            stmt.setString(4, album.getAlbumDescription());
+            stmt.setTimestamp(5, new Timestamp(album.getAlbumTime()));
+
+            // Persist data
+            stmt.executeUpdate();
+            stmt.close();
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public Album getAlbum(long albumId) throws InvalidResourceRequestException {
+        // Set up query to retrieve the requested album in the albums table
+        String query = "SELECT * FROM "+ALBUMS_TABLE+" WHERE "+ALBUMS_ID+" = ?";
+        List<Album> albums = new ArrayList<>();
+
+        // Execute query on database
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setLong(1, albumId);
+            ResultSet rs = stmt.executeQuery();
+
+            // Iterate through result set, constructing the Album object
+            while(rs.next()) {
+                // Create albums
+                String albumName = rs.getString(2);
+                String authorName = rs.getString(3);
+                String description = rs.getString(4);
+                Timestamp timestamp = rs.getTimestamp(5);
+
+                albums.add(new Album(albumId, albumName, authorName, description, timestamp.getTime()));
+            }
+            stmt.close();
+        }
+        catch (SQLException e) { throw new InvalidResourceRequestException(albumId); }
+
+        // If no albums found, throw exception
+        if(albums.size() == 0) throw new InvalidResourceRequestException(albumId);
+
+        // Return found album
+        return albums.get(0);
+    }
+
+    @Override
+    public List<Album> getAlbums(String author) {
+        // Set up query to retrieve the requested album in the albums table
+        String query = "SELECT * FROM "+ALBUMS_TABLE+" WHERE "+USERNAME+" = ?";
+        List<Album> albums = new ArrayList<>();
+
+        // Execute query on database
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, author);
+            ResultSet rs = stmt.executeQuery();
+
+            // Iterate through result set, constructing the Album object
+            while(rs.next()) {
+                // Create albums
+                long albumId = rs.getLong(1);
+                String albumName = rs.getString(2);
+                String authorName = rs.getString(3);
+                String description = rs.getString(4);
+                Timestamp timestamp = rs.getTimestamp(5);
+
+                albums.add(new Album(albumId, albumName, authorName, description, timestamp.getTime()));
+            }
+            stmt.close();
+        }
+        catch (SQLException e) { e.printStackTrace(); }
+
+        // Return found albums
+        return albums;
     }
 
     @Override
@@ -636,7 +608,7 @@ final class DatabaseBackedDataStore implements DataStore {
     public void clear() {
         String query = "DELETE FROM ";
         String[] tables = new String[]
-                {USERS_TABLE,PHOTOS_TABLE,COMMENTS_TABLE,COMMENTS_VOTES_TABLE,NOTIFICATIONS_TABLE};
+                {USERS_TABLE,ALBUMS_TABLE,PHOTOS_TABLE,COMMENTS_TABLE,COMMENTS_VOTES_TABLE,NOTIFICATIONS_TABLE};
 
         // Disable foreign key
         try (Statement stmt = conn.createStatement()) {
@@ -691,5 +663,75 @@ final class DatabaseBackedDataStore implements DataStore {
 
         // Return found votes
         return votes;
+    }
+
+    @Override
+    public void persistFollowing(String userFrom, String userTo) {
+
+        String query = "INSERT INTO "+FOLLOWINGS_TABLE+"("+FOLLOW_ID+","+USER_FROM+","+USER_TO+") values(?, ?, ?)";
+
+        // Persist the user
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            // Insert user info into prepared statement
+
+            // Unique primary key
+            int randomNum = ThreadLocalRandom.current().nextInt(0, 99999 + 1);
+
+            stmt.setInt(1, randomNum);
+            stmt.setString(2, userFrom);
+            stmt.setString(3, userTo);
+
+            stmt.executeUpdate();
+            stmt.close();
+        }
+        catch (SQLException e) {e.printStackTrace();}
+    }
+
+
+    public void persistDeleteFollowing(String userFrom, String userTo) {
+
+        String query = "DELETE FROM "+FOLLOWINGS_TABLE+" WHERE "+USER_FROM+" = ? AND "+USER_TO+" = ?";
+
+        // Execute query
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            // Persist
+            stmt.setString(1, userFrom);
+            stmt.setString(2, userTo);
+            stmt.executeUpdate();
+            stmt.close();
+        }
+        catch (SQLException e) {e.printStackTrace();}
+    }
+
+    @Override
+    public List<User> getFollowers(String username) {
+
+        // Set up query to retrieve each row in the votes table
+        String query = "SELECT * FROM "+FOLLOWINGS_TABLE+" WHERE "+USER_TO+" = ?";
+        List<User> following = new ArrayList<>();
+
+        // Get followers
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            // Execute query on database
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+
+            // Iterate through result set, constructing PHOTO Objects
+            while (rs.next()) {
+                // Get info
+                String usernameOfFollower = rs.getString(2);
+                User follower = getUser(usernameOfFollower);
+
+                // Add to list of followes
+                following.add(follower);
+            }
+            stmt.close();
+        }
+        catch (SQLException e) { e.printStackTrace(); }
+        catch (InvalidResourceRequestException e) { e.printStackTrace(); }
+
+
+        return following;
     }
 }

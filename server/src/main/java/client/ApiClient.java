@@ -1,19 +1,16 @@
 package client;
 
 import com.google.gson.Gson;
-import common.Auth;
-import common.CommentType;
-import common.requests.AddCommentRequest;
-import common.requests.AddUserRequest;
-import common.requests.AuthRequest;
-import common.requests.UploadPhotoRequest;
+import server.objects.Auth;
+import server.objects.CommentType;
+import server.requests.*;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
-import static common.Resources.*;
+import static server.Resources.*;
 
 /**
  * Class representing a client to the restful api.
@@ -104,16 +101,34 @@ public final class ApiClient {
     }
 
     /**
+     * Adds a new album to the system
+     *
+     * @param albumName the album's name
+     * @param description the album's description
+     * @param user     the author of the album
+     * @return the response of the request.
+     */
+    public Response addAlbum(String albumName, String description, String user) {
+        // Convert the request into JSON
+        String albumJSON = gson.toJson(new AddAlbumRequest(getAuth(ADD_ALBUM_PATH, user, password).getAuth(),
+                albumName, description));
+
+        // POST jsonUser to the resource for adding users.
+        return connector.postToUrl(baseTarget, ADD_ALBUM_PATH, albumJSON);
+    }
+
+    /**
      * Encoded and uploads the given file
      *
      * @param photoName     the name of the photo
+     * @param albumId the id of the album this photo is to be uploaded to
      * @param photoContents the byte[] representing the photo's contents
      * @return the response of the request.
      */
-    public Response uploadPhoto(String photoName, byte[] photoContents) {
+    public Response uploadPhoto(String photoName, long albumId, byte[] photoContents) {
         // Construct request
         UploadPhotoRequest request = new UploadPhotoRequest(getAuth(UPLOAD_PHOTO_PATH, user, password)
-                .getAuth(), photoName, photoContents);
+                .getAuth(), photoName, photoContents, albumId);
 
         // Encode request and POST
         return connector.postToUrl(baseTarget, UPLOAD_PHOTO_PATH, gson.toJson(request));
@@ -168,6 +183,32 @@ public final class ApiClient {
     public Response getAllPhotos(String name) {
         // Encode request and POST
         String path = String.format("%s/%s", GET_USER_PHOTOS_PATH, name);
+        String authJson = getSerialisedAuthRequest(path, user, password);
+        return connector.postToUrl(baseTarget, path, authJson);
+    }
+
+    /**
+     * Download all albums from a given user
+     *
+     * @param name the name of the user to retrieve albums from
+     * @return the response of the request
+     */
+    public Response getAllAlbums(String name) {
+        // Encode request and POST
+        String path = String.format("%s/%s", GET_USER_ALBUMS_PATH, name);
+        String authJson = getSerialisedAuthRequest(path, user, password);
+        return connector.postToUrl(baseTarget, path, authJson);
+    }
+
+    /**
+     * Retrieve the given album
+     *
+     * @param id the album's id
+     * @return the response of the request
+     */
+    public Response getAlbum(long id) {
+        // Encode request and POST
+        String path = String.format("%s/%s", GET_ALBUM_BY_ID_PATH, id);
         String authJson = getSerialisedAuthRequest(path, user, password);
         return connector.postToUrl(baseTarget, path, authJson);
     }
@@ -255,6 +296,42 @@ public final class ApiClient {
         // Encode auth information
         String authJson = gson.toJson(request);
         return authJson;
+    }
+
+    /**
+     * Follow a specified user
+     *
+     * @param name the name of the user to follow
+     * @return the response of the request
+     */
+    public Response followUser(String name) {
+        // Encode request and POST
+        String path = USERS_PATH + FOLLOW;
+
+        FollowUserRequest request = new FollowUserRequest(getAuth(path, user, password)
+                .getAuth(), user, name);
+
+        // Encode request and POST
+        return connector.postToUrl(baseTarget, path, gson.toJson(request));
+
+    }
+
+    /**
+     * Unfollow a specified user
+     *
+     * @param name the name of the user to follow
+     * @return the response of the request
+     */
+    public Response unfollowUser(String name) {
+        // Encode request and POST
+        String path = USERS_PATH + UNFOLLOW;
+
+        FollowUserRequest request = new FollowUserRequest(getAuth(path, user, password)
+                .getAuth(), user, name);
+
+        // Encode request and POST
+        return connector.postToUrl(baseTarget, path, gson.toJson(request));
+
     }
 
     /**

@@ -1,7 +1,5 @@
 package server.objects;
 
-import common.CommentType;
-
 /**
  * Class representing a notification for a user.
  * These are generated implicitly by the server whenever a new comment

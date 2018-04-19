@@ -4,6 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 import server.ServerMain;
 import server.datastore.RequestResolver;
+import server.objects.Receipt;
 
 import javax.ws.rs.core.Response;
 
@@ -14,8 +15,13 @@ import static org.junit.Assert.assertTrue;
  * Helper methods for tests.
  */
 public abstract class TestUtility {
-    String name = "John";
+    // Default user information
+    String username = "John";
     String pw = "1";
+
+    // Default album information
+    long albumId = 0;
+    String albumName = "albumName", description = "Descriptions";
 
     // Server
     static final ServerMain server;
@@ -50,22 +56,28 @@ public abstract class TestUtility {
     }
 
     /**
-     * Creates a user with the given name and default password
+     * Creates a user with the given username and default password
      * and sets it up as the registered user for this client.
-     * @param name the name of the user
+     * Also, a default album is set up.
+     * @param name the username of the user
      */
-    protected void addUserAndLogin(String name) {
+    void loginAndSetupNewUser(String name) {
         // Add user to server
         addUser(name);
 
         // login as user
         Response response = apiClient.loginUser(name, pw);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+
+        // Add new album, and retrieve the returned id
+        response = apiClient.addAlbum(albumName, description, name);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        albumId = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
     }
 
     /**
-     * Attempts to add a user with the given name
-     * @param name the name
+     * Attempts to add a user with the given username
+     * @param name the username
      */
     void addUser(String name) {
         // Call the persistAddUser API from the client

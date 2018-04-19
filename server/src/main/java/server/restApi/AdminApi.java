@@ -1,9 +1,9 @@
 package server.restApi;
 
 import com.google.gson.Gson;
-import common.Auth;
-import common.Resources;
-import common.requests.AuthRequest;
+import server.objects.Auth;
+import server.Resources;
+import server.requests.AuthRequest;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.datastore.exceptions.UnauthorisedException;
 

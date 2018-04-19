@@ -1,14 +1,15 @@
 package server.datastore;
 
-import common.Auth;
-import common.CommentType;
-import common.requests.AddCommentRequest;
+import server.datastore.exceptions.DoesNotOwnAlbumException;
 import server.datastore.exceptions.ExistingException;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.datastore.exceptions.UnauthorisedException;
 import server.objects.*;
+import server.requests.AddCommentRequest;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Layer which resolves requests received from a client,
@@ -62,7 +63,6 @@ public final class RequestResolver {
      * Logs in the provided auth
      * @param endPoint the api being accessed.
      * @param auth the auth info corresponding to the user to login
-     * @return the new session object to be serialised
      * @throws UnauthorisedException if invalid password presented
      * @throws InvalidResourceRequestException if invalid user presented
      */
@@ -76,12 +76,19 @@ public final class RequestResolver {
      * @param encodedPhotoContents the base 64 encoded photo contents
      * @param photoName the name of the photo
      * @param user the user who posted the photo
+     * @param albumId the id of the album this photo belongs to
      */
-    public Receipt uploadPhoto(String encodedPhotoContents, String photoName, String user) {
-        // Create photo object
-        Photo newPhoto = new Photo(encodedPhotoContents, user, photoName, CURRENT_ID++, System.nanoTime());
+    public Receipt uploadPhoto(String encodedPhotoContents, String photoName, String user, long albumId)
+            throws InvalidResourceRequestException, DoesNotOwnAlbumException {
+        // Ensure user is known
+        getUser(user);
 
-        // Add photo to main photo collection
+        // Ensure albumId is known, and that it belongs to the user
+        Album album = getAlbum(albumId);
+        if(!album.getAuthorName().equals(user)) throw new DoesNotOwnAlbumException(albumId, user);
+
+        // Create photo and persist it
+        Photo newPhoto = new Photo(encodedPhotoContents, user, photoName, CURRENT_ID++, albumId, System.nanoTime());
         dataStore.persistUploadPhoto(newPhoto);
 
         // Return receipt confirming photo was created
@@ -109,6 +116,47 @@ public final class RequestResolver {
      */
     public Photo getPhoto(long id) throws InvalidResourceRequestException {
         return dataStore.getPhoto(id);
+    }
+
+    /**
+     * Creates and persists the newly created album
+     * @param author the author of the new album
+     * @param albumName the name of the new album
+     * @param description the description of the new album
+     */
+    public Receipt addAlbum(String author, String albumName, String description)
+            throws InvalidResourceRequestException {
+        // Ensure user is known
+        getUser(author);
+
+        // Create photo and persist it
+        Album newAlbum = new Album(CURRENT_ID++, albumName, author, description, System.nanoTime());
+        dataStore.persistAddAlbum(newAlbum);
+
+        // Return receipt confirming photo was created
+        return new Receipt(newAlbum.getAlbumId());
+    }
+
+    /**
+     * Retrieves the album associated with the given id.
+     * @param albumId the id of the album to retrieve
+     * @return the album with the given id
+     * @throws InvalidResourceRequestException if the id does not correspond to an album
+     */
+    public Album getAlbum(long albumId) throws InvalidResourceRequestException {
+        return dataStore.getAlbum(albumId);
+    }
+
+    /**
+     * Retrieves all albums a user has made.
+     * @param user the user's name
+     * @return the list of albums this user has made
+     */
+    public List<Album> getAlbums(String user) throws InvalidResourceRequestException {
+        // Ensure user exists
+        getUser(user);
+
+        return dataStore.getAlbums(user);
     }
 
     /**
@@ -330,6 +378,105 @@ public final class RequestResolver {
         getComment(commentId);
 
         dataStore.persistVote(commentId, user, upvote);
+    }
+
+    /**
+     * Attempts tp a user to follow the person a user has specified
+     *
+     * @param userFrom - the username of the user from whom the follow request comes
+     * @param userTo - the username of the person the user is trying to follow
+     * @throws InvalidResourceRequestException
+     * @throws ExistingException
+     */
+
+    public void followUser(String userFrom, String userTo) throws InvalidResourceRequestException, ExistingException{
+
+        // Check the user to follow exists
+
+        try {
+            getUser(userTo);
+        }catch (InvalidResourceRequestException e){
+            throw e;
+        }
+
+        // Check the user is not already following the userToFollow
+
+        List<String> followers_usernames = getUsernamesOfFollowers(userTo);
+
+        if (followers_usernames.contains(userFrom)){
+
+            throw new ExistingException("You are already following " + userTo);
+
+        }
+
+        dataStore.persistFollowing(userFrom, userTo);
+
+    }
+
+    /**
+     * Attempts to a user to follow the person a user has specified
+     *
+     * @param userFrom - the username of the user from whom the follow request comes
+     * @param userTo - the username of the person the user is trying to follow
+     * @throws InvalidResourceRequestException
+     */
+
+    public void unfollowUser(String userFrom, String userTo) throws InvalidResourceRequestException{
+
+        // Check the followed user exists
+
+        try {
+            getUser(userTo);
+        }catch (InvalidResourceRequestException e){
+            throw e;
+        }
+
+        // usernames of followers
+        List<String> followers_usernames = getUsernamesOfFollowers(userTo);
+
+
+        // Check if the user is following the subject of deletion
+        if (followers_usernames.contains(userFrom)){
+
+            // Deletion is possible
+            dataStore.persistDeleteFollowing(userFrom, userTo);
+
+        }else{
+
+            // Deletion of the following is not possible because it does not exist
+            throw new InvalidResourceRequestException(userTo);
+        }
+
+    }
+
+
+    /**
+     * Utility to get the Persons (Users) a user is followed by
+     *
+     * @param username - username of the user trying to find out who their followers are
+     * @return
+     */
+    private List<User> getFollowers(String username){
+
+        List<User> followers = dataStore.getFollowers(username);
+        return followers;
+    }
+
+    /**
+     * Utility method to get the usernames of the persons by whom a user
+     *
+     * @param username - username of the user trying to find out who their followers are
+     * @return
+     */
+
+    private List<String> getUsernamesOfFollowers(String username){
+
+        List<User> followers = dataStore.getFollowers(username);
+        List<String> followers_usernames = followers.stream()
+                .map(object -> Objects.toString(object.getName(), null))
+                .collect(Collectors.toList());
+
+        return followers_usernames;
     }
 
     public void clear() {

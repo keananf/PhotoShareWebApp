@@ -1,7 +1,7 @@
 package server.datastore.exceptions;
 
 
-import common.CommentType;
+import server.objects.CommentType;
 import server.objects.Comment;
 
 /**

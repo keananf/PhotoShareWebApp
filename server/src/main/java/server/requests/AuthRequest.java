@@ -1,7 +1,7 @@
-package common.requests;
+package server.requests;
 
 
-import common.Auth;
+import server.objects.Auth;
 
 /**
  * Simple wrapper over Auth. Used for

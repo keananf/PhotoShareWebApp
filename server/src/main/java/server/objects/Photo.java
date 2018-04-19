@@ -9,14 +9,15 @@ public final class Photo {
     private final String postedBy;
     private final String photoName;
     private final long timestamp;
-    private final long id;
+    private final long id, albumId;
 
-    public Photo(String photoContents, String postedBy, String photoName, long id, long timestamp) {
+    public Photo(String photoContents, String postedBy, String photoName, long id, long albumId, long timestamp) {
         this.photoContents = photoContents;
         this.postedBy = postedBy;
         this.photoName = photoName;
         this.timestamp = timestamp;
 
+        this.albumId = albumId;
         this.id = id;
     }
 
@@ -53,5 +54,12 @@ public final class Photo {
      */
     public long getId() {
         return id;
+    }
+
+    /**
+     * @return the id of the album that this photo belongs to.
+     */
+    public long getAlbumId() {
+        return albumId;
     }
 }

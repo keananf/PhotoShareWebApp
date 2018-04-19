@@ -1,4 +1,4 @@
-package common;
+package server;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -8,20 +8,29 @@ import java.nio.charset.StandardCharsets;
  */
 public abstract class Resources {
     public static final Charset CHARSET = StandardCharsets.UTF_8;
-    public static final String CHARSET_STRING = CHARSET.name();
+    public static final String CHARSET_AS_STRING = CHARSET.name();
 
     // Base URI the Grizzly HTTP server will listen on
     public static final String BASE_URL = "http://localhost:8080/photoshare/";
 
-    // Resources regarding users
+    // Resources regarding  users
     public static final String USERS_PATH = "/users";
     public static final String ADD_USER = "/adduser";
     public static final String LOGIN_USER = "/login";
+    public static final String FOLLOW = "/follow";
+    public static final String UNFOLLOW = "/unfollow";
     public static final String ADD_USER_PATH = USERS_PATH + ADD_USER;
     public static final String LOGIN_USER_PATH = USERS_PATH + LOGIN_USER;
 
-    // Resources regarding photos
+    // Resources regarding albums
+    public static final String ALBUMS_PATH = "/albums";
+    public static final String ADD_ALBUM = "/addalbum";
+    public static final String ADD_ALBUM_PATH = ALBUMS_PATH + ADD_ALBUM;
     public static final String ID = "/ids";
+    public static final String GET_ALBUM_BY_ID_PATH = ALBUMS_PATH + ID;
+    public static final String GET_USER_ALBUMS_PATH = ALBUMS_PATH + USERS_PATH;
+
+    // Resources regarding photos
     public static final String PHOTOS_PATH = "/photos";
     public static final String UPLOAD_PHOTO = "/upload";
     public static final String UPLOAD_PHOTO_PATH = PHOTOS_PATH + UPLOAD_PHOTO;

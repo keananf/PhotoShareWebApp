@@ -1,8 +1,7 @@
 import org.junit.Test;
 
-import common.Resources;
-import common.requests.*;
-import common.*;
+import server.Resources;
+import server.requests.*;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.objects.*;
 
@@ -12,7 +11,7 @@ import java.util.List;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static common.CommentType.*;
+import static server.objects.CommentType.*;
 
 /**
  * Tests Server behaviour in response to RESTful API calls
@@ -20,13 +19,13 @@ import static common.CommentType.*;
 public final class ServerTests extends TestUtility {
     @Test
     public void addUserTest() {
-        addUser(name);
+        addUser(username);
     }
 
     @Test
     public void getUsersTest() {
         // Add sample user and register it
-        addUserAndLogin(name);
+        loginAndSetupNewUser(username);
 
         // Get users, and ensure it was successful
         Response response = apiClient.getUsers();
@@ -34,51 +33,83 @@ public final class ServerTests extends TestUtility {
 
         // Parse JSON
         String users = response.readEntity(String.class);
-        assertEquals(gson.fromJson(users, User[].class)[0].getName(), name);
+        assertEquals(gson.fromJson(users, User[].class)[0].getName(), username);
+    }
+
+    @Test
+    public void addAlbumTest() throws InvalidResourceRequestException {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Add new album, and retrieve the returned id
+        Response response = apiClient.addAlbum(albumName, description, username);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        long albumId = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
+
+        // Check server has record of album
+        Album album = resolver.getAlbum(albumId);
+        assertEquals(albumName, album.getAlbumName());
+        assertEquals(description, album.getAlbumDescription());
+    }
+
+    @Test
+    public void getAllAlbumsTest() throws InvalidResourceRequestException {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Add a new album, with the same name and description as the default album.
+        Response response = apiClient.addAlbum(albumName, description, username);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        // Check server has record of both albums
+        for(Album album : resolver.getAlbums(username)) {
+            assertEquals(albumName, album.getAlbumName());
+            assertEquals(description, album.getAlbumDescription());
+        }
     }
 
     @Test
     public void uploadPhotoTest() throws InvalidResourceRequestException {
         // Add sample user and register it
-        addUserAndLogin(name);
+        loginAndSetupNewUser(username);
 
         // Create sample data
-        String photoName = "name";
+        String name = "username";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, contents);
+        Response response = apiClient.uploadPhoto(name, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         // Check server has record of photo by decoding its base64 representation and checking for
         // equivalence.
-        List<Photo> photos = resolver.getPhotos(name);
+        List<Photo> photos = resolver.getPhotos(this.username);
         assertArrayEquals(contents, UploadPhotoRequest.decodeContents(photos.get(0).getPhotoContents()));
-        assertEquals(photoName, photos.get(0).getPhotoName());
+        assertEquals(name, photos.get(0).getPhotoName());
     }
 
     @Test
     public void uploadSamePhotoTest() throws InvalidResourceRequestException {
         // Add sample user and register it
-        addUserAndLogin(name);
+        loginAndSetupNewUser(username);
 
         // Create sample data
-        String photoName = "name";
+        String photoName = "username";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, contents);
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
         // Upload photo again
-        response = apiClient.uploadPhoto(photoName, contents);
+        response = apiClient.uploadPhoto(photoName, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id2 = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
         // Check server has record of both photos, that their contents and names are identical,
         // but that their ids are different.
-        List<Photo> photos = resolver.getPhotos(name);
+        List<Photo> photos = resolver.getPhotos(username);
         assertEquals(2, photos.size());
         assertNotEquals(id, id2);
         for(Photo p : photos) {
@@ -90,23 +121,23 @@ public final class ServerTests extends TestUtility {
     @Test
     public void getAllPhotosFromUserTest() {
         // Add sample user and register it
-        addUserAndLogin(name);
+        loginAndSetupNewUser(username);
 
         // Create sample data
-        String photoName = "name";
+        String photoName = "username";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, contents);
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         // Get all photos from user on server
-        Response photosResponse = apiClient.getAllPhotos(name);
+        Response photosResponse = apiClient.getAllPhotos(username);
 
         // Parse JSON and check photo contents and who posted it
         String photos = photosResponse.readEntity(String.class);
         Photo photo = gson.fromJson(photos, Photo[].class)[0];
-        assertEquals(photo.getPostedBy(), name);
+        assertEquals(photo.getPostedBy(), username);
         assertEquals(photo.getPhotoName(), photoName);
         assertArrayEquals(contents, UploadPhotoRequest.decodeContents(photo.getPhotoContents()));
     }
@@ -114,10 +145,10 @@ public final class ServerTests extends TestUtility {
     @Test
     public void get0PhotosFromUserTest() {
         // Add sample user and register it
-        addUserAndLogin(name);
+        loginAndSetupNewUser(username);
 
         // Get all photos from user on server
-        Response photosResponse = apiClient.getAllPhotos(name);
+        Response photosResponse = apiClient.getAllPhotos(username);
 
         // Parse JSON
         String photos = photosResponse.readEntity(String.class);
@@ -128,14 +159,14 @@ public final class ServerTests extends TestUtility {
     @Test
     public void getPhotoTest() {
         // Add sample user and register it
-        addUserAndLogin(name);
+        loginAndSetupNewUser(username);
 
         // Create sample data
-        String photoName = "name";
+        String photoName = "username";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, contents);
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -146,7 +177,7 @@ public final class ServerTests extends TestUtility {
         // Parse JSON and check photo contents and who posted it
         String photoStr = photosResponse.readEntity(String.class);
         Photo photo = gson.fromJson(photoStr, Photo.class);
-        assertEquals(photo.getPostedBy(), name);
+        assertEquals(photo.getPostedBy(), username);
         assertEquals(photo.getPhotoName(), photoName);
         assertArrayEquals(contents, UploadPhotoRequest.decodeContents(photo.getPhotoContents()));
     }
@@ -154,14 +185,14 @@ public final class ServerTests extends TestUtility {
     @Test
     public void voteTest() throws InvalidResourceRequestException {
         // Add sample user and register it
-        addUserAndLogin(name);
+        loginAndSetupNewUser(username);
 
         // Create sample data
-        String photoName = "name", comment = "comment";
+        String photoName = "username", comment = "comment";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, contents);
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -180,14 +211,14 @@ public final class ServerTests extends TestUtility {
     @Test
     public void idempotentVoteTest() throws InvalidResourceRequestException {
         // Add sample user and register it
-        addUserAndLogin(name);
+        loginAndSetupNewUser(username);
 
         // Create sample data
-        String photoName = "name", comment = "comment";
+        String photoName = "username", comment = "comment";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, contents);
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -212,14 +243,14 @@ public final class ServerTests extends TestUtility {
     @Test
     public void undoVoteTest() throws InvalidResourceRequestException {
         // Add sample user and register it
-        addUserAndLogin(name);
+        loginAndSetupNewUser(username);
 
         // Create sample data
-        String photoName = "name", comment = "comment";
+        String photoName = "username", comment = "comment";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, contents);
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -245,15 +276,15 @@ public final class ServerTests extends TestUtility {
     @Test
     public void addCommentToPhotoTest() throws InvalidResourceRequestException {
         // Add sample user and register it
-        addUserAndLogin(name);
+        loginAndSetupNewUser(username);
 
         // Create sample data
-        String photoName = "name";
+        String photoName = "username";
         String comment = "comment";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, contents);
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -262,7 +293,7 @@ public final class ServerTests extends TestUtility {
         assertEquals(Response.Status.OK.getStatusCode(), commentsResponse.getStatus());
 
         // Check data-store has comment recorded
-        List<Comment> comments = resolver.getComments(name);
+        List<Comment> comments = resolver.getComments(username);
         Comment recordedComment = comments.get(0);
 
         assertEquals(1, comments.size());
@@ -272,15 +303,15 @@ public final class ServerTests extends TestUtility {
     @Test
     public void removeCommentTest() throws InvalidResourceRequestException {
         // Add sample user and register it
-        addUserAndLogin(name);
+        loginAndSetupNewUser(username);
 
         // Create sample data
-        String photoName = "name";
+        String photoName = "username";
         String comment = "comment";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, contents);
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -290,7 +321,7 @@ public final class ServerTests extends TestUtility {
         id = gson.fromJson(commentsResponse.readEntity(String.class), Receipt.class).getReferenceId();
 
         // Check data-store has comment recorded
-        List<Comment> comments = resolver.getComments(name);
+        List<Comment> comments = resolver.getComments(username);
         Comment recordedComment = comments.get(0);
         assertEquals(1, comments.size());
         assertEquals(comment, recordedComment.getContents());
@@ -300,22 +331,22 @@ public final class ServerTests extends TestUtility {
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), removeResponse.getStatus());
 
         // Check comment was removed
-        recordedComment = resolver.getComments(name).get(0);
+        recordedComment = resolver.getComments(username).get(0);
         assertEquals(Resources.REMOVAL_STRING, recordedComment.getContents());
     }
 
     @Test
     public void addReplyTest() throws InvalidResourceRequestException {
         // Add sample user and register it
-        addUserAndLogin(name);
+        loginAndSetupNewUser(username);
 
         // Create sample data
-        String photoName = "name";
+        String photoName = "username";
         String comment = "comment";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, contents);
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -329,7 +360,7 @@ public final class ServerTests extends TestUtility {
         assertEquals(Response.Status.OK.getStatusCode(), commentsResponse.getStatus());
 
         // Check data-store has comment recorded
-        List<Comment> comments = resolver.getComments(name);
+        List<Comment> comments = resolver.getComments(username);
         assertEquals(2, comments.size());
 
         // Ensure correct contents
@@ -348,15 +379,15 @@ public final class ServerTests extends TestUtility {
     @Test
     public void getTopLevelCommentsTest() throws InvalidResourceRequestException {
         // Add sample user and register it
-        addUserAndLogin(name);
+        loginAndSetupNewUser(username);
 
         // Create sample data
-        String photoName = "name";
+        String photoName = "username";
         String comment = "comment";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, contents);
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -370,7 +401,7 @@ public final class ServerTests extends TestUtility {
         assertEquals(Response.Status.OK.getStatusCode(), commentsResponse.getStatus());
 
         // Check data-store has comments recorded
-        List<Comment> comments = resolver.getComments(name);
+        List<Comment> comments = resolver.getComments(username);
         assertEquals(2, comments.size());
 
         // Ensure correct contents
@@ -399,15 +430,15 @@ public final class ServerTests extends TestUtility {
     @Test
     public void getTopLevelRepliesTest() throws InvalidResourceRequestException {
         // Add sample user and register it
-        addUserAndLogin(name);
+        loginAndSetupNewUser(username);
 
         // Create sample data
-        String photoName = "name";
+        String photoName = "username";
         String comment = "comment";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, contents);
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -426,7 +457,7 @@ public final class ServerTests extends TestUtility {
         assertEquals(Response.Status.OK.getStatusCode(), commentsResponse.getStatus());
 
         // Check data-store has comments recorded
-        List<Comment> comments = resolver.getComments(name);
+        List<Comment> comments = resolver.getComments(username);
         assertEquals(3, comments.size());
 
         // Ensure correct contents
@@ -448,15 +479,15 @@ public final class ServerTests extends TestUtility {
     @Test
     public void removeReplyTest() throws InvalidResourceRequestException {
         // Add sample user and register it
-        addUserAndLogin(name);
+        loginAndSetupNewUser(username);
 
         // Create sample data
-        String photoName = "name";
+        String photoName = "username";
         String comment = "comment";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, contents);
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -471,7 +502,7 @@ public final class ServerTests extends TestUtility {
         id = gson.fromJson(commentsResponse.readEntity(String.class), Receipt.class).getReferenceId();
 
         // Check data-store has comment recorded
-        List<Comment> comments = resolver.getComments(name);
+        List<Comment> comments = resolver.getComments(username);
         assertEquals(2, comments.size());
 
         // Ensure correct contents
@@ -484,22 +515,22 @@ public final class ServerTests extends TestUtility {
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), removeResponse.getStatus());
 
         // Check comment was removed
-        comments = resolver.getComments(name);
+        comments = resolver.getComments(username);
         assertEquals(Resources.REMOVAL_STRING, comments.get(1).getContents());
     }
 
     @Test
     public void getPhotoCommentNotificationTest() throws InvalidResourceRequestException {
         // Add sample user and register it
-        addUserAndLogin(name);
+        loginAndSetupNewUser(username);
 
         // Create sample data
-        String photoName = "name";
+        String photoName = "username";
         String comment = "comment";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, contents);
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -519,16 +550,16 @@ public final class ServerTests extends TestUtility {
         assertEquals(commentId, notifications[0].getCommentId());
         assertEquals(id, notifications[0].getReferenceId());
         assertEquals(PHOTO_COMMENT, notifications[0].getCommentType());
-        assertEquals(name, notifications[0].getCommentPostedBy());
+        assertEquals(username, notifications[0].getCommentPostedBy());
     }
 
     @Test
     public void get0CommentsFromUserTest() {
         // Add sample user and register it
-        addUserAndLogin(name);
+        loginAndSetupNewUser(username);
 
         // Get all comments from user on server
-        Response commentsResponse = apiClient.getAllComments(name);
+        Response commentsResponse = apiClient.getAllComments(username);
 
         // Parse JSON
         String comments = commentsResponse.readEntity(String.class);
@@ -539,7 +570,7 @@ public final class ServerTests extends TestUtility {
     @Test
     public void get0NotificationsFromUserTest() {
         // Add sample user and register it
-        addUserAndLogin(name);
+        loginAndSetupNewUser(username);
 
         // Get all notifications from user on server
         Response notificationsResponse = apiClient.getNotifications();
@@ -553,15 +584,15 @@ public final class ServerTests extends TestUtility {
     @Test
     public void getReplyNotificationTest() throws InvalidResourceRequestException {
         // Add sample user and register it
-        addUserAndLogin(name);
+        loginAndSetupNewUser(username);
 
         // Create sample data
-        String photoName = "name";
+        String photoName = "username";
         String comment = "comment";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, contents);
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -585,8 +616,8 @@ public final class ServerTests extends TestUtility {
         assertEquals(2, notifications.length);
 
         // Ensure the user posted both
-        assertEquals(name, notifications[0].getCommentPostedBy());
-        assertEquals(name, notifications[1].getCommentPostedBy());
+        assertEquals(username, notifications[0].getCommentPostedBy());
+        assertEquals(username, notifications[1].getCommentPostedBy());
 
         // Ensure the second comment is registered as a reply to the first
         assertEquals(PHOTO_COMMENT, notifications[0].getCommentType());
@@ -601,15 +632,15 @@ public final class ServerTests extends TestUtility {
     @Test
     public void removeUserCommentNotificationTest() throws InvalidResourceRequestException {
         // Add sample user and register it
-        addUserAndLogin(name);
+        loginAndSetupNewUser(username);
 
         // Create sample data
-        String photoName = "name";
+        String photoName = "username";
         String comment = "comment";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, contents);
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -629,11 +660,11 @@ public final class ServerTests extends TestUtility {
         assertEquals(commentId, notifications[0].getCommentId());
         assertEquals(id, notifications[0].getReferenceId());
         assertEquals(PHOTO_COMMENT, notifications[0].getCommentType());
-        assertEquals(name, notifications[0].getCommentPostedBy());
+        assertEquals(username, notifications[0].getCommentPostedBy());
 
         // Get all user comments, such that the notification generated by this user's comment on its OWN photo
         // is removed.
-        commentsResponse = apiClient.getAllComments(name);
+        commentsResponse = apiClient.getAllComments(username);
         assertEquals(Response.Status.OK.getStatusCode(), commentsResponse.getStatus());
 
         // Check notifications AGAIN for user, ensure there are none since comment was read
@@ -647,15 +678,15 @@ public final class ServerTests extends TestUtility {
     @Test
     public void removePhotoCommentNotificationTest() throws InvalidResourceRequestException {
         // Add sample user and register it
-        addUserAndLogin(name);
+        loginAndSetupNewUser(username);
 
         // Create sample data
-        String photoName = "name";
+        String photoName = "username";
         String comment = "comment";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, contents);
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -675,7 +706,7 @@ public final class ServerTests extends TestUtility {
         assertEquals(commentId, notifications[0].getCommentId());
         assertEquals(id, notifications[0].getReferenceId());
         assertEquals(PHOTO_COMMENT, notifications[0].getCommentType());
-        assertEquals(name, notifications[0].getCommentPostedBy());
+        assertEquals(username, notifications[0].getCommentPostedBy());
 
         // Get all photo comments
         commentsResponse = apiClient.getAllPhotoComments(id);
@@ -692,15 +723,15 @@ public final class ServerTests extends TestUtility {
     @Test
     public void removeReplyNotificationTest() throws InvalidResourceRequestException {
         // Add sample user and register it
-        addUserAndLogin(name);
+        loginAndSetupNewUser(username);
 
         // Create sample data
-        String photoName = "name";
+        String photoName = "username";
         String comment = "comment";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, contents);
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -724,8 +755,8 @@ public final class ServerTests extends TestUtility {
         assertEquals(2, notifications.length);
 
         // Ensure the user posted both
-        assertEquals(name, notifications[0].getCommentPostedBy());
-        assertEquals(name, notifications[1].getCommentPostedBy());
+        assertEquals(username, notifications[0].getCommentPostedBy());
+        assertEquals(username, notifications[1].getCommentPostedBy());
 
         // Ensure the second comment is registered as a reply to the first
         assertEquals(PHOTO_COMMENT, notifications[0].getCommentType());
@@ -752,15 +783,15 @@ public final class ServerTests extends TestUtility {
     @Test
     public void getAllUserCommentsTest() {
         // Add sample user and register it
-        addUserAndLogin(name);
+        loginAndSetupNewUser(username);
 
         // Create sample data
-        String photoName = "name";
+        String photoName = "username";
         String comment = "comment";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, contents);
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -771,7 +802,7 @@ public final class ServerTests extends TestUtility {
         assertEquals(Response.Status.OK.getStatusCode(), commentResponse.getStatus());
 
         // Ask server for all comments made by this user
-        Response commentsResponse = apiClient.getAllComments(name);
+        Response commentsResponse = apiClient.getAllComments(username);
         assertEquals(Response.Status.OK.getStatusCode(), commentsResponse.getStatus());
 
         // Parse comments array and ensure it has two elements in it
@@ -787,15 +818,15 @@ public final class ServerTests extends TestUtility {
     @Test
     public void getAllPhotoCommentsTest() {
         // Add sample user and register it
-        addUserAndLogin(name);
+        loginAndSetupNewUser(username);
 
         // Create sample data
-        String photoName = "name";
+        String photoName = "username";
         String comment = "comment";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, contents);
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -822,15 +853,15 @@ public final class ServerTests extends TestUtility {
     @Test
     public void getAllRepliesTest() {
         // Add sample user and register it
-        addUserAndLogin(name);
+        loginAndSetupNewUser(username);
 
         // Create sample data
-        String photoName = "name";
+        String photoName = "username";
         String comment = "comment";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, contents);
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -856,15 +887,15 @@ public final class ServerTests extends TestUtility {
     @Test
     public void get0PhotoCommentsTest() {
         // Add sample user and register it
-        addUserAndLogin(name);
+        loginAndSetupNewUser(username);
 
         // Create sample data
-        String photoName = "name";
+        String photoName = "username";
         String comment = "comment";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, contents);
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -880,15 +911,15 @@ public final class ServerTests extends TestUtility {
     @Test
     public void get0RepliesTest() {
         // Add sample user and register it
-        addUserAndLogin(name);
+        loginAndSetupNewUser(username);
 
         // Create sample data
-        String photoName = "name";
+        String photoName = "username";
         String comment = "comment";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, contents);
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 

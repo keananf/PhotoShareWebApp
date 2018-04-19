@@ -67,6 +67,14 @@ public class AuthorisationTests extends TestUtility {
     }
 
     @Test
+    public void unauthorisedGetAllPhotosFromAlbumTest() {
+        // Assert unauthorised
+        long randomAlbumId = -100;
+        Response response = apiClient.getAllPhotos(randomAlbumId);
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
+    }
+
+    @Test
     public void unauthorisedGetAlbumsTest() {
         // Assert unauthorised
         Response response = apiClient.getAllAlbums(username);

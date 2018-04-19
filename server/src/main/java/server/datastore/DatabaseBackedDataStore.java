@@ -23,7 +23,7 @@ import static server.datastore.DatabaseResources.USER_TO;
  * DataStore implemented in terms of a H2 database
  */
 final class DatabaseBackedDataStore implements DataStore {
-    private static final String db_url = "jdbc:h2:~/Documents/CS5031/P3/Code/server/database";
+    private static final String db_url = "jdbc:h2:./database";
     private static final String DB_CONFIG = "src/main/resources/db_config.txt";
     private static String uname;
     private static String pw;
@@ -57,7 +57,7 @@ final class DatabaseBackedDataStore implements DataStore {
     public void persistUploadPhoto(Photo newPhoto) {
         // Set up query for inserting a new photo into the table
         String query = "INSERT INTO "+PHOTOS_TABLE+"("+PHOTOS_ID+","+PHOTOS_NAME+","
-                +USERNAME+","+PHOTOS_CONTENTS+","+PHOTOS_TIME+") values(?, ?, ?, ?, ?)";
+                +USERNAME+","+ALBUMS_ID+","+PHOTOS_CONTENTS+","+PHOTOS_TIME+") values(?, ?, ?, ?, ?, ?)";
 
         // Persist photo
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -65,8 +65,9 @@ final class DatabaseBackedDataStore implements DataStore {
             stmt.setLong(1, newPhoto.getId());
             stmt.setString(2, newPhoto.getPhotoName());
             stmt.setString(3, newPhoto.getPostedBy());
-            stmt.setBlob(4, new ByteArrayInputStream(newPhoto.getPhotoContents().getBytes(StandardCharsets.UTF_8)));
-            stmt.setTimestamp(5, new Timestamp(newPhoto.getTimestamp()));
+            stmt.setLong(4, newPhoto.getAlbumId());
+            stmt.setBlob(5, new ByteArrayInputStream(newPhoto.getPhotoContents().getBytes(StandardCharsets.UTF_8)));
+            stmt.setTimestamp(6, new Timestamp(newPhoto.getTimestamp()));
 
             // Persist data
             stmt.executeUpdate();
@@ -93,6 +94,39 @@ final class DatabaseBackedDataStore implements DataStore {
                 String photoName = rs.getString(2);
                 String username = rs.getString(3);
                 long albumId = rs.getLong(4);
+                Blob photoContents = rs.getBlob(5);
+                Timestamp timestamp = rs.getTimestamp(6);
+
+                // Retrieve base 64 encoded contents
+                Scanner s = new Scanner(photoContents.getBinaryStream(), Resources.CHARSET_AS_STRING).useDelimiter("\\A");
+                String encodedPhotoContents = s.hasNext() ? s.next() : "";
+                photos.add(new Photo(encodedPhotoContents, username, photoName, id, albumId, timestamp.getTime()));
+            }
+            stmt.close();
+        }
+        catch (SQLException e) {e.printStackTrace(); }
+
+        // Return found photos
+        return photos;
+    }
+
+    @Override
+    public List<Photo> getPhotos(long albumId) {
+        // Set up query to retrieve each row in the photos table
+        String query = "SELECT * FROM "+PHOTOS_TABLE+" WHERE "+ALBUMS_ID+" = ?";
+        List<Photo> photos = new ArrayList<>();
+
+        // Execute query on database
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setLong(1, albumId);
+            ResultSet rs = stmt.executeQuery();
+
+            // Iterate through result set, constructing PHOTO Objects
+            while(rs.next()) {
+                // Create photos
+                long id = rs.getLong(1);
+                String photoName = rs.getString(2);
+                String username = rs.getString(3);
                 Blob photoContents = rs.getBlob(5);
                 Timestamp timestamp = rs.getTimestamp(6);
 

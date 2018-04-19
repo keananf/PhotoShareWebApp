@@ -4,6 +4,7 @@ package server.datastore;
  * Class featuring database information (table names, schema, etc).
  */
 abstract class DatabaseResources {
+
     // Table names
     static final String USERS_TABLE = "users";
     static final String ALBUMS_TABLE = "albums";
@@ -11,6 +12,7 @@ abstract class DatabaseResources {
     static final String COMMENTS_TABLE = "comments";
     static final String COMMENTS_VOTES_TABLE = "votes";
     static final String NOTIFICATIONS_TABLE = "notifications";
+    public static final String FOLLOWINGS_TABLE = "followings";
 
     // User table attributes
     static final String PARENTNAME = "parentname";
@@ -37,4 +39,10 @@ abstract class DatabaseResources {
     static final String COMMENTS_CONTENTS = "commentContents";
     static final String COMMENTS_TIME = "commentTime";
     static final String VOTE = "vote";
+
+    // Followings table attributes
+
+    public static final String FOLLOW_ID = "followId";
+    public static final String USER_FROM = "userFrom";
+    public static final String USER_TO = "userTo";
 }

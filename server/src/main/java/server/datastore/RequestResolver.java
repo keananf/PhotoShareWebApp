@@ -8,6 +8,8 @@ import server.objects.*;
 import server.requests.AddCommentRequest;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Layer which resolves requests received from a client,
@@ -376,6 +378,105 @@ public final class RequestResolver {
         getComment(commentId);
 
         dataStore.persistVote(commentId, user, upvote);
+    }
+
+    /**
+     * Attempts tp a user to follow the person a user has specified
+     *
+     * @param userFrom - the username of the user from whom the follow request comes
+     * @param userTo - the username of the person the user is trying to follow
+     * @throws InvalidResourceRequestException
+     * @throws ExistingException
+     */
+
+    public void followUser(String userFrom, String userTo) throws InvalidResourceRequestException, ExistingException{
+
+        // Check the user to follow exists
+
+        try {
+            getUser(userTo);
+        }catch (InvalidResourceRequestException e){
+            throw e;
+        }
+
+        // Check the user is not already following the userToFollow
+
+        List<String> followers_usernames = getUsernamesOfFollowers(userTo);
+
+        if (followers_usernames.contains(userFrom)){
+
+            throw new ExistingException("You are already following " + userTo);
+
+        }
+
+        dataStore.persistFollowing(userFrom, userTo);
+
+    }
+
+    /**
+     * Attempts to a user to follow the person a user has specified
+     *
+     * @param userFrom - the username of the user from whom the follow request comes
+     * @param userTo - the username of the person the user is trying to follow
+     * @throws InvalidResourceRequestException
+     */
+
+    public void unfollowUser(String userFrom, String userTo) throws InvalidResourceRequestException{
+
+        // Check the followed user exists
+
+        try {
+            getUser(userTo);
+        }catch (InvalidResourceRequestException e){
+            throw e;
+        }
+
+        // usernames of followers
+        List<String> followers_usernames = getUsernamesOfFollowers(userTo);
+
+
+        // Check if the user is following the subject of deletion
+        if (followers_usernames.contains(userFrom)){
+
+            // Deletion is possible
+            dataStore.persistDeleteFollowing(userFrom, userTo);
+
+        }else{
+
+            // Deletion of the following is not possible because it does not exist
+            throw new InvalidResourceRequestException(userTo);
+        }
+
+    }
+
+
+    /**
+     * Utility to get the Persons (Users) a user is followed by
+     *
+     * @param username - username of the user trying to find out who their followers are
+     * @return
+     */
+    private List<User> getFollowers(String username){
+
+        List<User> followers = dataStore.getFollowers(username);
+        return followers;
+    }
+
+    /**
+     * Utility method to get the usernames of the persons by whom a user
+     *
+     * @param username - username of the user trying to find out who their followers are
+     * @return
+     */
+
+    private List<String> getUsernamesOfFollowers(String username){
+
+        List<User> followers = dataStore.getFollowers(username);
+        List<String> followers_usernames = followers.stream()
+                .map(object -> Objects.toString(object.getName(), null))
+                .collect(Collectors.toList());
+
+        return followers_usernames;
     }
 
     public void clear() {

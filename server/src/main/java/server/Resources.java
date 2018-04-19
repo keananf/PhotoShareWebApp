@@ -13,10 +13,12 @@ public abstract class Resources {
     // Base URI the Grizzly HTTP server will listen on
     public static final String BASE_URL = "http://localhost:8080/photoshare/";
 
-    // Resources regarding users
+    // Resources regarding  users
     public static final String USERS_PATH = "/users";
     public static final String ADD_USER = "/adduser";
     public static final String LOGIN_USER = "/login";
+    public static final String FOLLOW = "/follow";
+    public static final String UNFOLLOW = "/unfollow";
     public static final String ADD_USER_PATH = USERS_PATH + ADD_USER;
     public static final String LOGIN_USER_PATH = USERS_PATH + LOGIN_USER;
 

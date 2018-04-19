@@ -257,4 +257,48 @@ public class InvalidInputTests extends TestUtility {
         Response commentsResponse = apiClient.getAllPhotoComments(randomId);
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), commentsResponse.getStatus());
     }
+
+    @Test
+    public void followNonExistingUserTest() {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        String randomName = "I-don't-Exist";
+
+        // Post a follow request
+        Response followResponse = apiClient.followUser(randomName);
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), followResponse.getStatus());
+    }
+
+
+    @Test
+    public void unfollowNonExistingUserTest() {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        String randomName = "I-don't-Exist";
+
+        // Post an unfollow request
+        Response followResponse = apiClient.followUser(randomName);
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), followResponse.getStatus());
+    }
+
+
+    @Test
+    public void doubleFollowUserTest() {
+
+        // A user should not be able to follow the same person twice
+        String randomName = "Eminem";
+
+        // Create two users and attempt for one to follow the other twice
+
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+        loginAndSetupNewUser(randomName);
+
+        // The second following should return a conflict
+        Response firstFollowResponse = apiClient.followUser(randomName);
+        Response secondFollowResponse = apiClient.followUser(randomName);
+        assertEquals(Response.Status.CONFLICT.getStatusCode(), secondFollowResponse.getStatus());
+    }
 }

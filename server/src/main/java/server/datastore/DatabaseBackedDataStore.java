@@ -13,9 +13,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.ThreadLocalRandom;
 
-import static server.datastore.DatabaseResources.*;
 import static server.Resources.REMOVAL_STRING;
+import static server.datastore.DatabaseResources.*;
+import static server.datastore.DatabaseResources.USER_TO;
 
 /**
  * DataStore implemented in terms of a H2 database
@@ -661,5 +663,75 @@ final class DatabaseBackedDataStore implements DataStore {
 
         // Return found votes
         return votes;
+    }
+
+    @Override
+    public void persistFollowing(String userFrom, String userTo) {
+
+        String query = "INSERT INTO "+FOLLOWINGS_TABLE+"("+FOLLOW_ID+","+USER_FROM+","+USER_TO+") values(?, ?, ?)";
+
+        // Persist the user
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            // Insert user info into prepared statement
+
+            // Unique primary key
+            int randomNum = ThreadLocalRandom.current().nextInt(0, 99999 + 1);
+
+            stmt.setInt(1, randomNum);
+            stmt.setString(2, userFrom);
+            stmt.setString(3, userTo);
+
+            stmt.executeUpdate();
+            stmt.close();
+        }
+        catch (SQLException e) {e.printStackTrace();}
+    }
+
+
+    public void persistDeleteFollowing(String userFrom, String userTo) {
+
+        String query = "DELETE FROM "+FOLLOWINGS_TABLE+" WHERE "+USER_FROM+" = ? AND "+USER_TO+" = ?";
+
+        // Execute query
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            // Persist
+            stmt.setString(1, userFrom);
+            stmt.setString(2, userTo);
+            stmt.executeUpdate();
+            stmt.close();
+        }
+        catch (SQLException e) {e.printStackTrace();}
+    }
+
+    @Override
+    public List<User> getFollowers(String username) {
+
+        // Set up query to retrieve each row in the votes table
+        String query = "SELECT * FROM "+FOLLOWINGS_TABLE+" WHERE "+USER_TO+" = ?";
+        List<User> following = new ArrayList<>();
+
+        // Get followers
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            // Execute query on database
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+
+            // Iterate through result set, constructing PHOTO Objects
+            while (rs.next()) {
+                // Get info
+                String usernameOfFollower = rs.getString(2);
+                User follower = getUser(usernameOfFollower);
+
+                // Add to list of followes
+                following.add(follower);
+            }
+            stmt.close();
+        }
+        catch (SQLException e) { e.printStackTrace(); }
+        catch (InvalidResourceRequestException e) { e.printStackTrace(); }
+
+
+        return following;
     }
 }

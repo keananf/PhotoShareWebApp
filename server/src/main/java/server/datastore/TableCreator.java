@@ -27,6 +27,7 @@ class TableCreator {
         createCommentsTable();
         createVoteTables();
         createNotificationsTable();
+        createFollowingsTable();
     }
 
     /**
@@ -137,6 +138,7 @@ class TableCreator {
 
     /**
      * Creates the notifications table
+     *
      */
     private void createNotificationsTable() {
         // Construct create users table query
@@ -155,4 +157,26 @@ class TableCreator {
         }
         catch (SQLException e) {e.printStackTrace();}
     }
+
+    /**
+     * Creates the followings table
+     */
+    private void createFollowingsTable() {
+        // Construct create users table query
+        String query = "CREATE TABLE IF NOT EXISTS "+FOLLOWINGS_TABLE+" ("+FOLLOW_ID+" int NOT NULL, " +
+                USER_FROM+" varchar(25) NOT NULL," +
+                USER_TO+" varchar(25) NOT NULL," +
+                "PRIMARY KEY("+FOLLOW_ID+")," +
+                "FOREIGN KEY("+USER_FROM+") references "+USERS_TABLE+"("+USERNAME+")," +
+                "FOREIGN KEY("+USER_TO+") references "+USERS_TABLE+"("+USERNAME+"))";
+
+        // Execute statement such that table is made
+        try (Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(query);
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

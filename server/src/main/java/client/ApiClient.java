@@ -299,6 +299,42 @@ public final class ApiClient {
     }
 
     /**
+     * Follow a specified user
+     *
+     * @param name the name of the user to follow
+     * @return the response of the request
+     */
+    public Response followUser(String name) {
+        // Encode request and POST
+        String path = USERS_PATH + FOLLOW;
+
+        FollowUserRequest request = new FollowUserRequest(getAuth(path, user, password)
+                .getAuth(), user, name);
+
+        // Encode request and POST
+        return connector.postToUrl(baseTarget, path, gson.toJson(request));
+
+    }
+
+    /**
+     * Unfollow a specified user
+     *
+     * @param name the name of the user to follow
+     * @return the response of the request
+     */
+    public Response unfollowUser(String name) {
+        // Encode request and POST
+        String path = USERS_PATH + UNFOLLOW;
+
+        FollowUserRequest request = new FollowUserRequest(getAuth(path, user, password)
+                .getAuth(), user, name);
+
+        // Encode request and POST
+        return connector.postToUrl(baseTarget, path, gson.toJson(request));
+
+    }
+
+    /**
      * Resets the logged-in user
      */
     public void clear() {

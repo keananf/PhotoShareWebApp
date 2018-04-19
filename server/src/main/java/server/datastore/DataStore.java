@@ -153,6 +153,33 @@ interface DataStore {
     void persistVote(long commentId, String user, boolean upvote) throws InvalidResourceRequestException;
 
     /**
+     * Attempts to follow the person a user has specified
+     *
+     * @param userFrom - the username of the user from whom the follow request comes
+     * @param userTo - the username of the person the user is trying to follow
+     *
+     */
+
+    void persistFollowing(String userFrom, String userTo);
+
+    /**
+     * Retrieve a list of the Persons (Users) a user is followed by
+     *
+     * @param username - username of the user trying to find out who their followers are
+     * @return
+     */
+    List<User> getFollowers(String username);
+
+    /**
+     * Attempts to unfollow the person a user has specified
+     *
+     * @param userFrom - the username of the user from whom the follow request comes
+     * @param userTo - the username of the person the user is trying to follow
+     *
+     */
+    void persistDeleteFollowing(String userFrom, String userTo);
+
+    /**
      * Empties the data store
      */
     void clear();

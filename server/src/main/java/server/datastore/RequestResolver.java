@@ -352,7 +352,7 @@ public final class RequestResolver {
             parentName = getComment(comment.getReferenceId()).getPostedBy();
         }
         else {
-            parentName = getPhoto(comment.getReferenceId()).getPostedBy();
+            parentName = getPhoto(comment.getReferenceId()).getAuthorName();
         }
 
         // Add notification using found parent's name

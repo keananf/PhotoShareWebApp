@@ -138,7 +138,7 @@ public final class ServerTests extends TestUtility {
         String photosStr = photosResponse.readEntity(String.class);
         Photo[] photos = gson.fromJson(photosStr, Photo[].class);
         for(Photo photo : photos) {
-            assertEquals(photo.getPostedBy(), username);
+            assertEquals(photo.getAuthorName(), username);
             assertEquals(photo.getPhotoName(), photoName);
             assertArrayEquals(contents, UploadPhotoRequest.decodeContents(photo.getPhotoContents()));
         }
@@ -179,7 +179,7 @@ public final class ServerTests extends TestUtility {
 
         // Check each photo's contents and who posted it
         for(Photo photo : photoArray) {
-            assertEquals(photo.getPostedBy(), username);
+            assertEquals(photo.getAuthorName(), username);
             assertEquals(photo.getPhotoName(), photoName);
             assertArrayEquals(contents, UploadPhotoRequest.decodeContents(photo.getPhotoContents()));
         }
@@ -220,7 +220,7 @@ public final class ServerTests extends TestUtility {
         // Parse JSON and check photo contents and who posted it
         String photoStr = photosResponse.readEntity(String.class);
         Photo photo = gson.fromJson(photoStr, Photo.class);
-        assertEquals(photo.getPostedBy(), username);
+        assertEquals(photo.getAuthorName(), username);
         assertEquals(photo.getPhotoName(), photoName);
         assertArrayEquals(contents, UploadPhotoRequest.decodeContents(photo.getPhotoContents()));
     }

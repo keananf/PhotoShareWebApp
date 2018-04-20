@@ -83,7 +83,7 @@ class TableCreator {
                 PHOTOS_CONTENTS+" BLOB NOT NULL," +
                 PHOTOS_TIME+" TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
                 "PRIMARY KEY ("+PHOTOS_ID+"), " +
-                "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+"))";
+                "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+")) ON DELETE CASCADE";
 
         // Execute statement such that table is made
         try (Statement stmt = conn.createStatement()) {

@@ -705,7 +705,7 @@ final class DatabaseBackedDataStore implements DataStore {
     }
 
     @Override
-    public List<User> getFollowers(String username) {
+    public List<User> getFollowers(String username) throws InvalidResourceRequestException{
 
         // Set up query to retrieve each row in the votes table
         String query = "SELECT * FROM "+FOLLOWINGS_TABLE+" WHERE "+USER_TO+" = ?";
@@ -729,8 +729,6 @@ final class DatabaseBackedDataStore implements DataStore {
             stmt.close();
         }
         catch (SQLException e) { e.printStackTrace(); }
-        catch (InvalidResourceRequestException e) { e.printStackTrace(); }
-
 
         return following;
     }

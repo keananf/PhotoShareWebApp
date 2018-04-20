@@ -457,7 +457,7 @@ public final class RequestResolver {
      * @param username - username of the user trying to find out who their followers are
      * @return
      */
-    private List<User> getFollowers(String username){
+    public List<User> getFollowers(String username) throws InvalidResourceRequestException{
 
         List<User> followers = dataStore.getFollowers(username);
         return followers;
@@ -470,7 +470,7 @@ public final class RequestResolver {
      * @return
      */
 
-    private List<User> getFollowing(String username){
+    public List<User> getFollowing(String username)  throws InvalidResourceRequestException{
 
         List<User> followers = dataStore.getFollowing(username);
         return followers;
@@ -506,7 +506,7 @@ public final class RequestResolver {
      * @return
      */
 
-    private List<String> getUsernamesOfFollowers(String username){
+    private List<String> getUsernamesOfFollowers(String username) throws InvalidResourceRequestException{
 
         List<User> followers = dataStore.getFollowers(username);
         List<String> followers_usernames = followers.stream()

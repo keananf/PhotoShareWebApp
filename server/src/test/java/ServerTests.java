@@ -1092,5 +1092,68 @@ public final class ServerTests extends TestUtility {
 
     }
 
+    @Test
+    public void getEmptyListOfFollowersTest() {
+        // Add sample user and register it
+
+        loginAndSetupNewUser(username);
+
+        // Get users, and ensure it was successful
+        Response response = apiClient.getFollowing();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        // Parse JSON
+        String users = response.readEntity(String.class);
+        assertEquals(gson.fromJson(users, User[].class).length, 0);
+
+    }
+
+    @Test
+    public void getOneCorrectFollowerTest() {
+        // Add sample user and register it
+
+        // Set up users who are being followeds
+        String userBeingFollowedOne = "user_followed_one";
+
+        loginAndSetupNewUser(userBeingFollowedOne);
+        loginAndSetupNewUser(username);
+
+        apiClient.followUser(userBeingFollowedOne);
+
+        // Get users, and ensure it was successful
+        Response response = apiClient.getFollowing();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        // Parse JSON
+        String users = response.readEntity(String.class);
+
+        assertEquals(gson.fromJson(users, User[].class)[0].getName(), userBeingFollowedOne);
+    }
+
+    @Test
+    public void getTwoFollowersTest() {
+        // Add sample user and register it
+
+        // Set up users who are being followeds
+        String userBeingFollowedOne = "user_followed_one";
+        loginAndSetupNewUser(userBeingFollowedOne);
+
+        String userBeingFollowedTwo = "user_followed_two";
+        loginAndSetupNewUser(userBeingFollowedTwo);
+
+        loginAndSetupNewUser(username);
+
+        apiClient.followUser(userBeingFollowedOne);
+        apiClient.followUser(userBeingFollowedTwo);
+
+        // Get users, and ensure it was successful
+        Response response = apiClient.getFollowing();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        // Parse JSON
+        String users = response.readEntity(String.class);
+
+        assertEquals(gson.fromJson(users, User[].class).length, 2);
+    }
 
 }

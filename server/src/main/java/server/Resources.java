@@ -18,6 +18,8 @@ public abstract class Resources {
     public static final String ADD_USER = "/adduser";
     public static final String LOGIN_USER = "/login";
     public static final String FOLLOW = "/follow";
+    public static final String FOLLOWERS = "/followers";
+    public static final String FOLLOWING = "/following";
     public static final String UNFOLLOW = "/unfollow";
     public static final String ADD_USER_PATH = USERS_PATH + ADD_USER;
     public static final String LOGIN_USER_PATH = USERS_PATH + LOGIN_USER;

@@ -201,4 +201,13 @@ public class AuthorisationTests extends TestUtility {
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), newsFeedResponse.getStatus());
 
     }
+
+    @Test
+    public void followersOfNonExistingTest() {
+
+        // Check Status codes
+        Response newsFeedResponse = apiClient.getNewsFeed();
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), newsFeedResponse.getStatus());
+
+    }
 }

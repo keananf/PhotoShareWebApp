@@ -343,6 +343,15 @@ public final class ApiClient {
         return connector.postToUrl(baseTarget, path, authJson);
     }
 
+    public Response getFollowing() {
+        // Encode request  and POST
+
+        String path = String.format("%s/%s", USERS_PATH , user) + FOLLOWING;
+
+        String authJson = getSerialisedAuthRequest(path, user, password);
+        return connector.postToUrl(baseTarget, path, authJson);
+    }
+
 
     /**
      * Resets the logged-in user

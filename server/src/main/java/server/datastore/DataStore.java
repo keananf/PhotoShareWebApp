@@ -168,7 +168,7 @@ interface DataStore {
      * @param username - username of the user trying to find out who their followers are
      * @return
      */
-    List<User> getFollowers(String username);
+    List<User> getFollowers(String username)  throws InvalidResourceRequestException;
 
     /**
      * Attempts to unfollow the person a user has specified
@@ -185,7 +185,7 @@ interface DataStore {
      * @param username - username of the user trying to find out who their followers are
      * @return
      */
-    List<User> getFollowing(String username);
+    List<User> getFollowing(String username)  throws InvalidResourceRequestException;
 
     /**
      * Empties the data store

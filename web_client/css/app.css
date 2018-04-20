@@ -78,7 +78,9 @@ nav .nav-search input:focus {
 nav .nav-search .clear-icon {
     font-size: 90%;
     color: #ccc;
-    margin-left: -27px;
+    position: absolute;
+    right: 17px;
+    top: 6px;
 }
 
 .post {

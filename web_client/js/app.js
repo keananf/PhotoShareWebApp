@@ -8,6 +8,9 @@ const routes = [
     },
     {
         path: '/post/:id', component: window.Components.Pages.Post
+    },
+    {
+        path: '/search/:query?', component: window.Components.Pages.Search
     }
 ]
 
@@ -23,7 +26,8 @@ const app = new Vue({
     router,
 
     data: {
-        isLoading: false
+        isLoading: false,
+        searchQuery: ""
     },
 
     methods: {
@@ -37,6 +41,10 @@ const app = new Vue({
 
         error(e){
             console.log(e)
+        },
+
+        submitSearch(){
+            router.push('/search/' + this.searchQuery)
         }
     }
 

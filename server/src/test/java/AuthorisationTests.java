@@ -99,11 +99,11 @@ public class AuthorisationTests extends TestUtility {
     public void unauthorisedVoteTest() {
         // Assert unauthorised when try to upvote
         long randomId = 100;
-        Response response = apiClient.vote(randomId, true);
+        Response response = apiClient.voteOnComment(randomId, true);
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
 
         // Assert unauthorised when try to downvote
-        response = apiClient.vote(randomId, false);
+        response = apiClient.voteOnComment(randomId, false);
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 

@@ -98,12 +98,12 @@ public class Comment {
     }
 
     /**
-     * Registers the persistVote on this comment from the given user
-     * @param user the user who made this persistVote
+     * Registers the persistCommentVote on this comment from the given user
+     * @param user the user who made this persistCommentVote
      * @param upvote whether this is an upvote or not
      */
     public void vote(String user, boolean upvote) {
-        // Using a map ensures that a user can never persistVote more than once
+        // Using a map ensures that a user can never persistCommentVote more than once
         votes.put(user, upvote);
     }
 

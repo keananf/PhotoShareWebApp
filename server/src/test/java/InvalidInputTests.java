@@ -159,11 +159,11 @@ public class InvalidInputTests extends TestUtility {
 
         // Assert unknown when try to upvote
         long randomId = 100;
-        Response response = apiClient.vote(randomId, true);
+        Response response = apiClient.voteOnComment(randomId, true);
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
 
         // Assert unknown when try to downvote
-        response = apiClient.vote(randomId, false);
+        response = apiClient.voteOnComment(randomId, false);
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 

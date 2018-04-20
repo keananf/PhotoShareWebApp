@@ -245,7 +245,7 @@ public final class ServerTests extends TestUtility {
         id = gson.fromJson(commentsResponse.readEntity(String.class), Receipt.class).getReferenceId();
 
         // Send upvote request to server, and check it was successful on the server.
-        Response voteResponse = apiClient.vote(id, true);
+        Response voteResponse = apiClient.voteOnComment(id, true);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
         assertEquals(1, resolver.getComment(id).getUpvotes().size());
         assertEquals(0, resolver.getComment(id).getDownvotes().size());
@@ -271,13 +271,13 @@ public final class ServerTests extends TestUtility {
         id = gson.fromJson(commentsResponse.readEntity(String.class), Receipt.class).getReferenceId();
 
         // Send upvote request to server, and check it was successful on the server.
-        Response voteResponse = apiClient.vote(id, true);
+        Response voteResponse = apiClient.voteOnComment(id, true);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
         assertEquals(1, resolver.getComment(id).getUpvotes().size());
         assertEquals(0, resolver.getComment(id).getDownvotes().size());
 
         // Send same upvote request again. Ensure it worked, but that nothing changed on the server
-        voteResponse = apiClient.vote(id, true);
+        voteResponse = apiClient.voteOnComment(id, true);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
         assertEquals(1, resolver.getComment(id).getUpvotes().size());
         assertEquals(0, resolver.getComment(id).getDownvotes().size());
@@ -303,14 +303,14 @@ public final class ServerTests extends TestUtility {
         id = gson.fromJson(commentsResponse.readEntity(String.class), Receipt.class).getReferenceId();
 
         // Send upvote request to server, and check it was successful on the server.
-        Response voteResponse = apiClient.vote(id, true);
+        Response voteResponse = apiClient.voteOnComment(id, true);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
         assertEquals(1, resolver.getComment(id).getUpvotes().size());
         assertEquals(0, resolver.getComment(id).getDownvotes().size());
 
         // Send downvote request to server, and check it was successful on the server.
-        // Also check it overwrote previous persistVote
-        voteResponse = apiClient.vote(id, false);
+        // Also check it overwrote previous persistCommentVote
+        voteResponse = apiClient.voteOnComment(id, false);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
         assertEquals(1, resolver.getComment(id).getDownvotes().size());
         assertEquals(0, resolver.getComment(id).getUpvotes().size());

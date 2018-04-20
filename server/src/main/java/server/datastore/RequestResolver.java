@@ -381,16 +381,29 @@ public final class RequestResolver {
     }
 
     /**
-     * Registers the given persistVote on the given commemt
-     * @param commentId the id of the comment to persistVote on
-     * @param user the user who cast this persistVote
+     * Registers the given comment voteOnComment
+     * @param commentId the id of the comment to voteOnComment on
+     * @param user the user who cast this voteOnComment
      * @param upvote whether or not this is an upvote or a downvote
      */
-    public void vote(long commentId, String user, boolean upvote) throws InvalidResourceRequestException {
+    public void voteOnComment(long commentId, String user, boolean upvote) throws InvalidResourceRequestException {
         getUser(user);
         getComment(commentId);
 
-        dataStore.persistVote(commentId, user, upvote);
+        dataStore.persistCommentVote(commentId, user, upvote);
+    }
+
+    /**
+     * Registers the given photo rating
+     * @param photoId the id of the comment to voteOnComment on
+     * @param user the user who cast this voteOnComment
+     * @param upvote whether or not this is an upvote or a downvote
+     */
+    public void ratePhoto(long photoId, String user, boolean upvote) throws InvalidResourceRequestException {
+        getUser(user);
+        getComment(photoId);
+
+        dataStore.persistPhotoRating(photoId, user, upvote);
     }
 
     /**

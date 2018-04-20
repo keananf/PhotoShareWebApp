@@ -148,15 +148,29 @@ public final class ApiClient {
     }
 
     /**
-     * Sends a persistVote request to the server.
+     * Sends a comment vote request to the server.
      *
      * @param id the id of the comment
      * @return the response of the request.
      * @parm upvote whether or not this is an upvote
      */
-    public Response vote(long id, boolean upvote) {
+    public Response voteOnComment(long id, boolean upvote) {
         // Encode request and POST
-        String path = String.format("%s/%s", (upvote ? UPVOTE_PATH : DOWNVOTE_PATH), id);
+        String path = String.format("%s/%s", (upvote ? COMMENT_UPVOTE_PATH : COMMENT_DOWNVOTE_PATH), id);
+        String authJson = getSerialisedAuthRequest(path, user, password);
+        return connector.postToUrl(baseTarget, path, authJson);
+    }
+
+    /**
+     * Sends a photo rating request to the server.
+     *
+     * @param id the id of the photo
+     * @return the response of the request.
+     * @parm upvote whether or not this is an upvote
+     */
+    public Response ratePhoto(long id, boolean upvote) {
+        // Encode request and POST
+        String path = String.format("%s/%s", (upvote ? PHOTO_UPVOTE_PATH : PHOTO_DOWNVOTE_PATH), id);
         String authJson = getSerialisedAuthRequest(path, user, password);
         return connector.postToUrl(baseTarget, path, authJson);
     }

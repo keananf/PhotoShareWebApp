@@ -606,10 +606,10 @@ final class DatabaseBackedDataStore implements DataStore {
     }
 
     @Override
-    public void persistVote(long commentId, String user, boolean upvote) throws InvalidResourceRequestException {
+    public void persistCommentVote(long commentId, String user, boolean upvote) throws InvalidResourceRequestException {
         // Set up query for updating / inserting a new photo into the table
-        String query = "INSERT INTO "+COMMENTS_VOTES_TABLE+"("+REFERENCE_ID+","+USERNAME+","+VOTE+") values(?, ?, ?)";
-        String update = "UPDATE "+COMMENTS_VOTES_TABLE+" SET "+VOTE+" = ? " +
+        String query = "INSERT INTO "+COMMENTS_VOTES_TABLE+"("+REFERENCE_ID+","+USERNAME+","+ COMMENT_VOTE +") values(?, ?, ?)";
+        String update = "UPDATE "+COMMENTS_VOTES_TABLE+" SET "+ COMMENT_VOTE +" = ? " +
                 "WHERE "+USERNAME+" = ? AND "+REFERENCE_ID+" = ?";
 
         // Try to update row first
@@ -639,6 +639,40 @@ final class DatabaseBackedDataStore implements DataStore {
         catch (SQLException e) { throw new InvalidResourceRequestException(commentId); }
     }
 
+
+    @Override
+    public void persistPhotoRating(long photoId, String user, boolean upvote) throws InvalidResourceRequestException {
+        // Set up query for updating / inserting a new photo into the table
+        String query = "INSERT INTO "+PHOTO_RATINGS_TABLE+"("+REFERENCE_ID+","+USERNAME+","+ COMMENT_VOTE +") values(?, ?, ?)";
+        String update = "UPDATE "+PHOTO_RATINGS_TABLE+" SET "+ COMMENT_VOTE +" = ? " +
+                "WHERE "+USERNAME+" = ? AND "+REFERENCE_ID+" = ?";
+
+        // Try to update row first
+        try (PreparedStatement stmt = conn.prepareStatement(update)) {
+            stmt.setBoolean(1, upvote);
+            stmt.setString(2, user);
+            stmt.setLong(3, photoId);
+
+            // Execute, and check if any updates were made
+            int ret = stmt.executeUpdate();
+            stmt.close();
+            if(ret == 1) return;
+        }
+        catch(SQLException e) {e.printStackTrace();}
+
+        // If update didn't succeed, add new row
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            // Insert user info into prepared statement
+            stmt.setLong(1, photoId);
+            stmt.setString(2, user);
+            stmt.setBoolean(3, upvote);
+
+            // Persist data
+            stmt.executeUpdate();
+            stmt.close();
+        }
+        catch (SQLException e) { throw new InvalidResourceRequestException(photoId); }
+    }
 
     /**
      * Queries the database for all votes for the given comment

@@ -153,12 +153,21 @@ interface DataStore {
     void persistRemoveComment(long commentId) throws InvalidResourceRequestException;
 
     /**
-     * Registers the given persistVote on the given commemt
-     * @param commentId the id of the comment to persistVote on
-     * @param user the user who cast this persistVote
+     * Registers the given persistCommentVote on the given commemt
+     * @param commentId the id of the comment to persistCommentVote on
+     * @param user the user who cast this persistCommentVote
      * @param upvote whether or not this is an upvote or a downvote
      */
-    void persistVote(long commentId, String user, boolean upvote) throws InvalidResourceRequestException;
+    void persistCommentVote(long commentId, String user, boolean upvote) throws InvalidResourceRequestException;
+
+    /**
+     * Registers the given persistCommentVote on the given commemt
+     * @param commentId the id of the comment to persistCommentVote on
+     * @param user the user who cast this persistCommentVote
+     * @param upvote whether or not this is an upvote or a downvote
+     */
+    void persistPhotoRating(long commentId, String user, boolean upvote) throws InvalidResourceRequestException;
+
 
     /**
      * Attempts to follow the person a user has specified

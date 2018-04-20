@@ -292,6 +292,7 @@ public class InvalidInputTests extends TestUtility {
 
         // Create two users and attempt for one to follow the other twice
 
+
         // Add sample user and register it
         loginAndSetupNewUser(username);
         loginAndSetupNewUser(randomName);
@@ -301,4 +302,5 @@ public class InvalidInputTests extends TestUtility {
         Response secondFollowResponse = apiClient.followUser(randomName);
         assertEquals(Response.Status.CONFLICT.getStatusCode(), secondFollowResponse.getStatus());
     }
+
 }

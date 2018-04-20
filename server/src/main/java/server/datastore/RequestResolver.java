@@ -7,6 +7,7 @@ import server.datastore.exceptions.UnauthorisedException;
 import server.objects.*;
 import server.requests.AddCommentRequest;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -381,7 +382,7 @@ public final class RequestResolver {
     }
 
     /**
-     * Attempts tp a user to follow the person a user has specified
+     * Attempts to a user to follow the person a user has specified
      *
      * @param userFrom - the username of the user from whom the follow request comes
      * @param userTo - the username of the person the user is trying to follow
@@ -460,6 +461,42 @@ public final class RequestResolver {
 
         List<User> followers = dataStore.getFollowers(username);
         return followers;
+    }
+
+    /**
+     * Utility to get the Persons (Users) a user followss
+     *
+     * @param username - username of the user trying to find out who their followers are
+     * @return
+     */
+
+    private List<User> getFollowing(String username){
+
+        List<User> followers = dataStore.getFollowing(username);
+        return followers;
+    }
+
+
+    /**
+     *  all the photos posted by the people a user is following
+     *
+     * @param username
+     * @return
+     * @throws InvalidResourceRequestException
+     */
+
+    public List<Photo> getNewsFeed(String username) throws InvalidResourceRequestException {
+
+        List<User> following = getFollowing(username);
+        List<Photo> newsFeed = new ArrayList<Photo>();
+
+        for (User follower: following){
+
+            List<Photo> photos = getPhotos(follower.getName());
+            newsFeed.addAll(photos);
+        }
+
+        return newsFeed;
     }
 
     /**

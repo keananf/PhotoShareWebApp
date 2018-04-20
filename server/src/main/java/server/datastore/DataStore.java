@@ -180,7 +180,16 @@ interface DataStore {
     void persistDeleteFollowing(String userFrom, String userTo);
 
     /**
+     * Retrieve a list of the Persons (Users) a user followss
+     *
+     * @param username - username of the user trying to find out who their followers are
+     * @return
+     */
+    List<User> getFollowing(String username);
+
+    /**
      * Empties the data store
+     *
      */
     void clear();
 }

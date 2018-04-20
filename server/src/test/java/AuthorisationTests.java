@@ -4,6 +4,8 @@ import server.datastore.exceptions.InvalidResourceRequestException;
 
 import javax.ws.rs.core.Response;
 
+import java.util.List;
+
 import static server.objects.CommentType.*;
 import static org.junit.Assert.assertEquals;
 
@@ -168,6 +170,7 @@ public class AuthorisationTests extends TestUtility {
     public void unauthorisedFollowTest() {
 
         // Assert unauthorised request
+
         String random_username = "Edwin";
         Response response = apiClient.followUser(random_username);
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
@@ -182,4 +185,20 @@ public class AuthorisationTests extends TestUtility {
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 
+    @Test
+    public void unauthorisedNewsFeedTest() {
+
+        // Assert unauthorised request
+        Response response = apiClient.getNewsFeed();
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void newsFeedOfNonExistingTest() throws InvalidResourceRequestException {
+
+        // Check Status codes
+        Response newsFeedResponse = apiClient.getNewsFeed();
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), newsFeedResponse.getStatus());
+
+    }
 }

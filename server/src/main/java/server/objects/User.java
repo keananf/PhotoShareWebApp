@@ -4,22 +4,22 @@ package server.objects;
  * Class representing a single user
  */
 public class User {
-    private final String name;
+    private final String username;
     private boolean admin;
 
-    // trqnsient modifier ensures this won't be exposed during serialisation
+    // 'Transient' modifier ensures this won't be exposed during serialisation
     private transient final int password;
 
-    public User(String name, int password) {
-        this.name = name;
+    public User(String username, int password) {
+        this.username = username;
         this.password = password;
     }
 
     /**
-     * @return the user's name
+     * @return the user's username
      */
-    public String getName() {
-        return name;
+    public String getUsername() {
+        return username;
     }
 
     /**

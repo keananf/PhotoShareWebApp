@@ -152,7 +152,7 @@ public class AuthorisationTests extends TestUtility {
         User user = new User(username, 0);
 
         // Assert unauthorised
-        Response response = apiClient.getAllComments(user.getName());
+        Response response = apiClient.getAllComments(user.getUsername());
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 

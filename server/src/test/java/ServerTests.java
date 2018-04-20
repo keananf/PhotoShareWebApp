@@ -33,7 +33,7 @@ public final class ServerTests extends TestUtility {
 
         // Parse JSON
         String users = response.readEntity(String.class);
-        assertEquals(gson.fromJson(users, User[].class)[0].getName(), username);
+        assertEquals(gson.fromJson(users, User[].class)[0].getUsername(), username);
     }
 
     @Test

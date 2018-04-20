@@ -344,7 +344,7 @@ PhotoShare RESTful API specification
     * **Method:** `POST`
   
     * **URL Parameters:** 
-        * username: `a user's unique name (as a string)`
+        * username: `a user's unique username (as a string)`
     
     * **Body Parameters**
     
@@ -535,7 +535,7 @@ PhotoShare RESTful API specification
                 },
                "commentContents": "comment",
                "referenceId": 100,
-               "commentType": 0
+               "commentType": "REPLY"
             }
           },
           type : "POST",
@@ -577,12 +577,12 @@ PhotoShare RESTful API specification
                 "author": string,             
                 "commentContents": string,
                 "commentTime": long,
-                "commentType": int
+                "commentType": string
             },
             ...
         ]
         ```
-        Note, "commentType" here refers to photo_comment, denoted by 0.
+        Note, "commentType" here refers to "PHOTO_COMMENT".
      
     * **Error Response:**
     
@@ -650,13 +650,13 @@ PhotoShare RESTful API specification
                 "author": string,             
                 "commentContents": string,
                 "commentTime": long,
-                "commentType": int
+                "commentType": string
             },
             ...
         ]
         ``` 
        
-        Note, "commentType" here refers to reply, denoted by 1.
+        Note, "commentType" here refers to "REPLY".
      
     * **Error Response:**
     
@@ -840,12 +840,12 @@ PhotoShare RESTful API specification
               "referenceId": long,
               "commentAuthor": string,             
               "notifiedUser": string,
-              "commentType": int
+              "commentType": string
           },
           ...
       ]
       ```
-      Note, "commentType" here refers to photo_comment or reply, denoted by 0 or 1, respectively.
+      Note, "commentType" here refers to "PHOTO_COMMENT" or "REPLY".
            
     * **Error Response:**
     
@@ -874,7 +874,362 @@ PhotoShare RESTful API specification
                 }
             }
           },
-          commentType : "POST",
+          type : "POST",
+          success : function(r) 
+          {
+            console.log(r);
+          }
+        });
+        
+        
+## User-Related APIs
+        
+* `/users/`
+
+    * **Method:** `POST`
+  
+    * **URL Parameters:** `None`
+    
+    * **Body Parameters**
+    
+      ```
+      {
+          "auth" : 
+          {
+            "apiKey" : string,
+            "time": long,
+            "user": string,
+            "password": int
+          }
+      }
+      
+    * **Success Response:**
+    
+      * **Code:** 200 OK <br />
+      **Content:**
+      ``` 
+      [
+          {
+              "username": string, 
+              "admin": boolean
+          },
+          ...
+      ]
+      ```
+    * **Error Response:**
+    
+      * **Code:** 400 Bad Request <br />
+    
+      or
+    
+      * **Code:** 401 Unauthorized <br />
+    
+    * **Sample Call:**
+    
+      ```javascript
+        $.ajax(
+        {
+          url: "/users",
+          dataType: "json",
+          data :
+          {
+              {
+                "auth" : 
+                {
+                  "apiKey" : abc123,
+                  "time": 1524219966,
+                  "user": "username1",
+                  "password": 1
+                }
+            }
+          },
+          type : "POST",
+          success : function(r) 
+          {
+            console.log(r);
+          }
+        });
+        
+
+* `/users/adduser`
+
+    * **Method:** `POST`
+  
+    * **URL Parameters:** `None`
+    
+    * **Body Parameters**
+    
+      ```
+      {
+          "username": string,
+          "password": int
+      }
+      
+    * **Success Response:**
+    
+      * **Code:** 204 No Content <br />
+     
+    * **Error Response:**
+    
+      * **Code:** 409 Conflict <br />
+    
+    * **Sample Call:**
+    
+      ```javascript
+        $.ajax(
+        {
+          url: "/users/adduser",
+          dataType: "json",
+          data :
+          {
+            {
+               "username": "username1",
+               "password": 100
+            }
+          },
+          type : "POST",
+          success : function(r) 
+          {
+            console.log(r);
+          }
+        });
+
+
+* `/users/login`
+
+    * **Method:** `POST`
+  
+    * **URL Parameters:** `None`
+    
+    * **Body Parameters**
+    
+      ```
+      {
+          "auth" : 
+          {
+            "apiKey" : string,
+            "time": long,
+            "user": string,
+            "password": int
+          }
+      }
+      
+    * **Success Response:**
+    
+      * **Code:** 204 No Content <br />
+      
+    * **Error Response:**
+    
+      * **Code:** 400 Bad Request <br />
+    
+      or
+    
+      * **Code:** 401 Unauthorized <br />
+    
+    * **Sample Call:**
+    
+      ```javascript
+        $.ajax(
+        {
+          url: "/users/login",
+          dataType: "json",
+          data :
+          {
+              {
+                "auth" : 
+                {
+                  "apiKey" : abc123,
+                  "time": 1524219966,
+                  "user": "username1",
+                  "password": 1
+                }
+            }
+          },
+          type : "POST",
+          success : function(r) 
+          {
+            console.log(r);
+          }
+        });
+
+* `/users/follow`
+
+    * **Method:** `POST`
+  
+    * **URL Parameters:** `None`
+    
+    * **Body Parameters**
+    
+      ```
+      {
+          "auth" : 
+          {
+            "apiKey" : string,
+            "time": long,
+            "user": string,
+            "password": int
+          },
+          "userFrom": string,
+          "userTo": string
+      }
+      
+    * **Success Response:**
+    
+      * **Code:** 200 No Content <br />
+      
+    * **Error Response:**
+    
+      * **Code:** 400 Bad Request <br />
+    
+      or
+    
+      * **Code:** 401 Unauthorized <br />
+    
+    * **Sample Call:**
+    
+      ```javascript
+        $.ajax(
+        {
+          url: "/users/follow",
+          dataType: "json",
+          data :
+          {
+              {
+                "auth" : 
+                {
+                  "apiKey" : abc123,
+                  "time": 1524219966,
+                  "user": "username1",
+                  "password": 1
+                },
+               "userFrom": "username1",
+               "userTo": "username2"
+            }
+          },
+          type : "POST",
+          success : function(r) 
+          {
+            console.log(r);
+          }
+        });
+
+
+* `/users/unfollow`
+
+    * **Method:** `POST`
+  
+    * **URL Parameters:** `None`
+    
+    * **Body Parameters**
+    
+      ```
+      {
+          "auth" : 
+          {
+            "apiKey" : string,
+            "time": long,
+            "user": string,
+            "password": int
+          },
+          "userFrom": string,
+          "userTo": string
+      }
+      
+    * **Success Response:**
+    
+      * **Code:** 200 No Content <br />
+      
+    * **Error Response:**
+    
+      * **Code:** 400 Bad Request <br />
+    
+      or
+    
+      * **Code:** 401 Unauthorized <br />
+    
+    * **Sample Call:**
+    
+      ```javascript
+        $.ajax(
+        {
+          url: "/users/unfollow",
+          dataType: "json",
+          data :
+          {
+              {
+                "auth" : 
+                {
+                  "apiKey" : abc123,
+                  "time": 1524219966,
+                  "user": "username1",
+                  "password": 1
+                },
+               "userFrom": "username1",
+               "userTo": "username2"
+            }
+          },
+          type : "POST",
+          success : function(r) 
+          {
+            console.log(r);
+          }
+        });
+
+## Admin APIs
+        
+* `/admin/removecomment/{id}`
+
+    * **Method:** `POST`
+  
+    * **URL Parameters:** 
+        
+        id: `a comment's unique id (as a long)`
+    
+    * **Body Parameters**
+    
+      ```
+      {
+          "auth" : 
+          {
+            "apiKey" : string,
+            "time": long,
+            "user": string,
+            "password": int
+          }
+      }
+      
+    * **Success Response:**
+    
+      * **Code:** 204 No Content <br />
+        
+    * **Error Response:**
+    
+      * **Code:** 400 Bad Request <br />
+    
+      or
+    
+      * **Code:** 401 Unauthorized <br />
+    
+    * **Sample Call:**
+    
+      ```javascript
+        $.ajax(
+        {
+          url: "/admin/removecomment",
+          dataType: "json",
+          data :
+          {
+              {
+                "auth" : 
+                {
+                  "apiKey" : abc123,
+                  "time": 1524219966,
+                  "user": "username1",
+                  "password": 1
+                }
+            }
+          },
+          type : "POST",
           success : function(r) 
           {
             console.log(r);

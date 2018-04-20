@@ -378,7 +378,7 @@ final class DatabaseBackedDataStore implements DataStore {
         // Persist the user
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             // Insert user info into prepared statement
-            stmt.setString(1, user.getName());
+            stmt.setString(1, user.getUsername());
             stmt.setInt(2, user.getPassword());
             stmt.setBoolean(3, user.isAdmin());
 

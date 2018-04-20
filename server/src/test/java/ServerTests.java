@@ -225,8 +225,84 @@ public final class ServerTests extends TestUtility {
         assertArrayEquals(contents, UploadPhotoRequest.decodeContents(photo.getPhotoContents()));
     }
 
+
     @Test
-    public void voteTest() throws InvalidResourceRequestException {
+    public void ratePhotoTest() throws InvalidResourceRequestException {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Create sample data
+        String photoName = "username";
+        byte[] contents = new byte[] {1, 2, 3, 4, 5};
+
+        // Upload 'photo' (byte[])
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
+
+        // Send upvote request to server, and check it was successful on the server.
+        Response voteResponse = apiClient.ratePhoto(id, true);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
+        assertEquals(1, resolver.getPhoto(id).getUpvotes().size());
+        assertEquals(0, resolver.getPhoto(id).getDownvotes().size());
+    }
+
+    @Test
+    public void idempotentPhotoRateTest() throws InvalidResourceRequestException {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Create sample data
+        String photoName = "username";
+        byte[] contents = new byte[] {1, 2, 3, 4, 5};
+
+        // Upload 'photo' (byte[])
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
+
+        // Send upvote request to server, and check it was successful on the server.
+        Response voteResponse = apiClient.ratePhoto(id, true);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
+        assertEquals(1, resolver.getPhoto(id).getUpvotes().size());
+        assertEquals(0, resolver.getPhoto(id).getDownvotes().size());
+
+        // Send same upvote request again. Ensure it worked, but that nothing changed on the server
+        voteResponse = apiClient.ratePhoto(id, true);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
+        assertEquals(1, resolver.getPhoto(id).getUpvotes().size());
+        assertEquals(0, resolver.getPhoto(id).getDownvotes().size());
+    }
+
+    @Test
+    public void undoPhotoRatingTest() throws InvalidResourceRequestException {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Create sample data
+        String photoName = "username";
+        byte[] contents = new byte[] {1, 2, 3, 4, 5};
+
+        // Upload 'photo' (byte[])
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
+
+        // Send upvote request to server, and check it was successful on the server.
+        Response voteResponse = apiClient.ratePhoto(id, true);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
+        assertEquals(1, resolver.getPhoto(id).getUpvotes().size());
+        assertEquals(0, resolver.getPhoto(id).getDownvotes().size());
+
+        // Send same upvote request again. Ensure it worked, but that nothing changed on the server
+        voteResponse = apiClient.ratePhoto(id, false);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
+        assertEquals(0, resolver.getPhoto(id).getUpvotes().size());
+        assertEquals(1, resolver.getPhoto(id).getDownvotes().size());
+    }
+
+    @Test
+    public void commentVoteTest() throws InvalidResourceRequestException {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
@@ -252,7 +328,7 @@ public final class ServerTests extends TestUtility {
     }
 
     @Test
-    public void idempotentVoteTest() throws InvalidResourceRequestException {
+    public void idempotentCommentVoteTest() throws InvalidResourceRequestException {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
@@ -284,7 +360,7 @@ public final class ServerTests extends TestUtility {
     }
 
     @Test
-    public void undoVoteTest() throws InvalidResourceRequestException {
+    public void undoCommentVoteTest() throws InvalidResourceRequestException {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 

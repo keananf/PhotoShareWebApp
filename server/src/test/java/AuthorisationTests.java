@@ -108,6 +108,18 @@ public class AuthorisationTests extends TestUtility {
     }
 
     @Test
+    public void unauthorisedPhotoVoteTest() {
+        // Assert unauthorised when try to upvote
+        long randomId = 100;
+        Response response = apiClient.ratePhoto(randomId, true);
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
+
+        // Assert unauthorised when try to downvote
+        response = apiClient.ratePhoto(randomId, false);
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
+    }
+
+    @Test
     public void unauthorisedAddCommentToPhotoTest() {
         // Assert unauthorised
         Response response = apiClient.addComment(100, PHOTO_COMMENT, username);

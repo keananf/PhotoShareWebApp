@@ -1,5 +1,11 @@
 package server.objects;
 
+import server.requests.UploadPhotoRequest;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Class representing an uploaded photo
  */
@@ -11,7 +17,10 @@ public final class Photo {
     private final long photoTime;
     private final long id, albumId;
 
-    public Photo(String photoContents, String authorName, String photoName, long id, long albumId, long photoTime) {
+    private HashMap<String, Boolean> votes;
+
+    public Photo(String photoContents, String authorName, String photoName, long id, long albumId,
+                 HashMap<String, Boolean> photoRatings, long photoTime) {
         this.photoContents = photoContents;
         this.authorName = authorName;
         this.photoName = photoName;
@@ -19,6 +28,12 @@ public final class Photo {
 
         this.albumId = albumId;
         this.id = id;
+        votes = photoRatings;
+    }
+
+    public Photo(long id, String author, UploadPhotoRequest request) {
+        this(request.getEncodedPhotoContents(),author, request.getPhotoName(), id, request.getAlbumId(),
+                new HashMap<>(), System.nanoTime());
     }
 
     /**
@@ -61,5 +76,24 @@ public final class Photo {
      */
     public long getAlbumId() {
         return albumId;
+    }
+
+
+    /**
+     * @return the users who upvoted  this comment
+     */
+    public List<String> getUpvotes() {
+        // Filter out all upvotes, and then create a list of the names of the users who cast them
+        return votes.entrySet().stream().filter(kv -> kv.getValue())
+                .map(kv -> kv.getKey()).collect(Collectors.toList());
+    }
+
+    /**
+     * @return the users who downvoted  this comment
+     */
+    public List<String> getDownvotes() {
+        // Filter out all downvotes, and then create a list of the names of the users who cast them
+        return votes.entrySet().stream().filter(kv -> !kv.getValue())
+                .map(kv -> kv.getKey()).collect(Collectors.toList());
     }
 }

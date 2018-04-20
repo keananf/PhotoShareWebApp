@@ -168,6 +168,21 @@ public class InvalidInputTests extends TestUtility {
     }
 
     @Test
+    public void rateBadIdTest() {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Assert unknown when try to upvote
+        long randomId = 100;
+        Response response = apiClient.ratePhoto(randomId, true);
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+
+        // Assert unknown when try to downvote
+        response = apiClient.ratePhoto(randomId, false);
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+    }
+
+    @Test
     public void addCommentToUnknownPhotoTest() throws InvalidResourceRequestException {
         // Add sample user and register it
         loginAndSetupNewUser(username);

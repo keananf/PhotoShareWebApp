@@ -1,6 +1,5 @@
 package server.objects;
 
-import server.Resources;
 import server.requests.AddCommentRequest;
 
 import java.util.HashMap;
@@ -23,21 +22,23 @@ public class Comment {
 
     private HashMap<String, Boolean> votes;
 
-    public Comment(String author, String commentContents, long referenceId, CommentType commentType, long time) {
+    public Comment(long id, String author, String commentContents, long referenceId, CommentType commentType,
+                   HashMap<String, Boolean> commentVotes, long time) {
         // Comment information
         this.author = author;
         this.commentContents = commentContents;
         this.commentTime = time;
-        votes = new HashMap<>();
+        this.id = id;
+        this.votes = commentVotes;
 
         // Reference information
         this.referenceId = referenceId;
         this.commentType = commentType;
     }
 
-    public Comment(String author, AddCommentRequest request) {
-        this(author, request.getCommentContents(), request.getReferenceId(),
-                request.getCommentType(), System.nanoTime());
+    public Comment(long id, String author, AddCommentRequest request) {
+        this(id, author, request.getCommentContents(), request.getReferenceId(),
+                request.getCommentType(), new HashMap<>(), System.nanoTime());
     }
 
     /**
@@ -69,14 +70,6 @@ public class Comment {
     }
 
     /**
-     * Sets the id of this comment.
-     * @param id the new id
-     */
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    /**
      * @return the id of the photo / comment this is commenting on / replying to.
      */
     public long getReferenceId() {
@@ -88,23 +81,6 @@ public class Comment {
      */
     public CommentType getCommentType() {
         return commentType;
-    }
-
-    /**
-     * Replaces the message with "Removed By Admin."
-     */
-    public void remove() {
-        commentContents = Resources.REMOVAL_STRING;
-    }
-
-    /**
-     * Registers the persistCommentVote on this comment from the given user
-     * @param user the user who made this persistCommentVote
-     * @param upvote whether this is an upvote or not
-     */
-    public void vote(String user, boolean upvote) {
-        // Using a map ensures that a user can never persistCommentVote more than once
-        votes.put(user, upvote);
     }
 
     /**
@@ -123,12 +99,5 @@ public class Comment {
         // Filter out all downvotes, and then create a list of the names of the users who cast them
         return votes.entrySet().stream().filter(kv -> !kv.getValue())
                 .map(kv -> kv.getKey()).collect(Collectors.toList());
-    }
-
-    /**
-     * @param votes the votes made on this comment
-     */
-    public void setVotes(HashMap<String, Boolean> votes) {
-        this.votes = votes;
     }
 }

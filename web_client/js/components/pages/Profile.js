@@ -15,6 +15,12 @@
         <button class="btn btn-sm">
             <i class="fa fa-star"></i> {{ followersCount }} Followers
         </button>
+        
+        <button :class="{btn: true, 'btn-sm': true, 'btn-success': isFollowing}"
+            @click="toggleFollow">
+            <i :class="{far: !isFollowing, fas: isFollowing, 'fa-star':true}"></i>
+            Follow
+        </button>
     
     </div>
     
@@ -39,7 +45,22 @@
                 username: this.$route.params.username,
                 followersCount: 0, // @todo
                 followingCount: 0, // @todo
-                posts: [] // @todo
+                posts: [], // @todo
+                isFollowing: false
+            }
+        },
+
+        methods: {
+            toggleFollow(){
+                this.isFollowing = !this.isFollowing
+
+                if (this.isFollowing) {
+                    this.followersCount++
+                    API.Users.followUser(this.username)
+                } else {
+                    this.followersCount--
+                    API.Users.unfollowUser(this.username)
+                }
             }
         }
     }

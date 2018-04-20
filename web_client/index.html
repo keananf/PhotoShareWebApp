@@ -14,8 +14,7 @@
 </head>
 <body>
 
-<div id="photoshare-app">
-
+<div id="photoshare-app" v-cloak>
     <header id="page-header">
         <div class="container">
             <div class="row">
@@ -86,11 +85,17 @@
 <!-- Some basic set up in the structure -->
 <script src="js/setup.js"></script>
 
+<!-- API -->
+<script src="js/services/API/API.js"></script>
+<script src="js/services/API/Posts.js"></script>
+
+
 <!-- Models -->
 <script src="js/models/Post.js"></script>
 
 <!-- Import Components Used Manually (as webpack is not used) -->
 <script src="js/components/common/Post.js"></script>
+<script src="js/components/common/Loader.js"></script>
 <script src="js/components/pages/Feed.js"></script>
 <script src="js/components/pages/Profile.js"></script>
 

@@ -45,6 +45,10 @@
 
             likesCount() {
                 return this.post.likesCount
+            },
+
+            date(){
+                return this.post.date
             }
         }
 

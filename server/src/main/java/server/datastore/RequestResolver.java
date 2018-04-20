@@ -314,7 +314,7 @@ public final class RequestResolver {
      */
     public Receipt addComment(String user, AddCommentRequest request) throws InvalidResourceRequestException {
         // Check comment type
-        if(request.getType().equals(CommentType.REPLY)) {
+        if(request.getCommentType().equals(CommentType.REPLY)) {
             // Retrieve the parent comment and check it exists
             // (exception will be thrown, if not).
             getComment(request.getReferenceId());
@@ -349,7 +349,7 @@ public final class RequestResolver {
 
         // Get parent reference based on comment type
         if(comment.getCommentType().equals(CommentType.REPLY)) {
-            parentName = getComment(comment.getReferenceId()).getPostedBy();
+            parentName = getComment(comment.getReferenceId()).getAuthor();
         }
         else {
             parentName = getPhoto(comment.getReferenceId()).getAuthorName();

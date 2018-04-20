@@ -528,16 +528,17 @@ final class DatabaseBackedDataStore implements DataStore {
     public void persistAddComment(Comment comment) {
         // Set up query for inserting a new comment into the table
         String query = "INSERT INTO "+COMMENTS_TABLE+"("+COMMENTS_ID+","+USERNAME+","
-                        +COMMENTS_CONTENTS+","+COMMENT_TYPE+","+REFERENCE_ID+") values(?, ?, ?, ?, ?)";
+                        +COMMENTS_CONTENTS+","+COMMENT_TYPE+","+REFERENCE_ID+","+COMMENTS_TIME+") values(?, ?, ?, ?, ?, ?)";
 
         // Add comment
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             // Insert user info into prepared statement)
             stmt.setLong(1, comment.getId());
-            stmt.setString(2, comment.getPostedBy());
-            stmt.setString(3, comment.getContents());
+            stmt.setString(2, comment.getAuthor());
+            stmt.setString(3, comment.getCommentContents());
             stmt.setBoolean(4, comment.getCommentType() == CommentType.REPLY);
             stmt.setLong(5, comment.getReferenceId());
+            stmt.setTimestamp(6, new Timestamp(comment.getCommentTime()));
 
             // Persist data
             stmt.executeUpdate();
@@ -558,7 +559,7 @@ final class DatabaseBackedDataStore implements DataStore {
             stmt.setLong(1, comment.getId());
             stmt.setLong(2, comment.getReferenceId());
             stmt.setString(3, parentName);
-            stmt.setString(4, comment.getPostedBy());
+            stmt.setString(4, comment.getAuthor());
             stmt.setBoolean(5, comment.getCommentType() == CommentType.REPLY);
 
             // Persist data

@@ -28,7 +28,7 @@
             }
 
             if (data.likes) {
-                post.likes = likes
+                post.likes = data.likes
             }
 
             if (data.likesCount) {
@@ -107,6 +107,10 @@
 
         set likesCount(count) {
             this._likesCount = count
+        }
+
+        get route() {
+            return '/post/' + this.id
         }
     }
 

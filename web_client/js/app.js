@@ -5,6 +5,9 @@ const routes = [
     },
     {
         path: '/user/:username', component: window.Components.Pages.Profile
+    },
+    {
+        path: '/post/:id', component: window.Components.Pages.Post
     }
 ]
 

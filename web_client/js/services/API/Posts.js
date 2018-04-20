@@ -28,6 +28,22 @@
                 }, 1000) // Simulate API Call
 
             })
+        },
+
+        getPostData(postId){
+            // @todo
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    resolve(Models.Post.fromJson({
+                        id: 'testId',
+                        filename: 'https://newevolutiondesigns.com/images/freebies/abstract-background-preview-1.jpg',
+                        username: 'username',
+                        date: '5 minutes ago',
+                        comments: [],
+                        likes: []
+                    }))
+                }, 1000) // Simulate API Call
+            })
         }
 
     }

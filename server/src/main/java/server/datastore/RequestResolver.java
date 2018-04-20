@@ -368,6 +368,16 @@ public final class RequestResolver {
     }
 
     /**
+     * Removes the given photo
+     * @param photoId the given photoId
+     * @throws InvalidResourceRequestException if the id doesn't correspond to a valid photo
+     */
+    public void removePhoto(long photoId) throws InvalidResourceRequestException {
+        // Removes the photo from the database
+        dataStore.persistRemovePhoto(photoId);
+    }
+
+    /**
      * Registers the given persistVote on the given commemt
      * @param commentId the id of the comment to persistVote on
      * @param user the user who cast this persistVote

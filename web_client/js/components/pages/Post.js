@@ -6,9 +6,9 @@
     <div class="row">
         <div class="col-12">
         
-            <loader ref="post-loader"></loader>
+            <loader v-show="loading" ref="post-loader"></loader>
         
-            <article class="post" v-if="post">
+            <article class="post" v-if="!loading">
                 <header>
                     <span class="username">{{ post.username }}</span>
                     <span class="date">{{ post.date }}</span>
@@ -28,16 +28,11 @@
                     </span>
                 </footer>
             </article>
-            <div class="post-comments" v-if="post">
+            <div class="post-comments" v-if="!loading">
                 <ul>
-                    <li>
-                        username1: Comment one
-                    </li>
-                    <li>
-                        username2: Comment two
-                    </li>
-                    <li>
-                        username3: Comment three
+                    <li v-for="comment in comments">
+                        <span v-text="comment.username"></span>
+                        <p v-text="comment.comment"></p>
                     </li>
                 </ul>
             </div>
@@ -51,18 +46,26 @@
         data() {
             return {
                 postId: this.$route.params.id,
-                post: null
+                post: null,
+                comments: [],
+                loading: true
             }
         },
 
         methods: {
             fetchPostData(){
+                this.loading = true
                 let loader = this.$refs['post-loader']
                 loader.show()
 
                 API.Posts.getPostData(this.postId).then(post => {
                     this.post = post
-                    loader.hide()
+
+                    post.comments.then(comments => {
+                        this.comments = comments
+                        this.loading = false
+                    })
+
                 })
             }
         },

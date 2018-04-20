@@ -38,10 +38,23 @@
                         id: 'testId',
                         filename: 'https://newevolutiondesigns.com/images/freebies/abstract-background-preview-1.jpg',
                         username: 'username',
-                        date: '5 minutes ago',
-                        comments: [],
-                        likes: []
+                        date: '5 minutes ago'
                     }))
+                }, 1000) // Simulate API Call
+            })
+        },
+
+        getPostComments(postId){
+            // @todo
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    resolve([
+                        Models.PostComment.fromJson({
+                            postId: postId,
+                            username: 'test-user',
+                            comment: 'This is a test comment'
+                        })
+                    ])
                 }, 1000) // Simulate API Call
             })
         }

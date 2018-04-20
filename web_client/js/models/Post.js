@@ -50,13 +50,17 @@
         }
 
         get comments() {
-            if (this._comments === null) {
-                // Comments are not set
-                // Fetch them
-                // @todo
-            }
+            return new Promise((resolve, reject) => {
+                if (this._comments === null) {
+                    API.Posts.getPostComments(this.id).then(comments => {
+                        this._comments = comments
+                        resolve(this._comments)
+                    })
+                } else {
 
-            return this._comments
+                    resolve(this._comments)
+                }
+            })
         }
 
         set comments(comments) {

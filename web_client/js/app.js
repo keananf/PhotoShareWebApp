@@ -4,6 +4,9 @@ const routes = [
         path: '/', component: window.Components.Pages.Feed
     },
     {
+        path: '/upload', component: window.Components.Pages.Upload
+    },
+    {
         path: '/user/:username', component: window.Components.Pages.Profile
     },
     {

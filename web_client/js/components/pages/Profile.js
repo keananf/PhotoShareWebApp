@@ -28,8 +28,11 @@
     
     <div class="row">
     <div class="col-sm-8">
-    <div class="user-posts">
     
+    <loader ref="posts-loader"></loader>
+    
+    <div class="user-posts">
+        
         <post v-for="post in posts" :data="post" :key="post.id"></post>
     
     </div>
@@ -61,7 +64,24 @@
                     this.followersCount--
                     API.Users.unfollowUser(this.username)
                 }
+            },
+
+            fetchUsersPosts(){
+
+                let loader = this.$refs['posts-loader']
+                loader.show()
+
+                API.Posts.getPostsByUser(this.username).then(posts => {
+                    this.posts = posts
+                    loader.hide()
+                })
             }
+        },
+
+        // Whenever a user profile is loaded
+        // call this and fetch initial API data
+        mounted() {
+            this.fetchUsersPosts()
         }
     }
 

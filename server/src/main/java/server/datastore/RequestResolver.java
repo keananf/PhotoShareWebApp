@@ -1,9 +1,6 @@
 package server.datastore;
 
-import server.datastore.exceptions.DoesNotOwnAlbumException;
-import server.datastore.exceptions.ExistingException;
-import server.datastore.exceptions.InvalidResourceRequestException;
-import server.datastore.exceptions.UnauthorisedException;
+import server.datastore.exceptions.*;
 import server.objects.*;
 import server.requests.AddCommentRequest;
 
@@ -79,9 +76,11 @@ public final class RequestResolver {
      * @param albumId the id of the album this photo belongs to
      */
     public Receipt uploadPhoto(String encodedPhotoContents, String photoName, String user, long albumId)
-            throws InvalidResourceRequestException, DoesNotOwnAlbumException {
+            throws InvalidResourceRequestException, DoesNotOwnAlbumException, InvalidPhotoFormatException{
         // Ensure user is known
         getUser(user);
+
+        if(!isValidPhotoFormat(encodedPhotoContents)) throw new InvalidPhotoFormatException();
 
         // Ensure albumId is known, and that it belongs to the user
         Album album = getAlbum(albumId);
@@ -489,8 +488,27 @@ public final class RequestResolver {
         return followers_usernames;
     }
 
+    /**
+     * Utility method to check that a photo to be uploaded follows set constraints
+     * Photos must not be larger than 4 megabytes.
+     *
+     * @param encodedPhotoContents the base 64 encoded photo contents
+     * @return
+     */
+    public boolean isValidPhotoFormat(String encodedPhotoContents) {
+
+        // Each base-64 digit represents 6 bits of data
+        double photoSizeBytes = ((double) encodedPhotoContents.length() * 6) / 8.0;
+        double photoSizeMegabytes = photoSizeBytes / 1000000.0;
+
+        if (photoSizeMegabytes > 4.0) return false;
+
+        return true;
+    }
+
     public void clear() {
         // Empty records
         dataStore.clear();
     }
+
 }

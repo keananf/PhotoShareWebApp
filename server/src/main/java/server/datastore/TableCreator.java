@@ -24,8 +24,9 @@ class TableCreator {
         createUsersTable();
         createAlbumsTable();
         createPhotosTable();
+        createPhotoRatingsTable();
         createCommentsTable();
-        createVoteTables();
+        createCommentVoteTable();
         createNotificationsTable();
         createFollowingsTable();
     }
@@ -119,16 +120,37 @@ class TableCreator {
     }
 
     /**
-     * Creates the comments table
+     * Creates the comment votes table
      */
-    private void createVoteTables() {
-        // Construct create replies table query
+    private void createCommentVoteTable() {
+        // Construct create comment votes table query
         String commentVoteQuery = "CREATE TABLE IF NOT EXISTS "+COMMENTS_VOTES_TABLE+" " +
                 "("+REFERENCE_ID+" BIGINT, " +
                 USERNAME+" varchar(25) NOT NULL," +
                 VOTE+" boolean," +
                 "PRIMARY KEY ("+REFERENCE_ID+", "+USERNAME+"), " +
-                "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+"))";
+                "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+")," +
+                "FOREIGN KEY("+REFERENCE_ID+") references "+COMMENTS_TABLE+"("+COMMENTS_ID+"))";
+
+        // Execute statement such that table is made
+        try (Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(commentVoteQuery);
+        }
+        catch (SQLException e) {e.printStackTrace();}
+    }
+
+    /**
+     * Creates the photo ratings table
+     */
+    private void createPhotoRatingsTable() {
+        // Construct create comment votes table query
+        String commentVoteQuery = "CREATE TABLE IF NOT EXISTS "+PHOTO_RATINGS_TABLE+" " +
+                "("+REFERENCE_ID+" BIGINT, " +
+                USERNAME+" varchar(25) NOT NULL," +
+                VOTE+" boolean," +
+                "PRIMARY KEY ("+REFERENCE_ID+", "+USERNAME+"), " +
+                "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+")," +
+                "FOREIGN KEY("+REFERENCE_ID+") references "+PHOTOS_TABLE+"("+PHOTOS_ID+"))";
 
         // Execute statement such that table is made
         try (Statement stmt = conn.createStatement()) {

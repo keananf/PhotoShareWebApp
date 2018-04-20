@@ -29,7 +29,7 @@ final class DatabaseBackedDataStore implements DataStore {
     private static String pw;
     private Connection conn;
 
-    // Read in the username and password for accessing the database
+    // Before anything else, read in the username and password for accessing the database
     static {
         try {
             Scanner reader = new Scanner(new File(DB_CONFIG), Resources.CHARSET_AS_STRING);
@@ -639,37 +639,6 @@ final class DatabaseBackedDataStore implements DataStore {
         catch (SQLException e) { throw new InvalidResourceRequestException(commentId); }
     }
 
-    @Override
-    public void clear() {
-        String query = "DELETE FROM ";
-        String[] tables = new String[]
-                {USERS_TABLE,ALBUMS_TABLE,PHOTOS_TABLE,COMMENTS_TABLE,COMMENTS_VOTES_TABLE,NOTIFICATIONS_TABLE};
-
-        // Disable foreign key
-        try (Statement stmt = conn.createStatement()) {
-            // Allow clearing of data without caring about foreign keys
-            stmt.executeUpdate("SET REFERENTIAL_INTEGRITY FALSE");
-        }
-        catch (SQLException e) {e.printStackTrace();}
-
-        for(String table : tables) {
-            // Execute statement
-            try (PreparedStatement stmt = conn.prepareStatement(query + table)) {
-                // Allow clearing of data without caring about foreign keys
-                stmt.executeUpdate();
-            }
-            catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-
-        // Reset
-        try (Statement stmt = conn.createStatement()) {
-            // Reset, so foreign keys are enforced
-            stmt.executeUpdate("SET REFERENTIAL_INTEGRITY TRUE");
-        }
-        catch (SQLException e) {e.printStackTrace();}
-    }
 
     /**
      * Queries the database for all votes for the given comment
@@ -722,7 +691,7 @@ final class DatabaseBackedDataStore implements DataStore {
         catch (SQLException e) {e.printStackTrace();}
     }
 
-
+    @Override
     public void persistDeleteFollowing(String userFrom, String userTo) {
 
         String query = "DELETE FROM "+FOLLOWINGS_TABLE+" WHERE "+USER_FROM+" = ? AND "+USER_TO+" = ?";
@@ -768,5 +737,37 @@ final class DatabaseBackedDataStore implements DataStore {
 
 
         return following;
+    }
+
+    @Override
+    public void clear() {
+        String query = "DELETE FROM ";
+        String[] tables = new String[] {USERS_TABLE,ALBUMS_TABLE,PHOTOS_TABLE,
+                COMMENTS_TABLE,COMMENTS_VOTES_TABLE, PHOTO_RATINGS_TABLE,NOTIFICATIONS_TABLE};
+
+        // Disable foreign key
+        try (Statement stmt = conn.createStatement()) {
+            // Allow clearing of data without caring about foreign keys
+            stmt.executeUpdate("SET REFERENTIAL_INTEGRITY FALSE");
+        }
+        catch (SQLException e) {e.printStackTrace();}
+
+        for(String table : tables) {
+            // Execute statement
+            try (PreparedStatement stmt = conn.prepareStatement(query + table)) {
+                // Allow clearing of data without caring about foreign keys
+                stmt.executeUpdate();
+            }
+            catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Reset
+        try (Statement stmt = conn.createStatement()) {
+            // Reset, so foreign keys are enforced
+            stmt.executeUpdate("SET REFERENTIAL_INTEGRITY TRUE");
+        }
+        catch (SQLException e) {e.printStackTrace();}
     }
 }

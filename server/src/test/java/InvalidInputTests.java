@@ -133,6 +133,22 @@ public class InvalidInputTests extends TestUtility {
     }
 
     @Test
+    public void updateAlbumDescriptionBadIdTest() throws InvalidResourceRequestException {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Update album's description. Will fail because of bad id
+        long badId = 1000;
+        Response response = apiClient.updateAlbumDescription(badId, "NEW");
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+
+        // Check server has record of album's OLD description
+        Album album = resolver.getAlbum(albumId);
+        assertEquals(albumName, album.getAlbumName());
+        assertEquals(description, album.getDescription());
+    }
+
+    @Test
     public void addPhotoToAlbumUnauthorisedTest() throws InvalidResourceRequestException {
         // Create sample data
         String photoName = "photo";

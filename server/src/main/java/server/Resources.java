@@ -30,6 +30,8 @@ public abstract class Resources {
     public static final String ID = "/ids";
     public static final String GET_ALBUM_BY_ID_PATH = ALBUMS_PATH + ID;
     public static final String GET_USER_ALBUMS_PATH = ALBUMS_PATH + USERS_PATH;
+    public static final String UPDATE_ALBUM_DESCRIPTION = "/updatedescription";
+    public static final String UPDATE_ALBUM_DESCRIPTION_PATH = ALBUMS_PATH + UPDATE_ALBUM_DESCRIPTION;
 
     // Resources regarding photos
     public static final String PHOTOS_PATH = "/photos";

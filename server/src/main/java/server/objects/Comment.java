@@ -11,54 +11,54 @@ import java.util.stream.Collectors;
  * Class representing a comment on either a photo / another comment
  */
 public class Comment {
-    private final String postedBy;
-    private final long timestamp;
-    private String contents;
+    private final String author;
+    private final long commentTime;
+    private String commentContents;
     private long id;
 
     // Indicates if this is a reply or not
     // as well as notes the id of the 'parent' photo or comment
     private final long referenceId;
-    private final CommentType type;
+    private final CommentType commentType;
 
     private HashMap<String, Boolean> votes;
 
-    public Comment(String postedBy, String contents, long referenceId, CommentType type, long time) {
+    public Comment(String author, String commentContents, long referenceId, CommentType commentType, long time) {
         // Comment information
-        this.postedBy = postedBy;
-        this.contents = contents;
-        this.timestamp = time;
+        this.author = author;
+        this.commentContents = commentContents;
+        this.commentTime = time;
         votes = new HashMap<>();
 
         // Reference information
         this.referenceId = referenceId;
-        this.type = type;
+        this.commentType = commentType;
     }
 
-    public Comment(String postedBy, AddCommentRequest request) {
-        this(postedBy, request.getCommentContents(), request.getReferenceId(),
-                request.getType(), request.getTimestamp());
+    public Comment(String author, AddCommentRequest request) {
+        this(author, request.getCommentContents(), request.getReferenceId(),
+                request.getCommentType(), System.nanoTime());
     }
 
     /**
      * @return the name of the user who posted this
      */
-    public String getPostedBy() {
-        return postedBy;
+    public String getAuthor() {
+        return author;
     }
 
     /**
      * @return the time this photo was created
      */
-    public long getTimestamp() {
-        return timestamp;
+    public long getCommentTime() {
+        return commentTime;
     }
 
     /**
      * @return the actual parent
      */
-    public String getContents() {
-        return contents;
+    public String getCommentContents() {
+        return commentContents;
     }
 
     /**
@@ -84,17 +84,17 @@ public class Comment {
     }
 
     /**
-     * @return the type of comment (photo comment or reply)
+     * @return the commentType of comment (photo comment or reply)
      */
     public CommentType getCommentType() {
-        return type;
+        return commentType;
     }
 
     /**
      * Replaces the message with "Removed By Admin."
      */
     public void remove() {
-        contents = Resources.REMOVAL_STRING;
+        commentContents = Resources.REMOVAL_STRING;
     }
 
     /**

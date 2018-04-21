@@ -17,23 +17,23 @@ public final class Notification {
     private final CommentType commentType;
 
     // Who posted the comment and who is receiving the notification
-    private final String commentPostedBy;
+    private final String commentAuthor;
     private final String notifiedUser;
 
     public Notification(Comment comment, String notifiedUser) {
         this.referenceId = comment.getReferenceId();
         this.commentId = comment.getId();
         this.commentType = comment.getCommentType();
-        this.commentPostedBy = comment.getPostedBy();
+        this.commentAuthor = comment.getAuthor();
         this.notifiedUser = notifiedUser;
     }
 
     public Notification(long commentId, long referenceId, String notifiedUser,
-                        String commentPostedBy, CommentType type) {
+                        String commentAuthor, CommentType type) {
         this.commentId = commentId;
         this.referenceId = referenceId;
         this.notifiedUser = notifiedUser;
-        this.commentPostedBy = commentPostedBy;
+        this.commentAuthor = commentAuthor;
         commentType = type;
     }
 
@@ -54,8 +54,8 @@ public final class Notification {
     /**
      * @return Who posted the comment
      */
-    public String getCommentPostedBy() {
-        return commentPostedBy;
+    public String getCommentAuthor() {
+        return commentAuthor;
     }
 
     /**

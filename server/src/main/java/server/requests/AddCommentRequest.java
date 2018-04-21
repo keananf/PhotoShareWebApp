@@ -10,15 +10,13 @@ public class AddCommentRequest extends AuthRequest {
 
     private final String commentContents;
     private final long referenceId;
-    private final CommentType type;
-    private final long timestamp;
+    private final CommentType commentType;
 
-    public AddCommentRequest(Auth auth, String commentContents, long referenceId, CommentType type) {
+    public AddCommentRequest(Auth auth, String commentContents, long referenceId, CommentType commentType) {
         super(auth);
         this.commentContents = commentContents;
         this.referenceId = referenceId;
-        this.type = type;
-        timestamp = System.nanoTime();
+        this.commentType = commentType;
     }
 
     /**
@@ -26,13 +24,6 @@ public class AddCommentRequest extends AuthRequest {
      */
     public String getCommentContents() {
         return commentContents;
-    }
-
-    /**
-     * @return the time at which this request was made.
-     */
-    public long getTimestamp() {
-        return timestamp;
     }
 
     /**
@@ -45,7 +36,7 @@ public class AddCommentRequest extends AuthRequest {
     /**
      * @return whether this is a reply or a comment
      */
-    public CommentType getType() {
-        return type;
+    public CommentType getCommentType() {
+        return commentType;
     }
 }

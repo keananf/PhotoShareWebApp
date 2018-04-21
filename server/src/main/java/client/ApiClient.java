@@ -201,6 +201,19 @@ public final class ApiClient {
     }
 
     /**
+     * Download all photos from a given album
+     *
+     * @param albumId the id of the album to retrieve photos from
+     * @return the response of the request
+     */
+    public Response getAllPhotos(long albumId) {
+        // Encode request and POST
+        String path = String.format("%s/%s", GET_PHOTOS_BY_ALBUM_PATH, albumId);
+        String authJson = getSerialisedAuthRequest(path, user, password);
+        return connector.postToUrl(baseTarget, path, authJson);
+    }
+
+    /**
      * Download all albums from a given user
      *
      * @param name the name of the user to retrieve albums from

@@ -122,6 +122,17 @@ public class AuthorisationTests extends TestUtility {
     }
 
     @Test
+    public void unauthorisedUpdateAlbumDescriptionTest() throws InvalidResourceRequestException {
+        // Set up data
+        String newDescription = "new description";
+        long id = 1000;
+
+        // Update album's description
+        Response response = apiClient.updateAlbumDescription(id, newDescription);
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
+    }
+
+    @Test
     public void unauthorisedAddCommentToPhotoTest() {
         // Assert unauthorised
         Response response = apiClient.addComment(100, PHOTO_COMMENT, username);

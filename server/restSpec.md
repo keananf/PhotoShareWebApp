@@ -2,6 +2,7 @@ PhotoShare RESTful API specification
 ----
 
 ## Album-related APIs
+
 * `/albums/addalbum`
 
     * **Method:** `POST`
@@ -55,6 +56,67 @@ PhotoShare RESTful API specification
                 },
                 "albumName": "sampleAlbum",
                 "description": "description"
+            }
+          },
+          type : "POST",
+          success : function(r) 
+          {
+            console.log(r);
+          }
+        })
+        
+* `/albums/updatedescription`
+
+    * **Method:** `POST`
+  
+    * **URL Parameters:** `None`
+    
+    * **Body Parameters**
+    
+      ```
+      {
+          "auth" : 
+          {
+            "apiKey" : string,
+            "time": long,
+            "user": string,
+            "password": int
+          },
+          "albumId": long,
+          "description": string, 
+      }
+      
+    * **Success Response:**
+    
+      * **Code:** 204 No Content <br />
+     
+    * **Error Response:**
+    
+      * **Code:** 400 Bad Request <br />
+    
+      or
+    
+      * **Code:** 401 Unauthorized <br />
+    
+    * **Sample Call:**
+    
+      ```javascript
+        $.ajax(
+        {
+          url: "/albums/updatedescription",
+          dataType: "json",
+          data :
+          {
+              {
+                "auth" : 
+                {
+                  "apiKey" : abc123,
+                  "time": 1524219966,
+                  "user": "sampleUserName",
+                  "password": 1
+                },
+                "albumId": 1,
+                "description": "new description"
             }
           },
           type : "POST",
@@ -1519,6 +1581,64 @@ PhotoShare RESTful API specification
                 {
                   "apiKey" : abc123,
                   "time": 1524219966,
+                  "user": "username1",
+                  "password": 1
+                }
+            }
+          },
+          type : "POST",
+          success : function(r) 
+          {
+            console.log(r);
+          }
+        });
+        
+* `/admin/removephoto/{photoId}`
+
+    * **Method:** `POST`
+  
+    * **URL Parameters:** 
+        * photoId: `refers to a photo ID (as a long)`
+    
+    * **Body Parameters**
+    
+      ``` 
+      {
+          "auth" : 
+          {
+            "apiKey" : [alphanumeric],
+            "time": long,
+            "user": string,
+            "password": int
+          }
+      }
+      
+    * **Success Response:**
+    
+      * **Code:** 204 <br />
+     
+    * **Error Response:**
+    
+      * **Code:** 400 Bad Request <br />
+    
+      or
+    
+      * **Code:** 401 Unauthorized <br />
+    
+    * **Sample Call:**
+    
+      ```javascript
+        $.ajax(
+        {
+          url: "/admin/removephoto/samplePhotoId",
+          dataType: "json",
+          data :
+          {
+              {
+                "auth" : 
+                {
+                  "apiKey" : abc123,
+                  "time": 1000,
                   "user": "username1",
                   "password": 1
                 }

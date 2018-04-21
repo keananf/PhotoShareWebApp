@@ -189,6 +189,19 @@ public final class ApiClient {
     }
 
     /**
+     * Sends a remove request to the server.
+     *
+     * @param id the id of the photo
+     * @return the response of the request.
+     */
+    public Response removePhoto(long id) {
+        // Encode request and POST
+        String path = String.format("%s/%s", ADMIN_REMOVE_PHOTO_PATH, id);
+        String authJson = getSerialisedAuthRequest(path, user, password);
+        return connector.postToUrl(baseTarget, path, authJson);
+    }
+
+    /**
      * Download all photos from a given user
      *
      * @param name the name of the user to retrieve photos from

@@ -408,11 +408,12 @@ public final class RequestResolver {
      * @param commentId the given commentId
      * @throws InvalidResourceRequestException if the comment ID doesn't correspond to a valid comment
      */
-    public void removeComment(String user, long commentId) throws InvalidResourceRequestException {
+    public void removeComment(String user, long commentId)
+            throws InvalidResourceRequestException, DoesNotOwnCommentException {
 
         // Checks that comment exists and is owned by requesting user, throws an exception if not
         Comment c = getComment(commentId);
-        if (!c.getAuthor().equals(user)) throw new InvalidResourceRequestException(commentId);
+        if (!c.getAuthor().equals(user)) throw new DoesNotOwnCommentException(commentId, user);
 
         // Cascade deletes a comment
         dataStore.persistRemoveComment(commentId);

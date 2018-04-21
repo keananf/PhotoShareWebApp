@@ -70,9 +70,11 @@ public class CommentsApi {
             // Upload comment to the data store
             RESOLVER.removeComment(auth.getUser(), commentId);
             return Response.noContent().build();
-        }
-        catch (InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
-        catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
+
+        } catch (InvalidResourceRequestException | DoesNotOwnCommentException e) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+
+        } catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
     }
 
     /** Attempts to parse the message and edit a comment
@@ -96,9 +98,11 @@ public class CommentsApi {
             // Update comment in the data store
             Receipt receipt = RESOLVER.editComment(auth.getUser(), commentId, request);
             return Response.ok(gson.toJson(receipt)).build();
-        }
-        catch(InvalidResourceRequestException | DoesNotOwnCommentException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
-        catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
+
+        } catch(InvalidResourceRequestException | DoesNotOwnCommentException e) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+
+        } catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
     }
 
     /**

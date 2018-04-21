@@ -167,7 +167,7 @@ public class AuthorisationTests extends TestUtility {
     @Test
     public void unauthorisedAdminRemovePhotoTest() {
         // Assert unauthorised because no user logged in
-        Response response = apiClient.removePhoto(100);
+        Response response = apiClient.adminRemovePhoto(100);
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 
@@ -178,6 +178,13 @@ public class AuthorisationTests extends TestUtility {
         loginAndSetupNewUser(username + "2"); // not admin
 
         // Assert unauthorised because it is NOT an admin calling this
+        Response response = apiClient.adminRemovePhoto(100);
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void unauthorisedUserRemovePhotoTest() {
+        // Assert unauthorised because no user logged in
         Response response = apiClient.removePhoto(100);
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }

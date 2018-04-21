@@ -419,6 +419,7 @@ public final class RequestResolver {
      * Removes the given comment
      * @param commentId the given commentId
      * @throws InvalidResourceRequestException if the comment ID doesn't correspond to a valid comment
+     * @throws DoesNotOwnCommentException if the comment does not belong to the requesting user
      */
     public void removeComment(String user, long commentId)
             throws InvalidResourceRequestException, DoesNotOwnCommentException {
@@ -436,10 +437,27 @@ public final class RequestResolver {
      * @param photoId the given photoId
      * @throws InvalidResourceRequestException if the id doesn't correspond to a valid photo
      */
-    public void removePhoto(long photoId) throws InvalidResourceRequestException {
+    public void removePhotoAdmin(long photoId) throws InvalidResourceRequestException {
 
         // Checks that the photo exists, throws an exception if not
         getPhoto(photoId);
+
+        // Removes the photo from the database
+        dataStore.persistRemovePhoto(photoId);
+    }
+
+    /**
+     * Removes the given photo
+     * @param photoId the given photoId
+     * @throws InvalidResourceRequestException if the id doesn't correspond to a valid photo
+     * @throws DoesNotOwnPhotoException if the photo does not belong to the requesting user
+     */
+    public void removePhoto(String user, long photoId)
+            throws InvalidResourceRequestException, DoesNotOwnPhotoException {
+
+        // Checks that the photo exists and is owned by requesting user, throws an exception if not
+        Photo p = getPhoto(photoId);
+        if (!p.getAuthorName().equals(user)) throw new DoesNotOwnPhotoException(photoId, user);
 
         // Removes the photo from the database
         dataStore.persistRemovePhoto(photoId);

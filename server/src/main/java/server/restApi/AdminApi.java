@@ -70,7 +70,7 @@ public class AdminApi {
             RESOLVER.verifyAdminAuth(path, auth);
 
             // Delete photo from data store
-            RESOLVER.removePhoto(photoId);
+            RESOLVER.removePhotoAdmin(photoId);
             return Response.noContent().build();
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }

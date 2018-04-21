@@ -53,6 +53,22 @@ public final class ServerTests extends TestUtility {
     }
 
     @Test
+    public void updateAlbumDescriptionTest() throws InvalidResourceRequestException {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Update album's description
+        String newDescription = "new " + description;
+        Response response = apiClient.updateAlbumDescription(albumId, newDescription);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+
+        // Check server has record of album's new description
+        Album album = resolver.getAlbum(albumId);
+        assertEquals(albumName, album.getAlbumName());
+        assertEquals(newDescription, album.getDescription());
+    }
+
+    @Test
     public void getAllAlbumsTest() throws InvalidResourceRequestException {
         // Add sample user and register it
         loginAndSetupNewUser(username);

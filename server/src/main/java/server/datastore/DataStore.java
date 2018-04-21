@@ -26,6 +26,14 @@ interface DataStore {
     List<Photo> getPhotos(String user);
 
     /**
+     * Retrieves photos from a given album.
+     * @param albumId the album's ID
+     * @return the list of photos in this album
+     * @throws InvalidResourceRequestException if the given album ID is unknown
+     */
+    List<Photo> getPhotos(long albumId);
+
+    /**
      * Retrieves the given photo
      * @param id the id of the photo
      * @return the photo

@@ -4,12 +4,12 @@ package server.objects;
  * Class representing an album.
  */
 public class Album {
-    private final String albumName, albumDescription, authorName;
+    private final String albumName, description, authorName;
     private final long albumId, albumTime;
 
-    public Album(long albumId, String albumName, String authorName, String albumDescription, long albumTime) {
+    public Album(long albumId, String albumName, String authorName, String description, long albumTime) {
         this.albumName = albumName;
-        this.albumDescription = albumDescription;
+        this.description = description;
         this.authorName = authorName;
         this.albumId = albumId;
         this.albumTime = albumTime;
@@ -18,8 +18,8 @@ public class Album {
     /**
      * @return the album's description
      */
-    public String getAlbumDescription() {
-        return albumDescription;
+    public String getDescription() {
+        return description;
     }
 
     /**

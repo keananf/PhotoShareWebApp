@@ -214,13 +214,46 @@ public final class UsersAPI {
             return Response.ok(gson.toJson(following)).build();
 
         } catch (InvalidResourceRequestException e) {
-            e.printStackTrace();
+            return Response.status(Response.Status.BAD_REQUEST).build();
         } catch (UnauthorisedException e) {
-            e.printStackTrace();
+            return Response.status(Response.Status.UNAUTHORIZED).build();
         }
 
 
-        return Response.noContent().build();
+    }
+
+    /**
+     * Gets a list of persons (Users) who follow the user
+     * @param username
+     * @param json
+     * @return
+     */
+
+    @POST
+    @Path("/{username}" + Resources.FOLLOWERS)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response getFollowers(@PathParam("username") String username, String json) {
+        // Retrieve provided auth info
+
+        // Parse message as a Auth object
+        AuthRequest auth = gson.fromJson(json, AuthRequest.class);
+
+
+        try {
+            // Process request
+            RESOLVER.verifyAuth(Resources.USERS_PATH + "/" + username + Resources.FOLLOWERS, auth.getAuth());
+            RESOLVER.getFollowers(username);
+
+            List<User> following = RESOLVER.getFollowers(username);
+            return Response.ok(gson.toJson(following)).build();
+
+        } catch (InvalidResourceRequestException e) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        } catch (UnauthorisedException e) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
     }
 
 

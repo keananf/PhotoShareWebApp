@@ -10,9 +10,10 @@ abstract class DatabaseResources {
     static final String ALBUMS_TABLE = "albums";
     static final String PHOTOS_TABLE = "photos";
     static final String COMMENTS_TABLE = "comments";
-    static final String COMMENTS_VOTES_TABLE = "votes";
+    static final String COMMENTS_VOTES_TABLE = "commentVotes";
+    static final String PHOTO_RATINGS_TABLE = "photoRatings";
     static final String NOTIFICATIONS_TABLE = "notifications";
-    public static final String FOLLOWINGS_TABLE = "followings";
+    static final String FOLLOWINGS_TABLE = "followings";
 
     // User table attributes
     static final String PARENTNAME = "parentname";
@@ -38,11 +39,13 @@ abstract class DatabaseResources {
     static final String COMMENT_TYPE = "type";
     static final String COMMENTS_CONTENTS = "commentContents";
     static final String COMMENTS_TIME = "commentTime";
-    static final String VOTE = "vote";
+
+    // Vote tables attributes
+    static final String COMMENT_VOTE = "commentVote";
+    static final String PHOTO_RATING = "photoRating";
 
     // Followings table attributes
-
-    public static final String FOLLOW_ID = "followId";
-    public static final String USER_FROM = "userFrom";
-    public static final String USER_TO = "userTo";
+    static final String FOLLOW_ID = "followId";
+    static final String USER_FROM = "userFrom";
+    static final String USER_TO = "userTo";
 }

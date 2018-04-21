@@ -513,7 +513,7 @@ final class DatabaseBackedDataStore implements DataStore {
     }
 
     @Override
-    public void persistEditComment(long commentId, String content) throws InvalidResourceRequestException {
+    public void persistEditComment(long commentId, String content) {
         // The comment's contents will be overwritten.
         String query = "UPDATE " + COMMENTS_TABLE + " SET " + COMMENTS_CONTENTS + " = ? WHERE " + COMMENTS_ID + " = ?";
 
@@ -528,9 +528,6 @@ final class DatabaseBackedDataStore implements DataStore {
             if(ret == 1) return;
         }
         catch (SQLException e) { e.printStackTrace(); }
-
-        // Comment didn't exist
-        throw new InvalidResourceRequestException(commentId);
     }
 
     @Override

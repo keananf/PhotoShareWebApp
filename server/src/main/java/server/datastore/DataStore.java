@@ -128,7 +128,7 @@ interface DataStore {
      * @param content the new comment content
      *
      */
-    void persistEditComment(long commentId, String content) throws InvalidResourceRequestException;
+    void persistEditComment(long commentId, String content);
 
     /**
      * Internally used. Adds a notification on the photo / comment which the given comment

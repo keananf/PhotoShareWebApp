@@ -27,13 +27,6 @@ public class EditCommentRequest extends AuthRequest {
     }
 
     /**
-     * @return the time at which this request was made.
-     */
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    /**
      * @return id of comment
      */
     public long getReferenceId() {

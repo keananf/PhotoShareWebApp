@@ -135,6 +135,19 @@ public final class ApiClient {
     }
 
     /**
+     * Sends a remove request to the server.
+     *
+     * @param id the id of the photo
+     * @return the response of the request.
+     */
+    public Response removePhoto(long id) {
+        // Encode request and POST
+        String path = String.format("%s/%s", DELETE_PHOTO_PATH, id);
+        String authJson = getSerialisedAuthRequest(path, user, password);
+        return connector.postToUrl(baseTarget, path, authJson);
+    }
+
+    /**
      * Encoded and uploads the given file
      *
      * @param id the id of the photo
@@ -148,15 +161,29 @@ public final class ApiClient {
     }
 
     /**
-     * Sends a persistVote request to the server.
+     * Sends a comment vote request to the server.
      *
      * @param id the id of the comment
      * @return the response of the request.
      * @parm upvote whether or not this is an upvote
      */
-    public Response vote(long id, boolean upvote) {
+    public Response voteOnComment(long id, boolean upvote) {
         // Encode request and POST
-        String path = String.format("%s/%s", (upvote ? UPVOTE_PATH : DOWNVOTE_PATH), id);
+        String path = String.format("%s/%s", (upvote ? COMMENT_UPVOTE_PATH : COMMENT_DOWNVOTE_PATH), id);
+        String authJson = getSerialisedAuthRequest(path, user, password);
+        return connector.postToUrl(baseTarget, path, authJson);
+    }
+
+    /**
+     * Sends a photo rating request to the server.
+     *
+     * @param id the id of the photo
+     * @return the response of the request.
+     * @parm upvote whether or not this is an upvote
+     */
+    public Response ratePhoto(long id, boolean upvote) {
+        // Encode request and POST
+        String path = String.format("%s/%s", (upvote ? PHOTO_UPVOTE_PATH : PHOTO_DOWNVOTE_PATH), id);
         String authJson = getSerialisedAuthRequest(path, user, password);
         return connector.postToUrl(baseTarget, path, authJson);
     }
@@ -167,11 +194,28 @@ public final class ApiClient {
      * @param id the id of the comment
      * @return the response of the request.
      */
-    public Response removeComment(long id) {
+    public Response adminRemoveComment(long id) {
         // Encode request and POST
         String path = String.format("%s/%s", ADMIN_REMOVE_COMMENT_PATH, id);
         String authJson = getSerialisedAuthRequest(path, user, password);
         return connector.postToUrl(baseTarget, path, authJson);
+    }
+
+
+    /**
+     * Sends an update album description request to the server.
+     *
+     * @param id the id of the album
+     * @param description the new description
+     * @return the response of the request.
+     */
+    public Response updateAlbumDescription(long id, String description) {
+        // Construct request
+        UpdateAlbumDescriptionRequest request = new UpdateAlbumDescriptionRequest(
+                getAuth(UPDATE_ALBUM_DESCRIPTION_PATH, user, password).getAuth(), id, description);
+
+        // Encode request and POST
+        return connector.postToUrl(baseTarget, UPDATE_ALBUM_DESCRIPTION_PATH, gson.toJson(request));
     }
 
     /**
@@ -180,7 +224,7 @@ public final class ApiClient {
      * @param id the id of the photo
      * @return the response of the request.
      */
-    public Response removePhoto(long id) {
+    public Response adminRemovePhoto(long id) {
         // Encode request and POST
         String path = String.format("%s/%s", ADMIN_REMOVE_PHOTO_PATH, id);
         String authJson = getSerialisedAuthRequest(path, user, password);
@@ -293,6 +337,29 @@ public final class ApiClient {
 
         // Encode request and POST
         return connector.postToUrl(baseTarget, ADD_COMMENT_PATH, gson.toJson(request));
+    }
+
+    public Response removeComment(long id) {
+        // Encode request and POST
+        String path = String.format("%s/%s", DELETE_COMMENT_PATH, id);
+        String authJson = getSerialisedAuthRequest(path, user, password);
+        return connector.postToUrl(baseTarget, path, authJson);
+    }
+
+    /**
+     * Requests to edit a comment represented by the given information
+     *
+     * @param id                the id of the comment being edited
+     * @param commentContent    the new comment contents
+     * @return the response of the request
+     */
+    public Response editComment(long id, String commentContent) {
+        // Construct request
+        String path = String.format("%s/%s", EDIT_COMMENT_PATH, id);
+        EditCommentRequest request = new EditCommentRequest(getAuth(path, user, password).getAuth(), commentContent);
+
+        // Encode request and POST
+        return connector.postToUrl(baseTarget, path, gson.toJson(request));
     }
 
     /**

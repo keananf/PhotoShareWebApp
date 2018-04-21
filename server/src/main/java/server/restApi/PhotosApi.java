@@ -2,6 +2,7 @@ package server.restApi;
 
 import com.google.gson.Gson;
 import server.datastore.exceptions.DoesNotOwnAlbumException;
+import server.datastore.exceptions.DoesNotOwnPhotoException;
 import server.objects.Auth;
 import server.Resources;
 import server.requests.*;
@@ -43,14 +44,34 @@ public class PhotosApi {
             RESOLVER.verifyAuth(Resources.UPLOAD_PHOTO_PATH, auth);
 
             // Upload encoded photo to the data store
-            Receipt receipt = RESOLVER.uploadPhoto(request.getEncodedPhotoContents(),
-                    request.getPhotoName(), auth.getUser(), request.getAlbumId());
+            Receipt receipt = RESOLVER.uploadPhoto(auth.getUser(), request);
             return Response.ok(gson.toJson(receipt)).build();
         }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
         catch(InvalidResourceRequestException | DoesNotOwnAlbumException e) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
+    }
+
+    @POST
+    @Path(Resources.DELETE_PHOTO + "/{photoId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response removePhoto(@PathParam("photoId") long photoId, String message) {
+        // Retrieve request wrapper
+        try {
+            // Retrieve provided auth info and verify it
+            Auth auth = gson.fromJson(message, AuthRequest.class).getAuth();
+            String path = String.format("%s/%s", Resources.DELETE_PHOTO_PATH, photoId);
+            RESOLVER.verifyAuth(path, auth);
+
+            // Upload comment to the data store
+            RESOLVER.removePhoto(auth.getUser(), photoId);
+            return Response.noContent().build();
+
+        } catch (InvalidResourceRequestException | DoesNotOwnPhotoException e) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+
+        } catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
     }
 
     /**
@@ -126,6 +147,59 @@ public class PhotosApi {
             // Upload encoded photo to the data store
             Photo photo = RESOLVER.getPhoto(id);
             return Response.ok(gson.toJson(photo)).build();
+        }
+        catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
+        catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
+    }
+
+
+    /**
+     * Registers an upvote from the authorised user on the provided photoId, if it exists.
+     * @param photoId the provided photoId in the URL
+     * @param jsonAuth the serialised AuthRequest passed as the request body.
+     * @return a response indicating success / failure
+     */
+    @POST
+    @Path(Resources.UPVOTE + "/{photoId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response upvote(@PathParam("photoId") long photoId, String jsonAuth) {
+        // Retrieve provided auth info
+        try {
+            Auth auth = gson.fromJson(jsonAuth, AuthRequest.class).getAuth();
+            String path = String.format("%s/%s", Resources.PHOTO_UPVOTE_PATH, photoId);
+            RESOLVER.verifyAuth(path, auth);
+
+            // Register upvote with server
+            RESOLVER.ratePhoto(photoId, auth.getUser(), true);
+            return Response.noContent().build();
+
+        }
+        catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
+        catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
+    }
+
+    /**
+     * Registers a downvote from the authorised user on the provided photoId, if it exists.
+     * @param photoId the provided photoId in the URL
+     * @param jsonAuth the serialised AuthRequest passed as the request body.
+     * @return a response indicating success / failure
+     */
+    @POST
+    @Path(Resources.DOWNVOTE + "/{photoId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response downvote(@PathParam("photoId") long photoId, String jsonAuth) {
+        // Retrieve provided auth info
+        try {
+            Auth auth = gson.fromJson(jsonAuth, AuthRequest.class).getAuth();
+            String path = String.format("%s/%s", Resources.PHOTO_DOWNVOTE_PATH, photoId);
+            RESOLVER.verifyAuth(path, auth);
+
+            // Register downvote with server
+            RESOLVER.ratePhoto(photoId, auth.getUser(), false);
+            return Response.noContent().build();
+
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}

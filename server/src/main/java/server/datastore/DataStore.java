@@ -64,6 +64,13 @@ interface DataStore {
     List<Album> getAlbums(String user);
 
     /**
+     * Updates an album's description.
+     * @param albumId the album's id
+     * @param description the new description
+     */
+    void updateAlbumDescription(long albumId, String description) throws InvalidResourceRequestException;
+
+    /**
      * Retrieves the given comment
      * @param id the id of the comment
      * @return the comment
@@ -131,6 +138,14 @@ interface DataStore {
     void persistAddComment(Comment comment);
 
     /**
+     * Edits the given comment
+     * @param commentId the comment Id
+     * @param content the new comment content
+     *
+     */
+    void persistEditComment(long commentId, String content);
+
+    /**
      * Internally used. Adds a notification on the photo / comment which the given comment
      * commented on
      * @param parentName the name of the user who posted the original photo / comment
@@ -150,23 +165,31 @@ interface DataStore {
      * @param commentId the given commentId
      * @throws InvalidResourceRequestException if the id doesn't correspond to a valid comment
      */
-    void persistRemoveComment(long commentId) throws InvalidResourceRequestException;
+    void persistRemoveComment(long commentId);
 
     /**
      * Removes the given photo
      * @param photoId the given photoId
-     * @throws InvalidResourceRequestException if the id doesn't correspond to a valid comment
+     * @throws InvalidResourceRequestException if the id doesn't correspond to a valid photo
      */
     void persistRemovePhoto(long photoId);
 
-
     /**
-     * Registers the given persistVote on the given commemt
-     * @param commentId the id of the comment to persistVote on
-     * @param user the user who cast this persistVote
+     * Registers the given vote on the given comment
+     * @param commentId the id of the comment to vote on
+     * @param user the user who cast this vote
      * @param upvote whether or not this is an upvote or a downvote
      */
-    void persistVote(long commentId, String user, boolean upvote) throws InvalidResourceRequestException;
+    void persistCommentVote(long commentId, String user, boolean upvote) throws InvalidResourceRequestException;
+
+    /**
+     * Registers the given persistCommentVote on the given commemt
+     * @param commentId the id of the comment to persistCommentVote on
+     * @param user the user who cast this persistCommentVote
+     * @param upvote whether or not this is an upvote or a downvote
+     */
+    void persistPhotoRating(long commentId, String user, boolean upvote) throws InvalidResourceRequestException;
+
 
     /**
      * Attempts to follow the person a user has specified
@@ -208,4 +231,5 @@ interface DataStore {
      *
      */
     void clear();
+
 }

@@ -1,5 +1,6 @@
 package server;
 
+import javax.ws.rs.DELETE;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
@@ -34,6 +35,8 @@ public abstract class Resources {
     public static final String ID = "/ids";
     public static final String GET_ALBUM_BY_ID_PATH = ALBUMS_PATH + ID;
     public static final String GET_USER_ALBUMS_PATH = ALBUMS_PATH + USERS_PATH;
+    public static final String UPDATE_ALBUM_DESCRIPTION = "/updatedescription";
+    public static final String UPDATE_ALBUM_DESCRIPTION_PATH = ALBUMS_PATH + UPDATE_ALBUM_DESCRIPTION;
 
     // Resources regarding photos
     public static final String PHOTOS_PATH = "/photos";
@@ -42,6 +45,8 @@ public abstract class Resources {
     public static final String GET_PHOTO_BY_ID_PATH = PHOTOS_PATH + ID;
     public static final String GET_USER_PHOTOS_PATH = PHOTOS_PATH + USERS_PATH;
     public static final String GET_PHOTOS_BY_ALBUM_PATH = PHOTOS_PATH + ALBUMS_PATH;
+    public static final String DELETE_PHOTO = "/delete";
+    public static final String DELETE_PHOTO_PATH = PHOTOS_PATH + DELETE_PHOTO;
 
     // Resources regarding comments
     public static final String COMMENTS_PATH = "/comments";
@@ -50,16 +55,23 @@ public abstract class Resources {
     public static final String REPLY_PATH = "/replies";
     public static final String GET_ALL_REPLIES_PATH = COMMENTS_PATH + REPLY_PATH;
     public static final String GET_ALL_PHOTO_COMMENTS_PATH = COMMENTS_PATH + PHOTOS_PATH;
+    public static final String DELETE_COMMENT = "/delete";
+    public static final String DELETE_COMMENT_PATH = COMMENTS_PATH + DELETE_COMMENT;
+    public static final String EDIT_COMMENT = "/edit";
+    public static final String EDIT_COMMENT_PATH = COMMENTS_PATH + EDIT_COMMENT;
+
+    // Resources regarding voting
     public static final String DOWNVOTE = "/downvote";
     public static final String UPVOTE = "/upvote";
-    public static final String DOWNVOTE_PATH = COMMENTS_PATH + DOWNVOTE;
-    public static final String UPVOTE_PATH = COMMENTS_PATH + UPVOTE;
+    public static final String COMMENT_DOWNVOTE_PATH = COMMENTS_PATH + DOWNVOTE;
+    public static final String COMMENT_UPVOTE_PATH = COMMENTS_PATH + UPVOTE;
+    public static final String PHOTO_DOWNVOTE_PATH = PHOTOS_PATH + DOWNVOTE;
+    public static final String PHOTO_UPVOTE_PATH = PHOTOS_PATH + UPVOTE;
 
     // Resources regarding admins
     public static final String ADMIN_PATH = "/admin";
     public static final String REMOVE_COMMENT = "/removecomment";
     public static final String ADMIN_REMOVE_COMMENT_PATH = ADMIN_PATH + REMOVE_COMMENT;
-    public static final String REMOVAL_STRING = "Removed By Admin.";
     public static final String REMOVE_PHOTO = "/removephoto";
     public static final String ADMIN_REMOVE_PHOTO_PATH = ADMIN_PATH + REMOVE_PHOTO;
 

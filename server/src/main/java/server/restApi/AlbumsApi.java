@@ -9,6 +9,7 @@ import server.objects.Auth;
 import server.objects.Receipt;
 import server.requests.AddAlbumRequest;
 import server.requests.AuthRequest;
+import server.requests.UpdateAlbumDescriptionRequest;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -45,6 +46,33 @@ public class AlbumsApi {
             // Upload new album to the data store
             Receipt receipt = RESOLVER.addAlbum(auth.getUser(), request.getAlbumName(), request.getDescription());
             return Response.ok(gson.toJson(receipt)).build();
+        }
+        catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
+        catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
+    }
+
+
+    /**
+     * Attempts to update a given album's description
+     *
+     * @param message the auth information and new album information
+     * @return a response object containing the result of the request
+     */
+    @POST
+    @Path(Resources.UPDATE_ALBUM_DESCRIPTION)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response updateAlbumDescription(String message) {
+        // Retrieve request wrapper
+        try {
+            UpdateAlbumDescriptionRequest request = gson.fromJson(message, UpdateAlbumDescriptionRequest.class);
+
+            // Retrieve and verify provided auth info
+            Auth auth = request.getAuth();
+            RESOLVER.verifyAuth(Resources.UPDATE_ALBUM_DESCRIPTION_PATH, auth);
+
+            // Upload new description to data store
+            RESOLVER.updateAlbumDescription(request.getAlbumId(), request.getDescription());
+            return Response.noContent().build();
         }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }

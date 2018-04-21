@@ -64,6 +64,13 @@ interface DataStore {
     List<Album> getAlbums(String user);
 
     /**
+     * Updates an album's description.
+     * @param albumId the album's id
+     * @param description the new description
+     */
+    void updateAlbumDescription(long albumId, String description) throws InvalidResourceRequestException;
+
+    /**
      * Retrieves the given comment
      * @param id the id of the comment
      * @return the comment
@@ -155,7 +162,7 @@ interface DataStore {
     /**
      * Removes the given photo
      * @param photoId the given photoId
-     * @throws InvalidResourceRequestException if the id doesn't correspond to a valid comment
+     * @throws InvalidResourceRequestException if the id doesn't correspond to a valid photo
      */
     void persistRemovePhoto(long photoId);
 
@@ -207,4 +214,5 @@ interface DataStore {
      * Empties the data store
      */
     void clear();
+
 }

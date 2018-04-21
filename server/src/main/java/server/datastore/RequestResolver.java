@@ -174,6 +174,18 @@ public final class RequestResolver {
     }
 
     /**
+     * Updates an album's description.
+     * @param albumId the album's id
+     * @param description the new description
+     */
+    public void updateAlbumDescription(long albumId, String description) throws InvalidResourceRequestException {
+        // Ensure album exists
+        getAlbum(albumId);
+
+        dataStore.updateAlbumDescription(albumId, description);
+    }
+
+    /**
      * Retrieves the given comment
      * @param id the id of the comment
      * @return the comment
@@ -376,6 +388,9 @@ public final class RequestResolver {
      * @throws InvalidResourceRequestException if the id doesn't correspond to a valid comment
      */
     public void removeComment(long commentId) throws InvalidResourceRequestException {
+        // Ensure comment exists
+        getComment(commentId);
+
         // Simply overwrites comment with "Removed By Admin"
         dataStore.persistRemoveComment(commentId);
     }

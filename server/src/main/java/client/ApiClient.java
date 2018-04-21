@@ -188,6 +188,23 @@ public final class ApiClient {
         return connector.postToUrl(baseTarget, path, authJson);
     }
 
+
+    /**
+     * Sends an update album description request to the server.
+     *
+     * @param id the id of the album
+     * @param description the new description
+     * @return the response of the request.
+     */
+    public Response updateAlbumDescription(long id, String description) {
+        // Construct request
+        UpdateAlbumDescriptionRequest request = new UpdateAlbumDescriptionRequest(
+                getAuth(UPDATE_ALBUM_DESCRIPTION_PATH, user, password).getAuth(), id, description);
+
+        // Encode request and POST
+        return connector.postToUrl(baseTarget, UPDATE_ALBUM_DESCRIPTION_PATH, gson.toJson(request));
+    }
+
     /**
      * Sends a remove request to the server.
      *

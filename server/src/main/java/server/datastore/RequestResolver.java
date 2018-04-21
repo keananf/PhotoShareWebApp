@@ -7,6 +7,7 @@ import server.datastore.exceptions.UnauthorisedException;
 import server.objects.*;
 import server.requests.AddCommentRequest;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -472,6 +473,18 @@ public final class RequestResolver {
 
     }
 
+    /**
+     * Utility to get the Persons (Users) a user followss
+     *
+     * @param username - username of the user trying to find out who their followers are
+     * @return
+     */
+
+    public List<User> getFollowing(String username)  throws InvalidResourceRequestException{
+
+        List<User> followers = dataStore.getFollowing(username);
+        return followers;
+    }
 
     /**
      * Utility to get the Persons (Users) a user is followed by
@@ -479,11 +492,12 @@ public final class RequestResolver {
      * @param username - username of the user trying to find out who their followers are
      * @return
      */
-    private List<User> getFollowers(String username){
+    public List<User> getFollowers(String username) throws InvalidResourceRequestException{
 
         List<User> followers = dataStore.getFollowers(username);
         return followers;
     }
+
 
     /**
      * Utility method to get the usernames of the persons by whom a user
@@ -492,7 +506,7 @@ public final class RequestResolver {
      * @return
      */
 
-    private List<String> getUsernamesOfFollowers(String username){
+    private List<String> getUsernamesOfFollowers(String username) throws InvalidResourceRequestException{
 
         List<User> followers = dataStore.getFollowers(username);
         List<String> followers_usernames = followers.stream()
@@ -500,6 +514,28 @@ public final class RequestResolver {
                 .collect(Collectors.toList());
 
         return followers_usernames;
+    }
+
+    /**
+     *  all the photos posted by the people a user is following
+     *
+     * @param username
+     * @return
+     * @throws InvalidResourceRequestException
+     */
+
+    public List<Photo> getNewsFeed(String username) throws InvalidResourceRequestException {
+
+        List<User> following = getFollowing(username);
+        List<Photo> newsFeed = new ArrayList<Photo>();
+
+        for (User follower: following){
+
+            List<Photo> photos = getPhotos(follower.getUsername());
+            newsFeed.addAll(photos);
+        }
+
+        return newsFeed;
     }
 
     public void clear() {

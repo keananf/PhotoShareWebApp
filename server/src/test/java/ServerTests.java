@@ -6,7 +6,9 @@ import server.datastore.exceptions.InvalidResourceRequestException;
 import server.objects.*;
 
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -1000,5 +1002,292 @@ public final class ServerTests extends TestUtility {
         // Parse comments array and ensure it has two elements in it
         Comment[] comments = gson.fromJson(commentsResponse.readEntity(String.class), Comment[].class);
         assertEquals(0, comments.length);
+    }
+
+    @Test
+    public void emptyNewsFeedTest() throws InvalidResourceRequestException {
+
+        // Set up user who is being followed
+        String userBeingFollowed = "user_being_followed";
+        loginAndSetupNewUser(userBeingFollowed);
+
+        // Set up user whose news feed we want
+        loginAndSetupNewUser(username);
+
+        // Follow the first user
+        Response followResponse = apiClient.followUser(userBeingFollowed);
+
+        // Check Status code
+        Response newsFeedResponse = apiClient.getNewsFeed();
+        assertEquals(Response.Status.OK.getStatusCode(), newsFeedResponse.getStatus());
+
+        List<Photo> photosInNewsFeed =  resolver.getNewsFeed(username);
+        assertEquals(photosInNewsFeed.size(), 0);
+    }
+
+
+    // Followee denotes the person being followed
+
+    @Test
+    public void singleItemInNewsFeedFromSingleFolloweeTest() throws InvalidResourceRequestException {
+
+        // Set up user who is being followed
+        String userBeingFollowed = "user_being_followed";
+        loginAndSetupNewUser(userBeingFollowed);
+
+        // Create sample data
+        byte[] contents = new byte[] {1, 2, 3, 4, 5};
+
+        // Upload 'photo' (byte[])
+        Response response = apiClient.uploadPhoto(userBeingFollowed, albumId, contents);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        // Set up user whose news feed we want
+        loginAndSetupNewUser(username);
+
+        // Follow the first user
+        Response followResponse = apiClient.followUser(userBeingFollowed);
+
+        // Check Status code
+        Response newsFeedResponse = apiClient.getNewsFeed();
+        assertEquals(Response.Status.OK.getStatusCode(), newsFeedResponse.getStatus());
+
+        // Check correct albums were provided
+        List<Photo> photosOfFollowedUser =  resolver.getPhotos(userBeingFollowed);
+        List<Photo> photosInNewsFeed =  resolver.getNewsFeed(username);
+
+        List<Long> photoIdsOfFollowedUser = photosOfFollowedUser.stream().map(e -> e.getId()).collect(Collectors.toList());
+        List<Long> photoIdsInNewsFeed = photosInNewsFeed.stream().map(e -> e.getId()).collect(Collectors.toList());
+
+        assertArrayEquals(photoIdsOfFollowedUser.toArray(), photoIdsInNewsFeed.toArray());
+
+    }
+
+    @Test
+    public void multipleItemsInNewsFeedFromSingleFolloweeTest() throws InvalidResourceRequestException {
+
+        // Set up user who is being followed
+        String userBeingFollowed = "user_being_followed";
+        loginAndSetupNewUser(userBeingFollowed);
+
+        // Create sample data
+        byte[] contentsOne = new byte[] {1, 2, 3, 4, 5};
+        byte[] contentsTwo = new byte[] {1, 1, 3, 1, 2};
+
+        // Upload 'photo' (byte[])
+        Response uploadResponseOne = apiClient.uploadPhoto(userBeingFollowed, albumId, contentsOne);
+        assertEquals(Response.Status.OK.getStatusCode(), uploadResponseOne.getStatus());
+
+        // Upload 'photo' (byte[])
+        Response uploadResponseTwo = apiClient.uploadPhoto(userBeingFollowed, albumId, contentsTwo);
+        assertEquals(Response.Status.OK.getStatusCode(), uploadResponseTwo.getStatus());
+
+        // Set up user whose news feed we want
+        loginAndSetupNewUser(username);
+
+        // Follow the first user
+        Response followResponse = apiClient.followUser(userBeingFollowed);
+
+        // Check Status code
+        Response newsFeedResponse = apiClient.getNewsFeed();
+        assertEquals(Response.Status.OK.getStatusCode(), newsFeedResponse.getStatus());
+
+        // Check correct albums were provided
+        List<Photo> photosOfFollowedUser =  resolver.getPhotos(userBeingFollowed);
+        List<Photo> photosInNewsFeed =  resolver.getNewsFeed(username);
+
+        List<Long> photoIdsOfFollowedUser = photosOfFollowedUser.stream().map(e -> e.getId()).collect(Collectors.toList());
+        List<Long> photoIdsInNewsFeed = photosInNewsFeed.stream().map(e -> e.getId()).collect(Collectors.toList());
+
+        assertArrayEquals(photoIdsOfFollowedUser.toArray(), photoIdsInNewsFeed.toArray());
+
+    }
+
+    @Test
+    public void itemsInNewsFeedFromMultipleFolloweesTest() throws InvalidResourceRequestException {
+
+        // Set up users who are being followeds
+        String userBeingFollowedOne = "user_followed_one";
+        String userBeingFollowedTwo = "user_followes_two";
+
+        // Create sample data
+        byte[] contentsOne = new byte[] {1, 2, 3, 4, 5};
+        byte[] contentsTwo = new byte[] {1, 1, 3, 1, 2};
+
+        // Upload 'photo' (byte[]) for first followee
+        loginAndSetupNewUser(userBeingFollowedOne);
+        Response uploadResponseOne = apiClient.uploadPhoto(userBeingFollowedOne, albumId, contentsOne);
+        assertEquals(Response.Status.OK.getStatusCode(), uploadResponseOne.getStatus());
+
+        // Upload 'photo' (byte[]) for second followee
+        loginAndSetupNewUser(userBeingFollowedTwo);
+
+        // Add new album, and retrieve the returned id
+        Response response = apiClient.addAlbum(albumName, description, userBeingFollowedTwo);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        long albumIdTwo = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
+
+        Response uploadResponseTwo = apiClient.uploadPhoto(userBeingFollowedTwo, albumIdTwo, contentsTwo);
+        assertEquals(Response.Status.OK.getStatusCode(), uploadResponseTwo.getStatus());
+
+        // Set up user whose news feed we want
+        loginAndSetupNewUser(username);
+
+        // Follow the first user
+        Response followResponseOne = apiClient.followUser(userBeingFollowedOne);
+        Response followResponseTwo = apiClient.followUser(userBeingFollowedTwo);
+
+        // Check Status code
+        Response newsFeedResponse = apiClient.getNewsFeed();
+        assertEquals(Response.Status.OK.getStatusCode(), newsFeedResponse.getStatus());
+
+        // Check correct albums were provided
+        List<Photo> photosOfFollowedUserOne =  resolver.getPhotos(userBeingFollowedOne);
+        List<Photo> photosOfFollowedUserTwo =  resolver.getPhotos(userBeingFollowedTwo);
+
+        // Getting photoIds of all followees' photos
+        ArrayList<Photo> photoOfAllFollowers = new ArrayList<Photo>();
+        photoOfAllFollowers.addAll(photosOfFollowedUserOne);
+        photoOfAllFollowers.addAll(photosOfFollowedUserTwo);
+
+        // Getting photoIds of all photos in new feed
+        List<Photo> photosInNewsFeed =  resolver.getNewsFeed(username);
+;
+
+
+        assertEquals(photoOfAllFollowers.size(), photosInNewsFeed.size());
+
+    }
+
+    @Test
+    public void getEmptyListOfFollowingTest() {
+        // Add sample user and register it
+
+        loginAndSetupNewUser(username);
+
+        // Get users, and ensure it was successful
+        Response response = apiClient.getFollowing();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        // Parse JSON
+        String users = response.readEntity(String.class);
+        assertEquals(gson.fromJson(users, User[].class).length, 0);
+
+    }
+
+    @Test
+    public void getOneCorrectFollowingTest() {
+        // Add sample user and register it
+
+        // Set up users who are being followeds
+        String userBeingFollowedOne = "user_followed_one";
+
+        loginAndSetupNewUser(userBeingFollowedOne);
+        loginAndSetupNewUser(username);
+
+        apiClient.followUser(userBeingFollowedOne);
+
+        // Get users, and ensure it was successful
+        Response response = apiClient.getFollowing();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        // Parse JSON
+        String users = response.readEntity(String.class);
+
+        assertEquals(gson.fromJson(users, User[].class)[0].getUsername(), userBeingFollowedOne);
+    }
+
+    @Test
+    public void getTwoFollowingTest() {
+        // Add sample user and register it
+
+        // Set up users who are being followeds
+        String userBeingFollowedOne = "user_followed_one";
+        loginAndSetupNewUser(userBeingFollowedOne);
+
+        String userBeingFollowedTwo = "user_followed_two";
+        loginAndSetupNewUser(userBeingFollowedTwo);
+
+        loginAndSetupNewUser(username);
+
+        apiClient.followUser(userBeingFollowedOne);
+        apiClient.followUser(userBeingFollowedTwo);
+
+        // Get users, and ensure it was successful
+        Response response = apiClient.getFollowing();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        // Parse JSON
+        String users = response.readEntity(String.class);
+
+        assertEquals(gson.fromJson(users, User[].class).length, 2);
+    }
+
+    @Test
+    public void getEmptyListOfFollowersTest() {
+        // Add sample user and register it
+
+        loginAndSetupNewUser(username);
+
+        // Get users, and ensure it was successful
+        Response response = apiClient.getFollowers();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        // Parse JSON
+        String users = response.readEntity(String.class);
+        assertEquals(gson.fromJson(users, User[].class).length, 0);
+
+    }
+
+    @Test
+    public void getOneCorrectFollowerTest() {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Set up users who are following our sample user
+        String userFollowingOne = "user_following_one";
+        loginAndSetupNewUser(userFollowingOne);
+        apiClient.followUser(username);
+
+        // Log back into the sample user
+        apiClient.loginUser(username, pw);
+
+
+        // Get followers, and ensure it was successful
+        Response response = apiClient.getFollowers();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        // Parse JSON
+        String users = response.readEntity(String.class);
+
+        assertEquals(gson.fromJson(users, User[].class)[0].getUsername(), userFollowingOne);
+    }
+
+    @Test
+    public void getTwoFollowersTest() {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Set up users who are following our sample user
+        String userFollowingOne = "user_following_one";
+        loginAndSetupNewUser(userFollowingOne);
+        apiClient.followUser(username);
+
+        String userFollowingTwo = "user_following_two";
+        loginAndSetupNewUser(userFollowingTwo);
+        apiClient.followUser(username);
+
+        // Log back into the sample user
+        apiClient.loginUser(username, pw);
+
+
+        // Get followers, and ensure it was successful
+        Response response = apiClient.getFollowers();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        // Parse JSON
+        String users = response.readEntity(String.class);
+
+        assertEquals(gson.fromJson(users, User[].class).length, 2);
     }
 }

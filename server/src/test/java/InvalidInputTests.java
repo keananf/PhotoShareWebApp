@@ -159,11 +159,26 @@ public class InvalidInputTests extends TestUtility {
 
         // Assert unknown when try to upvote
         long randomId = 100;
-        Response response = apiClient.vote(randomId, true);
+        Response response = apiClient.voteOnComment(randomId, true);
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
 
         // Assert unknown when try to downvote
-        response = apiClient.vote(randomId, false);
+        response = apiClient.voteOnComment(randomId, false);
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void rateBadIdTest() {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Assert unknown when try to upvote
+        long randomId = 100;
+        Response response = apiClient.ratePhoto(randomId, true);
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+
+        // Assert unknown when try to downvote
+        response = apiClient.ratePhoto(randomId, false);
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 
@@ -360,5 +375,49 @@ public class InvalidInputTests extends TestUtility {
         Response firstFollowResponse = apiClient.followUser(randomName);
         Response secondFollowResponse = apiClient.followUser(randomName);
         assertEquals(Response.Status.CONFLICT.getStatusCode(), secondFollowResponse.getStatus());
+    }
+
+    @Test
+    public void deleteUnownedCommentTest() throws InvalidResourceRequestException {
+        // Add two users and login as second. Only the first user will be an admin.
+        loginAndSetupNewUser(username); // admin
+
+        // Create sample data
+        String photoName = "photo";
+        String comment = "a comment";
+        byte[] contents = new byte[] {1, 2, 3, 4, 5};
+
+        // Upload 'photo' (byte[])
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
+
+        // Send request to add comment to recently uploaded photo
+        Response commentsResponse = apiClient.addComment(id, PHOTO_COMMENT, comment);
+        assertEquals(Response.Status.OK.getStatusCode(), commentsResponse.getStatus());
+        id = gson.fromJson(commentsResponse.readEntity(String.class), Receipt.class).getReferenceId();
+
+        // Check data-store has comment recorded
+        List<Comment> comments = resolver.getComments(username);
+        Comment recordedComment = comments.get(0);
+        assertEquals(1, comments.size());
+        assertEquals(comment, recordedComment.getCommentContents());
+
+        // Attempt to remove comment as non-admin user who didn't write it
+        loginAndSetupNewUser(username + "2"); // not admin
+        Response removeResponse = apiClient.removeComment(id);
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), removeResponse.getStatus());
+
+        // Check comment is still there
+        assertEquals(1, resolver.getComments(username).size());
+    }
+
+    @Test
+    public void deleteUnknownCommentTest() throws InvalidResourceRequestException {
+        // Add two users and login as second. Only the first user will be an admin.
+        loginAndSetupNewUser(username); // admin
+        loginAndSetupNewUser(username + "2"); // not admin
+        Response removeResponse = apiClient.removeComment(-100);
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), removeResponse.getStatus());
     }
 }

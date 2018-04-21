@@ -46,20 +46,23 @@ public abstract class Resources {
     public static final String REPLY_PATH = "/replies";
     public static final String GET_ALL_REPLIES_PATH = COMMENTS_PATH + REPLY_PATH;
     public static final String GET_ALL_PHOTO_COMMENTS_PATH = COMMENTS_PATH + PHOTOS_PATH;
-    public static final String DOWNVOTE = "/downvote";
-    public static final String UPVOTE = "/upvote";
-    public static final String DOWNVOTE_PATH = COMMENTS_PATH + DOWNVOTE;
-    public static final String UPVOTE_PATH = COMMENTS_PATH + UPVOTE;
     public static final String DELETE_COMMENT = "/delete";
     public static final String DELETE_COMMENT_PATH = COMMENTS_PATH + DELETE_COMMENT;
     public static final String EDIT_COMMENT = "/edit";
     public static final String EDIT_COMMENT_PATH = COMMENTS_PATH + EDIT_COMMENT;
 
+    // Resources regarding voting
+    public static final String DOWNVOTE = "/downvote";
+    public static final String UPVOTE = "/upvote";
+    public static final String COMMENT_DOWNVOTE_PATH = COMMENTS_PATH + DOWNVOTE;
+    public static final String COMMENT_UPVOTE_PATH = COMMENTS_PATH + UPVOTE;
+    public static final String PHOTO_DOWNVOTE_PATH = PHOTOS_PATH + DOWNVOTE;
+    public static final String PHOTO_UPVOTE_PATH = PHOTOS_PATH + UPVOTE;
+
     // Resources regarding admins
     public static final String ADMIN_PATH = "/admin";
     public static final String REMOVE_COMMENT = "/removecomment";
     public static final String ADMIN_REMOVE_COMMENT_PATH = ADMIN_PATH + REMOVE_COMMENT;
-    public static final String REMOVAL_STRING = "Removed By Admin.";
     public static final String REMOVE_PHOTO = "/removephoto";
     public static final String ADMIN_REMOVE_PHOTO_PATH = ADMIN_PATH + REMOVE_PHOTO;
 

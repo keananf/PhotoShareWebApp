@@ -4,6 +4,7 @@ import server.datastore.exceptions.*;
 import server.objects.*;
 import server.requests.AddCommentRequest;
 import server.requests.EditCommentRequest;
+import server.requests.UploadPhotoRequest;
 
 import java.util.List;
 import java.util.Objects;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
  * and persists changes to the underlying data store
  */
 public final class RequestResolver {
+    public static boolean DEBUG = false;
     private static final long TIMEOUT = (long) (10 * (Math.pow(10, 9)));
     private int CURRENT_ID = 0;
     private DataStore dataStore = new DatabaseBackedDataStore();
@@ -35,7 +37,7 @@ public final class RequestResolver {
 
         // Check timestamp isn't too old
         long time = System.nanoTime();
-        if(time - auth.getTime() > TIMEOUT) throw new UnauthorisedException();
+        if(!DEBUG && time - auth.getTime() > TIMEOUT) throw new UnauthorisedException();
 
         // Compare generated secret API key
         String key = serverAuth.getApiKey(endPoint, auth.getTime());
@@ -71,22 +73,21 @@ public final class RequestResolver {
 
     /**
      * Uploads the given photo
-     * @param encodedPhotoContents the base 64 encoded photo contents
-     * @param photoName the name of the photo
+     *
      * @param user the user who posted the photo
-     * @param albumId the id of the album this photo belongs to
+     * @param request the upload photo request
      */
-    public Receipt uploadPhoto(String encodedPhotoContents, String photoName, String user, long albumId)
+    public Receipt uploadPhoto(String user, UploadPhotoRequest request)
             throws InvalidResourceRequestException, DoesNotOwnAlbumException {
         // Ensure user is known
         getUser(user);
 
         // Ensure albumId is known, and that it belongs to the user
-        Album album = getAlbum(albumId);
-        if(!album.getAuthorName().equals(user)) throw new DoesNotOwnAlbumException(albumId, user);
+        Album album = getAlbum(request.getAlbumId());
+        if(!album.getAuthorName().equals(user)) throw new DoesNotOwnAlbumException(request.getAlbumId(), user);
 
         // Create photo and persist it
-        Photo newPhoto = new Photo(encodedPhotoContents, user, photoName, CURRENT_ID++, albumId, System.nanoTime());
+        Photo newPhoto = new Photo(CURRENT_ID++, user, request);
         dataStore.persistUploadPhoto(newPhoto);
 
         // Return receipt confirming photo was created
@@ -324,8 +325,7 @@ public final class RequestResolver {
         }
 
         // Add unique id to be able to future identify this comment
-        Comment comment = new Comment(user, request);
-        comment.setId(CURRENT_ID++);
+        Comment comment = new Comment(CURRENT_ID++, user, request);
 
         // Persist comment to data store
         dataStore.persistAddComment(comment);
@@ -434,16 +434,29 @@ public final class RequestResolver {
     }
 
     /**
-     * Registers the given persistVote on the given commemt
-     * @param commentId the id of the comment to persistVote on
-     * @param user the user who cast this persistVote
+     * Registers the given vote on the given comment
+     * @param commentId the id of the comment to vote on
+     * @param user the user who cast this vote
      * @param upvote whether or not this is an upvote or a downvote
      */
-    public void vote(long commentId, String user, boolean upvote) throws InvalidResourceRequestException {
+    public void voteOnComment(long commentId, String user, boolean upvote) throws InvalidResourceRequestException {
         getUser(user);
         getComment(commentId);
 
-        dataStore.persistVote(commentId, user, upvote);
+        dataStore.persistCommentVote(commentId, user, upvote);
+    }
+
+    /**
+     * Registers the given photo rating
+     * @param photoId the id of the comment to voteOnComment on
+     * @param user the user who cast this voteOnComment
+     * @param upvote whether or not this is an upvote or a downvote
+     */
+    public void ratePhoto(long photoId, String user, boolean upvote) throws InvalidResourceRequestException {
+        getUser(user);
+        getPhoto(photoId);
+
+        dataStore.persistPhotoRating(photoId, user, upvote);
     }
 
     /**

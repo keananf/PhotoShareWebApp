@@ -61,7 +61,7 @@ public class AdminApi {
     @POST
     @Path(Resources.REMOVE_PHOTO + "/{photoId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response removePhoto(@PathParam("photoId") long photoId, String message) throws InvalidResourceRequestException{
+    public Response removePhoto(@PathParam("photoId") long photoId, String message) {
         // Retrieve request wrapper
         try {
             // Retrieve provided auth info and verify it

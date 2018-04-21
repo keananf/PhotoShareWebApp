@@ -478,6 +478,124 @@ PhotoShare RESTful API specification
           }
         });
 
+
+* `/photos/upvote/{id}`
+
+    * **Method:** `POST`
+  
+    * **URL Parameters:** 
+        * id: `a photo's unique id (as a long)`
+    
+    * **Body Parameters**
+    
+      ```
+      {
+          "auth" : 
+          {
+            "apiKey" : string,
+            "time": long,
+            "user": string,
+            "password": int
+          }
+      }
+      
+    * **Success Response:**
+    
+      * **Code:** 204 No Content <br />
+        
+    * **Error Response:**
+    
+      * **Code:** 400 Bad Request <br />
+    
+      or
+    
+      * **Code:** 401 Unauthorized <br />
+    
+    * **Sample Call:**
+    
+      ```javascript
+        $.ajax(
+        {
+          url: "/photos/upvote/123456",
+          dataType: "json",
+          data :
+          {
+              {
+                "auth" : 
+                {
+                  "apiKey" : abc123,
+                  "time": 1524219966,
+                  "user": "username1",
+                  "password": 1
+                }
+            }
+          },
+          type : "POST",
+          success : function(r) 
+          {
+            console.log(r);
+          }
+        });
+        
+* `/photos/downvote/{id}`
+
+    * **Method:** `POST`
+  
+    * **URL Parameters:** 
+        * id: `a photo's unique id (as a long)`
+    
+    * **Body Parameters**
+    
+      ```
+      {
+          "auth" : 
+          {
+            "apiKey" : string,
+            "time": long,
+            "user": string,
+            "password": int
+          }
+      }
+      
+    * **Success Response:**
+    
+      * **Code:** 204 No Content <br />
+        
+    * **Error Response:**
+    
+      * **Code:** 400 Bad Request <br />
+    
+      or
+    
+      * **Code:** 401 Unauthorized <br />
+    
+    * **Sample Call:**
+    
+      ```javascript
+        $.ajax(
+        {
+          url: "/photos/downvote/123456",
+          dataType: "json",
+          data :
+          {
+              {
+                "auth" : 
+                {
+                  "apiKey" : abc123,
+                  "time": 1524219966,
+                  "user": "username1",
+                  "password": 1
+                }
+            }
+          },
+          type : "POST",
+          success : function(r) 
+          {
+            console.log(r);
+          }
+        });
+       
+
 ## Comment-related APIs
 
 

@@ -67,7 +67,7 @@ public class CommentsApi {
             String path = String.format("%s/%s", Resources.EDIT_COMMENT_PATH, commentId);
             RESOLVER.verifyAuth(path, auth);
 
-            // Upload comment to the data store
+            // Update comment in the data store
             Receipt receipt = RESOLVER.editComment(auth.getUser(), commentId, request);
             return Response.ok(gson.toJson(receipt)).build();
         }

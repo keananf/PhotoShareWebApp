@@ -135,6 +135,24 @@ public class AuthorisationTests extends TestUtility {
     }
 
     @Test
+    public void unauthorisedRemovePhotoTest() {
+        // Assert unauthorised because no user logged in
+        Response response = apiClient.removePhoto(100);
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void unauthorisedRemovePhotoTest2() {
+        // Add two users and login as second. Only the first user will be an admin.
+        addUser(username); // admin
+        loginAndSetupNewUser(username + "2"); // not admin
+
+        // Assert unauthorised because it is NOT an admin calling this
+        Response response = apiClient.removePhoto(100);
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
+    }
+
+    @Test
     public void unauthorisedAddReplyTest() {
         // Assert unauthorised
         Response response = apiClient.addComment(100, REPLY, username);

@@ -7,7 +7,6 @@ import server.datastore.exceptions.UnauthorisedException;
 import server.objects.*;
 import server.requests.AddCommentRequest;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -382,6 +381,16 @@ public final class RequestResolver {
     }
 
     /**
+     * Removes the given photo
+     * @param photoId the given photoId
+     * @throws InvalidResourceRequestException if the id doesn't correspond to a valid photo
+     */
+    public void removePhoto(long photoId) throws InvalidResourceRequestException {
+        // Removes the photo from the database
+        dataStore.persistRemovePhoto(photoId);
+    }
+
+    /**
      * Registers the given persistVote on the given commemt
      * @param commentId the id of the comment to persistVote on
      * @param user the user who cast this persistVote
@@ -395,7 +404,7 @@ public final class RequestResolver {
     }
 
     /**
-     * Attempts to a user to follow the person a user has specified
+     * Attempts tp a user to follow the person a user has specified
      *
      * @param userFrom - the username of the user from whom the follow request comes
      * @param userTo - the username of the person the user is trying to follow
@@ -406,7 +415,12 @@ public final class RequestResolver {
     public void followUser(String userFrom, String userTo) throws InvalidResourceRequestException, ExistingException{
 
         // Check the user to follow exists
-        getUser(userTo);
+
+        try {
+            getUser(userTo);
+        }catch (InvalidResourceRequestException e){
+            throw e;
+        }
 
         // Check the user is not already following the userToFollow
 
@@ -433,7 +447,12 @@ public final class RequestResolver {
     public void unfollowUser(String userFrom, String userTo) throws InvalidResourceRequestException{
 
         // Check the followed user exists
-        getUser(userTo);
+
+        try {
+            getUser(userTo);
+        }catch (InvalidResourceRequestException e){
+            throw e;
+        }
 
         // usernames of followers
         List<String> followers_usernames = getUsernamesOfFollowers(userTo);
@@ -460,46 +479,10 @@ public final class RequestResolver {
      * @param username - username of the user trying to find out who their followers are
      * @return
      */
-    public List<User> getFollowers(String username) throws InvalidResourceRequestException{
+    private List<User> getFollowers(String username){
 
         List<User> followers = dataStore.getFollowers(username);
         return followers;
-    }
-
-    /**
-     * Utility to get the Persons (Users) a user followss
-     *
-     * @param username - username of the user trying to find out who their followers are
-     * @return
-     */
-
-    public List<User> getFollowing(String username)  throws InvalidResourceRequestException{
-
-        List<User> followers = dataStore.getFollowing(username);
-        return followers;
-    }
-
-
-    /**
-     *  all the photos posted by the people a user is following
-     *
-     * @param username
-     * @return
-     * @throws InvalidResourceRequestException
-     */
-
-    public List<Photo> getNewsFeed(String username) throws InvalidResourceRequestException {
-
-        List<User> following = getFollowing(username);
-        List<Photo> newsFeed = new ArrayList<Photo>();
-
-        for (User follower: following){
-
-            List<Photo> photos = getPhotos(follower.getUsername());
-            newsFeed.addAll(photos);
-        }
-
-        return newsFeed;
     }
 
     /**
@@ -509,11 +492,11 @@ public final class RequestResolver {
      * @return
      */
 
-    private List<String> getUsernamesOfFollowers(String username) throws InvalidResourceRequestException{
+    private List<String> getUsernamesOfFollowers(String username){
 
         List<User> followers = dataStore.getFollowers(username);
         List<String> followers_usernames = followers.stream()
-                .map(follower -> follower.getUsername())
+                .map(object -> Objects.toString(object.getUsername(), null))
                 .collect(Collectors.toList());
 
         return followers_usernames;

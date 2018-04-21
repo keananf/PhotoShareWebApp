@@ -60,6 +60,8 @@ public abstract class Resources {
     public static final String REMOVE_COMMENT = "/removecomment";
     public static final String ADMIN_REMOVE_COMMENT_PATH = ADMIN_PATH + REMOVE_COMMENT;
     public static final String REMOVAL_STRING = "Removed By Admin.";
+    public static final String REMOVE_PHOTO = "/removephoto";
+    public static final String ADMIN_REMOVE_PHOTO_PATH = ADMIN_PATH + REMOVE_PHOTO;
 
     // Resources regarding News Feeds
     public static final String NEWS_FEED_PATH = "/news_feeds";

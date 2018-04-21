@@ -386,6 +386,21 @@ public final class RequestResolver {
     }
 
     /**
+     * Removes the given comment
+     * @param commentId the given commentId
+     * @throws InvalidResourceRequestException if the comment ID doesn't correspond to a valid comment
+     */
+    public void removeComment(String user, long commentId) throws InvalidResourceRequestException {
+
+        // Checks that comment exists and is owned by requesting user, throws an exception if not
+        Comment c = getComment(commentId);
+        if (!c.getAuthor().equals(user)) throw new InvalidResourceRequestException(commentId);
+
+        // Cascade deletes a comment
+        dataStore.persistRemoveComment(commentId);
+    }
+
+    /**
      * Removes the given photo
      * @param photoId the given photoId
      * @throws InvalidResourceRequestException if the id doesn't correspond to a valid photo

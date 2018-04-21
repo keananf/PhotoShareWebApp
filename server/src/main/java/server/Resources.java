@@ -1,5 +1,6 @@
 package server;
 
+import javax.ws.rs.DELETE;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
@@ -49,6 +50,8 @@ public abstract class Resources {
     public static final String UPVOTE = "/upvote";
     public static final String DOWNVOTE_PATH = COMMENTS_PATH + DOWNVOTE;
     public static final String UPVOTE_PATH = COMMENTS_PATH + UPVOTE;
+    public static final String DELETE_COMMENT = "/delete";
+    public static final String DELETE_COMMENT_PATH = COMMENTS_PATH + DELETE_COMMENT;
 
     // Resources regarding admins
     public static final String ADMIN_PATH = "/admin";

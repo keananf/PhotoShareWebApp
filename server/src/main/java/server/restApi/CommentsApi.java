@@ -48,6 +48,33 @@ public class CommentsApi {
     }
 
     /**
+     * Allows users to delete their own comments
+     *
+     * @param commentId the ID of the comment to be removed, provided in the URL
+     * @param message the auth information
+     * @return a response object containing the result of the request
+     */
+    @POST
+    @Path(Resources.DELETE_COMMENT + "/{commentId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response removeComment(@PathParam("commentId") long commentId, String message) {
+
+        // Retrieve request wrapper
+        try {
+            // Retrieve provided auth info and verify it
+            Auth auth = gson.fromJson(message, AuthRequest.class).getAuth();
+            String path = String.format("%s/%s", Resources.DELETE_COMMENT_PATH, commentId);
+            RESOLVER.verifyAuth(path, auth);
+
+            // Upload comment to the data store
+            RESOLVER.removeComment(auth.getUser(), commentId);
+            return Response.noContent().build();
+        }
+        catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
+        catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
+    }
+
+    /**
      * @param username the provided username in the URL
      * @param jsonAuth the serialised AuthRequest passed as the request body.
      * @return a parsed list of all comments from the requested user in the system

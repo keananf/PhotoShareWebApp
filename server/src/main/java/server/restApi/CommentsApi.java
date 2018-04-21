@@ -48,6 +48,32 @@ public class CommentsApi {
     }
 
     /**
+     * Attempts to parse the message and edit a comment
+     *
+     * @param message the auth information and serialised comment
+     * @return a response object containing the result of the request
+     */
+    @POST
+    @Path(Resources.ADD_COMMENT)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response editComment(String message) {
+        // Retrieve request wrapper
+        try {
+            AddCommentRequest request = gson.fromJson(message, AddCommentRequest.class);
+
+            // Retrieve provided auth info
+            Auth auth = request.getAuth();
+            RESOLVER.verifyAuth(Resources.EDIT_COMMENT_PATH, auth);
+
+            // Upload comment to the data store
+            Receipt receipt = RESOLVER.editComment(auth.getUser(), request);
+            return Response.ok(gson.toJson(receipt)).build();
+        }
+        catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
+        catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
+    }
+
+    /**
      * @param username the provided username in the URL
      * @param jsonAuth the serialised AuthRequest passed as the request body.
      * @return a parsed list of all comments from the requested user in the system

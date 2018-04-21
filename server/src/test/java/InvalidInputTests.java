@@ -204,7 +204,7 @@ public class InvalidInputTests extends TestUtility {
     }
 
     @Test
-    public void removeUnknownCommentTest() throws InvalidResourceRequestException {
+    public void adminRemoveUnknownCommentTest() throws InvalidResourceRequestException {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 

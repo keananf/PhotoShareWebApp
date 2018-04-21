@@ -344,7 +344,7 @@ public final class ServerTests extends TestUtility {
     }
 
     @Test
-    public void removeCommentTest() throws InvalidResourceRequestException {
+    public void adminRemoveCommentTest() throws InvalidResourceRequestException {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
@@ -577,7 +577,7 @@ public final class ServerTests extends TestUtility {
     }
 
     @Test
-    public void removeReplyTest() throws InvalidResourceRequestException {
+    public void adminRemoveReplyTest() throws InvalidResourceRequestException {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 

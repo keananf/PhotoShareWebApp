@@ -135,6 +135,19 @@ public final class ApiClient {
     }
 
     /**
+     * Sends a remove request to the server.
+     *
+     * @param id the id of the photo
+     * @return the response of the request.
+     */
+    public Response removePhoto(long id) {
+        // Encode request and POST
+        String path = String.format("%s/%s", DELETE_PHOTO_PATH, id);
+        String authJson = getSerialisedAuthRequest(path, user, password);
+        return connector.postToUrl(baseTarget, path, authJson);
+    }
+
+    /**
      * Encoded and uploads the given file
      *
      * @param id the id of the photo
@@ -181,7 +194,7 @@ public final class ApiClient {
      * @param id the id of the comment
      * @return the response of the request.
      */
-    public Response removeComment(long id) {
+    public Response adminRemoveComment(long id) {
         // Encode request and POST
         String path = String.format("%s/%s", ADMIN_REMOVE_COMMENT_PATH, id);
         String authJson = getSerialisedAuthRequest(path, user, password);
@@ -211,7 +224,7 @@ public final class ApiClient {
      * @param id the id of the photo
      * @return the response of the request.
      */
-    public Response removePhoto(long id) {
+    public Response adminRemovePhoto(long id) {
         // Encode request and POST
         String path = String.format("%s/%s", ADMIN_REMOVE_PHOTO_PATH, id);
         String authJson = getSerialisedAuthRequest(path, user, password);
@@ -324,6 +337,13 @@ public final class ApiClient {
 
         // Encode request and POST
         return connector.postToUrl(baseTarget, ADD_COMMENT_PATH, gson.toJson(request));
+    }
+
+    public Response removeComment(long id) {
+        // Encode request and POST
+        String path = String.format("%s/%s", DELETE_COMMENT_PATH, id);
+        String authJson = getSerialisedAuthRequest(path, user, password);
+        return connector.postToUrl(baseTarget, path, authJson);
     }
 
     /**

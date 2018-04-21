@@ -6,6 +6,7 @@ import javax.ws.rs.core.Response;
 
 import java.util.List;
 
+import static org.junit.Assert.assertNotNull;
 import static server.objects.CommentType.*;
 import static org.junit.Assert.assertEquals;
 
@@ -235,13 +236,13 @@ public class InvalidInputTests extends TestUtility {
     }
 
     @Test
-    public void removeUnknownCommentTest() throws InvalidResourceRequestException {
+    public void adminRemoveUnknownCommentTest() throws InvalidResourceRequestException {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
         // Send request to remove unknown comment.
         long randomId = -100;
-        Response commentsResponse = apiClient.removeComment(randomId);
+        Response commentsResponse = apiClient.adminRemoveComment(randomId);
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), commentsResponse.getStatus());
     }
 
@@ -391,5 +392,82 @@ public class InvalidInputTests extends TestUtility {
         Response firstFollowResponse = apiClient.followUser(randomName);
         Response secondFollowResponse = apiClient.followUser(randomName);
         assertEquals(Response.Status.CONFLICT.getStatusCode(), secondFollowResponse.getStatus());
+    }
+
+    @Test
+    public void deleteUnownedCommentTest() throws InvalidResourceRequestException {
+        // Add two users and login as second. Only the first user will be an admin.
+        loginAndSetupNewUser(username); // admin
+
+        // Create sample data
+        String photoName = "photo";
+        String comment = "a comment";
+        byte[] contents = new byte[] {1, 2, 3, 4, 5};
+
+        // Upload 'photo' (byte[])
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
+
+        // Send request to add comment to recently uploaded photo
+        Response commentsResponse = apiClient.addComment(id, PHOTO_COMMENT, comment);
+        assertEquals(Response.Status.OK.getStatusCode(), commentsResponse.getStatus());
+        id = gson.fromJson(commentsResponse.readEntity(String.class), Receipt.class).getReferenceId();
+
+        // Check data-store has comment recorded
+        List<Comment> comments = resolver.getComments(username);
+        Comment recordedComment = comments.get(0);
+        assertEquals(1, comments.size());
+        assertEquals(comment, recordedComment.getCommentContents());
+
+        // Attempt to remove comment as non-admin user who didn't write it
+        loginAndSetupNewUser(username + "2"); // not admin
+        Response removeResponse = apiClient.removeComment(id);
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), removeResponse.getStatus());
+
+        // Check comment is still there
+        assertEquals(1, resolver.getComments(username).size());
+    }
+
+    @Test
+    public void deleteUnknownCommentTest() {
+        // Add two users and login as second. Only the first user will be an admin.
+        loginAndSetupNewUser(username); // admin
+        loginAndSetupNewUser(username + "2"); // not admin
+        Response removeResponse = apiClient.removeComment(-100);
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), removeResponse.getStatus());
+    }
+
+    @Test
+    public void deleteUnownedPhotoTest() throws InvalidResourceRequestException {
+        // Add two users and login as second. Only the first user will be an admin.
+        loginAndSetupNewUser(username); // admin
+
+        // Create sample data
+        String photoName = "photo";
+        String comment = "a comment";
+        byte[] contents = new byte[] {1, 2, 3, 4, 5};
+
+        // Upload 'photo' (byte[])
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
+
+        // Attempt to remove photo as non-admin user who didn't post it
+        loginAndSetupNewUser(username + "2"); // not admin
+        Response removeResponse = apiClient.removePhoto(id);
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), removeResponse.getStatus());
+
+        // Check photo is still there
+        assertNotNull(resolver.getPhoto(id));
+    }
+
+    @Test
+    public void deleteUnknownPhotoTest() {
+        // Add two users and login as second. Only the first user will be an admin.
+        loginAndSetupNewUser(username); // admin
+        loginAndSetupNewUser(username + "2"); // not admin
+        Response removeResponse = apiClient.removePhoto(-100);
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), removeResponse.getStatus());
     }
 }

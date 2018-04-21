@@ -1,5 +1,6 @@
 package server;
 
+import javax.ws.rs.DELETE;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
@@ -39,6 +40,8 @@ public abstract class Resources {
     public static final String GET_PHOTO_BY_ID_PATH = PHOTOS_PATH + ID;
     public static final String GET_USER_PHOTOS_PATH = PHOTOS_PATH + USERS_PATH;
     public static final String GET_PHOTOS_BY_ALBUM_PATH = PHOTOS_PATH + ALBUMS_PATH;
+    public static final String DELETE_PHOTO = "/delete";
+    public static final String DELETE_PHOTO_PATH = PHOTOS_PATH + DELETE_PHOTO;
 
     // Resources regarding comments
     public static final String COMMENTS_PATH = "/comments";
@@ -47,6 +50,8 @@ public abstract class Resources {
     public static final String REPLY_PATH = "/replies";
     public static final String GET_ALL_REPLIES_PATH = COMMENTS_PATH + REPLY_PATH;
     public static final String GET_ALL_PHOTO_COMMENTS_PATH = COMMENTS_PATH + PHOTOS_PATH;
+    public static final String DELETE_COMMENT = "/delete";
+    public static final String DELETE_COMMENT_PATH = COMMENTS_PATH + DELETE_COMMENT;
     public static final String EDIT_COMMENT = "/edit";
     public static final String EDIT_COMMENT_PATH = COMMENTS_PATH + EDIT_COMMENT;
 
@@ -62,7 +67,6 @@ public abstract class Resources {
     public static final String ADMIN_PATH = "/admin";
     public static final String REMOVE_COMMENT = "/removecomment";
     public static final String ADMIN_REMOVE_COMMENT_PATH = ADMIN_PATH + REMOVE_COMMENT;
-    public static final String REMOVAL_STRING = "Removed By Admin.";
     public static final String REMOVE_PHOTO = "/removephoto";
     public static final String ADMIN_REMOVE_PHOTO_PATH = ADMIN_PATH + REMOVE_PHOTO;
 

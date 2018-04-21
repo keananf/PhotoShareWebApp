@@ -424,16 +424,16 @@ public final class ServerTests extends TestUtility {
         List<Comment> comments = resolver.getComments(username);
         Comment recordedComment = comments.get(0);
         assertEquals(1, comments.size());
-        assertEquals(comment, recordedComment.getContents());
+        assertEquals(comment, recordedComment.getCommentContents());
 
         // Edit comment
         String newComment = "new comment";
-        Response removeResponse = apiClient.editComment(id, newComment);
-        assertEquals(Response.Status.OK.getStatusCode(), removeResponse.getStatus());
+        Response editResponse = apiClient.editComment(id, newComment);
+        assertEquals(Response.Status.OK.getStatusCode(), editResponse.getStatus());
 
         // Check comment was changed
         recordedComment = resolver.getComments(username).get(0);
-        assertEquals(newComment, recordedComment.getContents());
+        assertEquals(newComment, recordedComment.getCommentContents());
     }
 
     @Test

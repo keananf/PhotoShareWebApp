@@ -343,18 +343,18 @@ public final class RequestResolver {
      * @param request the request for new comment content
      * @throws InvalidResourceRequestException if the comment doesn't exist
      */
-    public Receipt editComment(String user, EditCommentRequest request) throws InvalidResourceRequestException, DoesNotOwnCommentException {
+    public Receipt editComment(String user, long commentId, EditCommentRequest request) throws InvalidResourceRequestException, DoesNotOwnCommentException {
 
         // Retrieve the parent comment and check it exists
         // (exception will be thrown, if not).
-        Comment comment = getComment(request.getReferenceId());
-        if (!comment.getPostedBy().equals(user)) throw new DoesNotOwnCommentException(request.getReferenceId(), user);
+        Comment comment = getComment(commentId);
+        if (!comment.getAuthor().equals(user)) throw new DoesNotOwnCommentException(commentId, user);
 
         // Persist comment to data store
-        dataStore.persistEditComment(request.getReferenceId(), request.getCommentContents());
+        dataStore.persistEditComment(commentId, request.getCommentContents());
 
         // Return a receipt
-        return new Receipt(request.getReferenceId());
+        return new Receipt(commentId);
     }
 
     /**

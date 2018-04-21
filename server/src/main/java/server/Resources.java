@@ -49,7 +49,7 @@ public abstract class Resources {
     public static final String UPVOTE = "/upvote";
     public static final String DOWNVOTE_PATH = COMMENTS_PATH + DOWNVOTE;
     public static final String UPVOTE_PATH = COMMENTS_PATH + UPVOTE;
-    public static final String EDIT_COMMENT = "/editcomment";
+    public static final String EDIT_COMMENT = "/edit";
     public static final String EDIT_COMMENT_PATH = COMMENTS_PATH + EDIT_COMMENT;
 
     // Resources regarding admins

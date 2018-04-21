@@ -55,19 +55,20 @@ public class CommentsApi {
      * @return a response object containing the result of the request
      */
     @POST
-    @Path(Resources.EDIT_COMMENT)
+    @Path(Resources.EDIT_COMMENT + "/{commentId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response editComment(String message) {
+    public Response editComment(@PathParam("commentId") long commentId, String message) {
         // Retrieve request wrapper
         try {
             EditCommentRequest request = gson.fromJson(message, EditCommentRequest.class);
 
             // Retrieve provided auth info
             Auth auth = request.getAuth();
-            RESOLVER.verifyAuth(Resources.EDIT_COMMENT_PATH, auth);
+            String path = String.format("%s/%s", Resources.EDIT_COMMENT_PATH, commentId);
+            RESOLVER.verifyAuth(path, auth);
 
             // Upload comment to the data store
-            Receipt receipt = RESOLVER.editComment(auth.getUser(), request);
+            Receipt receipt = RESOLVER.editComment(auth.getUser(), commentId, request);
             return Response.ok(gson.toJson(receipt)).build();
         }
         catch(InvalidResourceRequestException | DoesNotOwnCommentException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }

@@ -248,7 +248,7 @@ public class InvalidInputTests extends TestUtility {
         List<Comment> comments = resolver.getComments(username);
         Comment recordedComment = comments.get(0);
         assertEquals(1, comments.size());
-        assertEquals(comment, recordedComment.getContents());
+        assertEquals(comment, recordedComment.getCommentContents());
 
         // Add another sample users and register them
         String username2 = username + "2";
@@ -260,7 +260,7 @@ public class InvalidInputTests extends TestUtility {
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
 
         // Check data-store that comment was not changed
-        assertEquals(comment, recordedComment.getContents());
+        assertEquals(comment, recordedComment.getCommentContents());
     }
 
     @Test

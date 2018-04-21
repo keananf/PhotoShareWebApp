@@ -9,14 +9,10 @@ import server.objects.CommentType;
 public class EditCommentRequest extends AuthRequest {
 
     private final String commentContents;
-    private final long referenceId;
-    private final long timestamp;
 
-    public EditCommentRequest(Auth auth, String commentContents, long referenceId) {
+    public EditCommentRequest(Auth auth, String commentContents) {
         super(auth);
         this.commentContents = commentContents;
-        this.referenceId = referenceId;
-        timestamp = System.nanoTime();
     }
 
     /**
@@ -24,12 +20,5 @@ public class EditCommentRequest extends AuthRequest {
      */
     public String getCommentContents() {
         return commentContents;
-    }
-
-    /**
-     * @return id of comment
-     */
-    public long getReferenceId() {
-        return referenceId;
     }
 }

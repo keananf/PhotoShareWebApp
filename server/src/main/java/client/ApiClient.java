@@ -304,11 +304,11 @@ public final class ApiClient {
      */
     public Response editComment(long id, String commentContent) {
         // Construct request
-        EditCommentRequest request = new EditCommentRequest(getAuth(EDIT_COMMENT_PATH, user, password).getAuth(),
-                commentContent, id);
+        String path = String.format("%s/%s", EDIT_COMMENT_PATH, id);
+        EditCommentRequest request = new EditCommentRequest(getAuth(path, user, password).getAuth(), commentContent);
 
         // Encode request and POST
-        return connector.postToUrl(baseTarget, EDIT_COMMENT_PATH, gson.toJson(request));
+        return connector.postToUrl(baseTarget, path, gson.toJson(request));
     }
 
     /**

@@ -23,7 +23,7 @@ import static server.datastore.DatabaseResources.USER_TO;
  * DataStore implemented in terms of a H2 database
  */
 final class DatabaseBackedDataStore implements DataStore {
-    private static final String db_url = "jdbc:h2:~/Documents/CS5031/P3/Code/server/database";
+    private static final String db_url = "jdbc:h2:./database";
     private static final String DB_CONFIG = "src/main/resources/db_config.txt";
     private static String uname;
     private static String pw;
@@ -57,16 +57,17 @@ final class DatabaseBackedDataStore implements DataStore {
     public void persistUploadPhoto(Photo newPhoto) {
         // Set up query for inserting a new photo into the table
         String query = "INSERT INTO "+PHOTOS_TABLE+"("+PHOTOS_ID+","+PHOTOS_NAME+","
-                +USERNAME+","+PHOTOS_CONTENTS+","+PHOTOS_TIME+") values(?, ?, ?, ?, ?)";
+                +USERNAME+","+ALBUMS_ID+","+PHOTOS_CONTENTS+","+PHOTOS_TIME+") values(?, ?, ?, ?, ?, ?)";
 
         // Persist photo
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             // Insert user info into prepared statement
             stmt.setLong(1, newPhoto.getId());
             stmt.setString(2, newPhoto.getPhotoName());
-            stmt.setString(3, newPhoto.getPostedBy());
-            stmt.setBlob(4, new ByteArrayInputStream(newPhoto.getPhotoContents().getBytes(StandardCharsets.UTF_8)));
-            stmt.setTimestamp(5, new Timestamp(newPhoto.getTimestamp()));
+            stmt.setString(3, newPhoto.getAuthorName());
+            stmt.setLong(4, newPhoto.getAlbumId());
+            stmt.setBlob(5, new ByteArrayInputStream(newPhoto.getPhotoContents().getBytes(StandardCharsets.UTF_8)));
+            stmt.setTimestamp(6, new Timestamp(newPhoto.getPhotoTime()));
 
             // Persist data
             stmt.executeUpdate();
@@ -93,6 +94,39 @@ final class DatabaseBackedDataStore implements DataStore {
                 String photoName = rs.getString(2);
                 String username = rs.getString(3);
                 long albumId = rs.getLong(4);
+                Blob photoContents = rs.getBlob(5);
+                Timestamp timestamp = rs.getTimestamp(6);
+
+                // Retrieve base 64 encoded contents
+                Scanner s = new Scanner(photoContents.getBinaryStream(), Resources.CHARSET_AS_STRING).useDelimiter("\\A");
+                String encodedPhotoContents = s.hasNext() ? s.next() : "";
+                photos.add(new Photo(encodedPhotoContents, username, photoName, id, albumId, timestamp.getTime()));
+            }
+            stmt.close();
+        }
+        catch (SQLException e) {e.printStackTrace(); }
+
+        // Return found photos
+        return photos;
+    }
+
+    @Override
+    public List<Photo> getPhotos(long albumId) {
+        // Set up query to retrieve each row in the photos table
+        String query = "SELECT * FROM "+PHOTOS_TABLE+" WHERE "+ALBUMS_ID+" = ?";
+        List<Photo> photos = new ArrayList<>();
+
+        // Execute query on database
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setLong(1, albumId);
+            ResultSet rs = stmt.executeQuery();
+
+            // Iterate through result set, constructing PHOTO Objects
+            while(rs.next()) {
+                // Create photos
+                long id = rs.getLong(1);
+                String photoName = rs.getString(2);
+                String username = rs.getString(3);
                 Blob photoContents = rs.getBlob(5);
                 Timestamp timestamp = rs.getTimestamp(6);
 
@@ -157,7 +191,7 @@ final class DatabaseBackedDataStore implements DataStore {
             stmt.setLong(1, album.getAlbumId());
             stmt.setString(2, album.getAlbumName());
             stmt.setString(3, album.getAuthorName());
-            stmt.setString(4, album.getAlbumDescription());
+            stmt.setString(4, album.getDescription());
             stmt.setTimestamp(5, new Timestamp(album.getAlbumTime()));
 
             // Persist data
@@ -344,7 +378,7 @@ final class DatabaseBackedDataStore implements DataStore {
         // Persist the user
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             // Insert user info into prepared statement
-            stmt.setString(1, user.getName());
+            stmt.setString(1, user.getUsername());
             stmt.setInt(2, user.getPassword());
             stmt.setBoolean(3, user.isAdmin());
 
@@ -494,16 +528,17 @@ final class DatabaseBackedDataStore implements DataStore {
     public void persistAddComment(Comment comment) {
         // Set up query for inserting a new comment into the table
         String query = "INSERT INTO "+COMMENTS_TABLE+"("+COMMENTS_ID+","+USERNAME+","
-                        +COMMENTS_CONTENTS+","+COMMENT_TYPE+","+REFERENCE_ID+") values(?, ?, ?, ?, ?)";
+                        +COMMENTS_CONTENTS+","+COMMENT_TYPE+","+REFERENCE_ID+","+COMMENTS_TIME+") values(?, ?, ?, ?, ?, ?)";
 
         // Add comment
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             // Insert user info into prepared statement)
             stmt.setLong(1, comment.getId());
-            stmt.setString(2, comment.getPostedBy());
-            stmt.setString(3, comment.getContents());
+            stmt.setString(2, comment.getAuthor());
+            stmt.setString(3, comment.getCommentContents());
             stmt.setBoolean(4, comment.getCommentType() == CommentType.REPLY);
             stmt.setLong(5, comment.getReferenceId());
+            stmt.setTimestamp(6, new Timestamp(comment.getCommentTime()));
 
             // Persist data
             stmt.executeUpdate();
@@ -524,7 +559,7 @@ final class DatabaseBackedDataStore implements DataStore {
             stmt.setLong(1, comment.getId());
             stmt.setLong(2, comment.getReferenceId());
             stmt.setString(3, parentName);
-            stmt.setString(4, comment.getPostedBy());
+            stmt.setString(4, comment.getAuthor());
             stmt.setBoolean(5, comment.getCommentType() == CommentType.REPLY);
 
             // Persist data
@@ -568,6 +603,22 @@ final class DatabaseBackedDataStore implements DataStore {
 
         // Comment didn't exist
         throw new InvalidResourceRequestException(commentId);
+    }
+
+    @Override
+    public void persistRemovePhoto(long photoId) {
+        // The photo will be deleted.
+        String query = "DELETE FROM " + PHOTOS_TABLE + " WHERE " + PHOTOS_ID + " = ?";
+
+        // Setup delete query.
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setLong(1, photoId);
+
+            // Execute query to delete row
+            stmt.executeUpdate();
+            stmt.close();
+        }
+        catch (SQLException e) {e.printStackTrace();}
     }
 
     @Override

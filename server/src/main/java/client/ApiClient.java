@@ -175,6 +175,19 @@ public final class ApiClient {
     }
 
     /**
+     * Sends a remove request to the server.
+     *
+     * @param id the id of the photo
+     * @return the response of the request.
+     */
+    public Response removePhoto(long id) {
+        // Encode request and POST
+        String path = String.format("%s/%s", ADMIN_REMOVE_PHOTO_PATH, id);
+        String authJson = getSerialisedAuthRequest(path, user, password);
+        return connector.postToUrl(baseTarget, path, authJson);
+    }
+
+    /**
      * Download all photos from a given user
      *
      * @param name the name of the user to retrieve photos from
@@ -183,6 +196,19 @@ public final class ApiClient {
     public Response getAllPhotos(String name) {
         // Encode request and POST
         String path = String.format("%s/%s", GET_USER_PHOTOS_PATH, name);
+        String authJson = getSerialisedAuthRequest(path, user, password);
+        return connector.postToUrl(baseTarget, path, authJson);
+    }
+
+    /**
+     * Download all photos from a given album
+     *
+     * @param albumId the id of the album to retrieve photos from
+     * @return the response of the request
+     */
+    public Response getAllPhotos(long albumId) {
+        // Encode request and POST
+        String path = String.format("%s/%s", GET_PHOTOS_BY_ALBUM_PATH, albumId);
         String authJson = getSerialisedAuthRequest(path, user, password);
         return connector.postToUrl(baseTarget, path, authJson);
     }

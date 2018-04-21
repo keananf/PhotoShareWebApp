@@ -36,6 +36,7 @@ public abstract class Resources {
     public static final String UPLOAD_PHOTO_PATH = PHOTOS_PATH + UPLOAD_PHOTO;
     public static final String GET_PHOTO_BY_ID_PATH = PHOTOS_PATH + ID;
     public static final String GET_USER_PHOTOS_PATH = PHOTOS_PATH + USERS_PATH;
+    public static final String GET_PHOTOS_BY_ALBUM_PATH = PHOTOS_PATH + ALBUMS_PATH;
 
     // Resources regarding comments
     public static final String COMMENTS_PATH = "/comments";
@@ -54,6 +55,8 @@ public abstract class Resources {
     public static final String REMOVE_COMMENT = "/removecomment";
     public static final String ADMIN_REMOVE_COMMENT_PATH = ADMIN_PATH + REMOVE_COMMENT;
     public static final String REMOVAL_STRING = "Removed By Admin.";
+    public static final String REMOVE_PHOTO = "/removephoto";
+    public static final String ADMIN_REMOVE_PHOTO_PATH = ADMIN_PATH + REMOVE_PHOTO;
 
     // Resources regarding notifications
     public static final String NOTIFICATIONS_PATH = "/notifications";

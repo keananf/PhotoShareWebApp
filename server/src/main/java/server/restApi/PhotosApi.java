@@ -62,7 +62,7 @@ public class PhotosApi {
     @Path(Resources.USERS_PATH + "/{username}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response getAllPhotos(@PathParam("username") String username, String jsonAuth) {
+    public Response getAllPhotosFromUser(@PathParam("username") String username, String jsonAuth) {
         // Retrieve provided auth info
         try {
             AuthRequest auth = gson.fromJson(jsonAuth, AuthRequest.class);
@@ -72,6 +72,32 @@ public class PhotosApi {
             // Retrieve list retrieved from data manipulation layer
             // and convert photos into JSON array
             List<Photo> photos = RESOLVER.getPhotos(username);
+            return Response.ok(gson.toJson(photos)).build();
+
+        }
+        catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
+        catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
+    }
+
+    /**
+     * @param albumId the provided album ID in the URL
+     * @param jsonAuth the serialised AuthRequest passed as the request body.
+     * @return a parsed list of all photos from the requested album in the system
+     */
+    @POST
+    @Path(Resources.ALBUMS_PATH + "/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response getAllPhotosFromAlbum(@PathParam("id") long albumId, String jsonAuth) {
+        // Retrieve provided auth info
+        try {
+            AuthRequest auth = gson.fromJson(jsonAuth, AuthRequest.class);
+            String path = String.format("%s/%s", Resources.GET_PHOTOS_BY_ALBUM_PATH, albumId);
+            RESOLVER.verifyAuth(path, auth.getAuth());
+
+            // Retrieve list retrieved from data manipulation layer
+            // and convert photos into JSON array
+            List<Photo> photos = RESOLVER.getPhotos(albumId);
             return Response.ok(gson.toJson(photos)).build();
 
         }

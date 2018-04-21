@@ -117,7 +117,7 @@ public class AuthorisationTests extends TestUtility {
     @Test
     public void unauthorisedRemoveCommentTest() {
         // Assert unauthorised because no user logged in
-        Response response = apiClient.removeComment(100);
+        Response response = apiClient.adminRemoveComment(100);
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 
@@ -128,7 +128,7 @@ public class AuthorisationTests extends TestUtility {
         loginAndSetupNewUser(username + "2"); // not admin
 
         // Assert unauthorised because it is NOT an admin calling this
-        Response response = apiClient.removeComment(100);
+        Response response = apiClient.adminRemoveComment(100);
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 

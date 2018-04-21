@@ -370,12 +370,11 @@ public final class ServerTests extends TestUtility {
         assertEquals(comment, recordedComment.getCommentContents());
 
         // Remove comment because 'user' is admin
-        Response removeResponse = apiClient.removeComment(id);
+        Response removeResponse = apiClient.adminRemoveComment(id);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), removeResponse.getStatus());
 
         // Check comment was removed
-        recordedComment = resolver.getComments(username).get(0);
-        assertEquals(Resources.REMOVAL_STRING, recordedComment.getCommentContents());
+        assertEquals(0, resolver.getComments(username).size());
     }
 
     @Test (expected = InvalidResourceRequestException.class)
@@ -576,12 +575,12 @@ public final class ServerTests extends TestUtility {
         }
 
         // Remove reply because 'user' is admin
-        Response removeResponse = apiClient.removeComment(id);
+        Response removeResponse = apiClient.adminRemoveComment(id);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), removeResponse.getStatus());
 
         // Check comment was removed
         comments = resolver.getComments(username);
-        assertEquals(Resources.REMOVAL_STRING, comments.get(1).getCommentContents());
+        assertEquals(1, comments.size());
     }
 
     @Test

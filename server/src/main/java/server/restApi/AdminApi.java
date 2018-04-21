@@ -43,8 +43,8 @@ public class AdminApi {
             String path = String.format("%s/%s", Resources.ADMIN_REMOVE_COMMENT_PATH, commentId);
             RESOLVER.verifyAdminAuth(path, auth);
 
-            // Upload comment to the data store
-            RESOLVER.removeComment(commentId);
+            // Delete comment from the data store
+            RESOLVER.removeCommentAdmin(commentId);
             return Response.noContent().build();
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }

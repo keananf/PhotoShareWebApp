@@ -150,7 +150,7 @@ interface DataStore {
      * @param commentId the given commentId
      * @throws InvalidResourceRequestException if the id doesn't correspond to a valid comment
      */
-    void persistRemoveComment(long commentId) throws InvalidResourceRequestException;
+    void persistRemoveComment(long commentId);
 
     /**
      * Removes the given photo
@@ -158,7 +158,6 @@ interface DataStore {
      * @throws InvalidResourceRequestException if the id doesn't correspond to a valid comment
      */
     void persistRemovePhoto(long photoId);
-
 
     /**
      * Registers the given persistVote on the given commemt

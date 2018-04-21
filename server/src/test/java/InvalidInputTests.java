@@ -210,7 +210,7 @@ public class InvalidInputTests extends TestUtility {
 
         // Send request to remove unknown comment.
         long randomId = -100;
-        Response commentsResponse = apiClient.removeComment(randomId);
+        Response commentsResponse = apiClient.adminRemoveComment(randomId);
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), commentsResponse.getStatus());
     }
 

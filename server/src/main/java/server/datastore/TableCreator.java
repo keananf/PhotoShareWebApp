@@ -106,7 +106,7 @@ class TableCreator {
                 COMMENTS_TIME+" TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
                 REFERENCE_ID+" BIGINT," +
                 "PRIMARY KEY ("+COMMENTS_ID+"), " +
-                "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+"))";
+                "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+") ON DELETE CASCADE)";
 
         // Execute statement such that table is made
         try (Statement stmt = conn.createStatement()) {

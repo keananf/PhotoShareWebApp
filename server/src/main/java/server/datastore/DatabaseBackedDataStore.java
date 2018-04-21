@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static server.Resources.REMOVAL_STRING;
 import static server.datastore.DatabaseResources.*;
 import static server.datastore.DatabaseResources.USER_TO;
 
@@ -621,24 +620,17 @@ final class DatabaseBackedDataStore implements DataStore {
     }
 
     @Override
-    public void persistRemoveComment(long commentId) throws InvalidResourceRequestException {
+    public void persistRemoveComment(long commentId) {
         // The comment's contents will be overwritten.
-        String query = "UPDATE " + COMMENTS_TABLE + " SET " + COMMENTS_CONTENTS + " = ? WHERE " + COMMENTS_ID + " = ?";
+        String query = "DELETE FROM " + COMMENTS_TABLE + " WHERE " + COMMENTS_ID + " = ?";
 
-        // Setup update query.
+        // Setup and execute delete query.
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, REMOVAL_STRING);
-            stmt.setLong(2, commentId);
-
-            // Execute query and ensure a row was changed
-            int ret = stmt.executeUpdate();
+            stmt.setLong(1, commentId);
+            stmt.executeUpdate();
             stmt.close();
-            if(ret == 1) return;
         }
         catch (SQLException e) {e.printStackTrace();}
-
-        // Comment didn't exist
-        throw new InvalidResourceRequestException(commentId);
     }
 
     @Override

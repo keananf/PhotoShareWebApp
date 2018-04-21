@@ -396,6 +396,7 @@ public final class RequestResolver {
      * @throws InvalidResourceRequestException if the id doesn't correspond to a valid notification
      */
     private void removeNotification(String user, long id) throws InvalidResourceRequestException {
+
         // Retrieve notification and remove it, if present.
         dataStore.persistRemoveNotification(user, id);
     }
@@ -403,13 +404,30 @@ public final class RequestResolver {
     /**
      * Removes the given comment
      * @param commentId the given commentId
-     * @throws InvalidResourceRequestException if the id doesn't correspond to a valid comment
+     * @throws InvalidResourceRequestException if the comment ID doesn't correspond to a valid comment
      */
-    public void removeComment(long commentId) throws InvalidResourceRequestException {
-        // Ensure comment exists
+    public void removeCommentAdmin(long commentId) throws InvalidResourceRequestException {
+
+        // Checks that comment exists, throws an exception if not
         getComment(commentId);
 
-        // Simply overwrites comment with "Removed By Admin"
+        // Cascade deletes a comment
+        dataStore.persistRemoveComment(commentId);
+    }
+
+    /**
+     * Removes the given comment
+     * @param commentId the given commentId
+     * @throws InvalidResourceRequestException if the comment ID doesn't correspond to a valid comment
+     */
+    public void removeComment(String user, long commentId)
+            throws InvalidResourceRequestException, DoesNotOwnCommentException {
+
+        // Checks that comment exists and is owned by requesting user, throws an exception if not
+        Comment c = getComment(commentId);
+        if (!c.getAuthor().equals(user)) throw new DoesNotOwnCommentException(commentId, user);
+
+        // Cascade deletes a comment
         dataStore.persistRemoveComment(commentId);
     }
 
@@ -419,6 +437,10 @@ public final class RequestResolver {
      * @throws InvalidResourceRequestException if the id doesn't correspond to a valid photo
      */
     public void removePhoto(long photoId) throws InvalidResourceRequestException {
+
+        // Checks that the photo exists, throws an exception if not
+        getPhoto(photoId);
+
         // Removes the photo from the database
         dataStore.persistRemovePhoto(photoId);
     }
@@ -517,7 +539,6 @@ public final class RequestResolver {
         }
 
     }
-
 
     /**
      * Utility to get the Persons (Users) a user is followed by

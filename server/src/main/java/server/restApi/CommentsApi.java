@@ -2,6 +2,7 @@ package server.restApi;
 
 import com.google.gson.Gson;
 import server.Resources;
+import server.datastore.exceptions.DoesNotOwnCommentException;
 import server.requests.*;
 import server.objects.*;
 import server.datastore.exceptions.InvalidResourceRequestException;
@@ -54,12 +55,12 @@ public class CommentsApi {
      * @return a response object containing the result of the request
      */
     @POST
-    @Path(Resources.ADD_COMMENT)
+    @Path(Resources.EDIT_COMMENT)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response editComment(String message) {
         // Retrieve request wrapper
         try {
-            AddCommentRequest request = gson.fromJson(message, AddCommentRequest.class);
+            EditCommentRequest request = gson.fromJson(message, EditCommentRequest.class);
 
             // Retrieve provided auth info
             Auth auth = request.getAuth();
@@ -69,7 +70,7 @@ public class CommentsApi {
             Receipt receipt = RESOLVER.editComment(auth.getUser(), request);
             return Response.ok(gson.toJson(receipt)).build();
         }
-        catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
+        catch(InvalidResourceRequestException | DoesNotOwnCommentException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
     }
 

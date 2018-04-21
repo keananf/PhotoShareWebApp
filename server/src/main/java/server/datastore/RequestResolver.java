@@ -1,11 +1,10 @@
 package server.datastore;
 
-import server.datastore.exceptions.DoesNotOwnAlbumException;
-import server.datastore.exceptions.ExistingException;
-import server.datastore.exceptions.InvalidResourceRequestException;
-import server.datastore.exceptions.UnauthorisedException;
+import server.datastore.exceptions.*;
 import server.objects.*;
 import server.requests.AddCommentRequest;
+import server.requests.EditCommentRequest;
+import server.requests.UploadPhotoRequest;
 
 import java.util.List;
 import java.util.Objects;
@@ -16,6 +15,7 @@ import java.util.stream.Collectors;
  * and persists changes to the underlying data store
  */
 public final class RequestResolver {
+    public static boolean DEBUG = false;
     private static final long TIMEOUT = (long) (10 * (Math.pow(10, 9)));
     private int CURRENT_ID = 0;
     private DataStore dataStore = new DatabaseBackedDataStore();
@@ -37,7 +37,7 @@ public final class RequestResolver {
 
         // Check timestamp isn't too old
         long time = System.nanoTime();
-        if(time - auth.getTime() > TIMEOUT) throw new UnauthorisedException();
+        if(!DEBUG && time - auth.getTime() > TIMEOUT) throw new UnauthorisedException();
 
         // Compare generated secret API key
         String key = serverAuth.getApiKey(endPoint, auth.getTime());
@@ -73,22 +73,21 @@ public final class RequestResolver {
 
     /**
      * Uploads the given photo
-     * @param encodedPhotoContents the base 64 encoded photo contents
-     * @param photoName the name of the photo
+     *
      * @param user the user who posted the photo
-     * @param albumId the id of the album this photo belongs to
+     * @param request the upload photo request
      */
-    public Receipt uploadPhoto(String encodedPhotoContents, String photoName, String user, long albumId)
+    public Receipt uploadPhoto(String user, UploadPhotoRequest request)
             throws InvalidResourceRequestException, DoesNotOwnAlbumException {
         // Ensure user is known
         getUser(user);
 
         // Ensure albumId is known, and that it belongs to the user
-        Album album = getAlbum(albumId);
-        if(!album.getAuthorName().equals(user)) throw new DoesNotOwnAlbumException(albumId, user);
+        Album album = getAlbum(request.getAlbumId());
+        if(!album.getAuthorName().equals(user)) throw new DoesNotOwnAlbumException(request.getAlbumId(), user);
 
         // Create photo and persist it
-        Photo newPhoto = new Photo(encodedPhotoContents, user, photoName, CURRENT_ID++, albumId, System.nanoTime());
+        Photo newPhoto = new Photo(CURRENT_ID++, user, request);
         dataStore.persistUploadPhoto(newPhoto);
 
         // Return receipt confirming photo was created
@@ -170,6 +169,22 @@ public final class RequestResolver {
         getUser(user);
 
         return dataStore.getAlbums(user);
+    }
+
+    /**
+     * Updates an album's description.
+     * @param user the user who submitted the request
+     * @param albumId the album's id
+     * @param description the new description
+     */
+    public void updateAlbumDescription(String user, long albumId, String description)
+            throws InvalidResourceRequestException, DoesNotOwnAlbumException {
+        // Ensure album exists, and that the user who made the request owns it.
+        Album album = getAlbum(albumId);
+        if(!album.getAuthorName().equals(user)) throw new DoesNotOwnAlbumException(albumId, user);
+
+        // Persist description update
+        dataStore.updateAlbumDescription(albumId, description);
     }
 
     /**
@@ -326,8 +341,7 @@ public final class RequestResolver {
         }
 
         // Add unique id to be able to future identify this comment
-        Comment comment = new Comment(user, request);
-        comment.setId(CURRENT_ID++);
+        Comment comment = new Comment(CURRENT_ID++, user, request);
 
         // Persist comment to data store
         dataStore.persistAddComment(comment);
@@ -337,6 +351,26 @@ public final class RequestResolver {
 
         // Return a receipt
         return new Receipt(comment.getId());
+    }
+
+    /**
+     * Edits the given comment
+     * @param user the user requesting to change it
+     * @param request the request for new comment content
+     * @throws InvalidResourceRequestException if the comment doesn't exist
+     */
+    public Receipt editComment(String user, long commentId, EditCommentRequest request) throws InvalidResourceRequestException, DoesNotOwnCommentException {
+
+        // Retrieve the parent comment and check it exists
+        // (exception will be thrown, if not).
+        Comment comment = getComment(commentId);
+        if (!comment.getAuthor().equals(user)) throw new DoesNotOwnCommentException(commentId, user);
+
+        // Persist comment to data store
+        dataStore.persistEditComment(commentId, request.getCommentContents());
+
+        // Return a receipt
+        return new Receipt(commentId);
     }
 
     /**
@@ -366,6 +400,7 @@ public final class RequestResolver {
      * @throws InvalidResourceRequestException if the id doesn't correspond to a valid notification
      */
     private void removeNotification(String user, long id) throws InvalidResourceRequestException {
+
         // Retrieve notification and remove it, if present.
         dataStore.persistRemoveNotification(user, id);
     }
@@ -373,10 +408,31 @@ public final class RequestResolver {
     /**
      * Removes the given comment
      * @param commentId the given commentId
-     * @throws InvalidResourceRequestException if the id doesn't correspond to a valid comment
+     * @throws InvalidResourceRequestException if the comment ID doesn't correspond to a valid comment
      */
-    public void removeComment(long commentId) throws InvalidResourceRequestException {
-        // Simply overwrites comment with "Removed By Admin"
+    public void removeCommentAdmin(long commentId) throws InvalidResourceRequestException {
+
+        // Checks that comment exists, throws an exception if not
+        getComment(commentId);
+
+        // Cascade deletes a comment
+        dataStore.persistRemoveComment(commentId);
+    }
+
+    /**
+     * Removes the given comment
+     * @param commentId the given commentId
+     * @throws InvalidResourceRequestException if the comment ID doesn't correspond to a valid comment
+     * @throws DoesNotOwnCommentException if the comment does not belong to the requesting user
+     */
+    public void removeComment(String user, long commentId)
+            throws InvalidResourceRequestException, DoesNotOwnCommentException {
+
+        // Checks that comment exists and is owned by requesting user, throws an exception if not
+        Comment c = getComment(commentId);
+        if (!c.getAuthor().equals(user)) throw new DoesNotOwnCommentException(commentId, user);
+
+        // Cascade deletes a comment
         dataStore.persistRemoveComment(commentId);
     }
 
@@ -385,22 +441,56 @@ public final class RequestResolver {
      * @param photoId the given photoId
      * @throws InvalidResourceRequestException if the id doesn't correspond to a valid photo
      */
-    public void removePhoto(long photoId) throws InvalidResourceRequestException {
+    public void removePhotoAdmin(long photoId) throws InvalidResourceRequestException {
+
+        // Checks that the photo exists, throws an exception if not
+        getPhoto(photoId);
+
         // Removes the photo from the database
         dataStore.persistRemovePhoto(photoId);
     }
 
     /**
-     * Registers the given persistVote on the given commemt
-     * @param commentId the id of the comment to persistVote on
-     * @param user the user who cast this persistVote
+     * Removes the given photo
+     * @param photoId the given photoId
+     * @throws InvalidResourceRequestException if the id doesn't correspond to a valid photo
+     * @throws DoesNotOwnPhotoException if the photo does not belong to the requesting user
+     */
+    public void removePhoto(String user, long photoId)
+            throws InvalidResourceRequestException, DoesNotOwnPhotoException {
+
+        // Checks that the photo exists and is owned by requesting user, throws an exception if not
+        Photo p = getPhoto(photoId);
+        if (!p.getAuthorName().equals(user)) throw new DoesNotOwnPhotoException(photoId, user);
+
+        // Removes the photo from the database
+        dataStore.persistRemovePhoto(photoId);
+    }
+
+    /**
+     * Registers the given vote on the given comment
+     * @param commentId the id of the comment to vote on
+     * @param user the user who cast this vote
      * @param upvote whether or not this is an upvote or a downvote
      */
-    public void vote(long commentId, String user, boolean upvote) throws InvalidResourceRequestException {
+    public void voteOnComment(long commentId, String user, boolean upvote) throws InvalidResourceRequestException {
         getUser(user);
         getComment(commentId);
 
-        dataStore.persistVote(commentId, user, upvote);
+        dataStore.persistCommentVote(commentId, user, upvote);
+    }
+
+    /**
+     * Registers the given photo rating
+     * @param photoId the id of the comment to voteOnComment on
+     * @param user the user who cast this voteOnComment
+     * @param upvote whether or not this is an upvote or a downvote
+     */
+    public void ratePhoto(long photoId, String user, boolean upvote) throws InvalidResourceRequestException {
+        getUser(user);
+        getPhoto(photoId);
+
+        dataStore.persistPhotoRating(photoId, user, upvote);
     }
 
     /**
@@ -471,7 +561,6 @@ public final class RequestResolver {
         }
 
     }
-
 
     /**
      * Utility to get the Persons (Users) a user is followed by

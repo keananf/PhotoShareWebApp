@@ -131,6 +131,14 @@ interface DataStore {
     void persistAddComment(Comment comment);
 
     /**
+     * Edits the given comment
+     * @param commentId the comment Id
+     * @param content the new comment content
+     *
+     */
+    void persistEditComment(long commentId, String content);
+
+    /**
      * Internally used. Adds a notification on the photo / comment which the given comment
      * commented on
      * @param parentName the name of the user who posted the original photo / comment

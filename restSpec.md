@@ -319,3 +319,63 @@ PhotoShare RESTful API specification
             console.log(r);
           }
         });
+
+* `/comments/edit/{commentId}`
+
+    * **Method:** `POST`
+  
+    * **URL Parameters:** 
+        * commentId: `refers to a comment ID (as a long)`
+    
+    * **Body Parameters**
+    
+      ``` 
+      {
+          "auth" : 
+          {
+            "apiKey" : [alphanumeric],
+            "time": long,
+            "user": string,
+            "password": int
+          },
+          "commentContents" : string
+      }
+      
+    * **Success Response:**
+    
+      * **Code:** 200 <br />
+     
+    * **Error Response:**
+    
+      * **Code:** 400 Bad Request <br />
+    
+      or
+    
+      * **Code:** 401 Unauthorized <br />
+    
+    * **Sample Call:**
+    
+      ```javascript
+        $.ajax(
+        {
+          url: "/comments/edit/sampleCommentId",
+          dataType: "json",
+          data :
+          {
+              {
+                "auth" : 
+                {
+                  "apiKey" : abc123,
+                  "time": 1000,
+                  "user": "username1",
+                  "password": 1
+                },
+                "commentContents": "new comment content here"
+            }
+          },
+          type : "POST",
+          success : function(r) 
+          {
+            console.log(r);
+          }
+        });

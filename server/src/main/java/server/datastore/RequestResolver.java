@@ -1,11 +1,9 @@
 package server.datastore;
 
-import server.datastore.exceptions.DoesNotOwnAlbumException;
-import server.datastore.exceptions.ExistingException;
-import server.datastore.exceptions.InvalidResourceRequestException;
-import server.datastore.exceptions.UnauthorisedException;
+import server.datastore.exceptions.*;
 import server.objects.*;
 import server.requests.AddCommentRequest;
+import server.requests.EditCommentRequest;
 
 import java.util.List;
 import java.util.Objects;
@@ -337,6 +335,26 @@ public final class RequestResolver {
 
         // Return a receipt
         return new Receipt(comment.getId());
+    }
+
+    /**
+     * Edits the given comment
+     * @param user the user requesting to change it
+     * @param request the request for new comment content
+     * @throws InvalidResourceRequestException if the comment doesn't exist
+     */
+    public Receipt editComment(String user, long commentId, EditCommentRequest request) throws InvalidResourceRequestException, DoesNotOwnCommentException {
+
+        // Retrieve the parent comment and check it exists
+        // (exception will be thrown, if not).
+        Comment comment = getComment(commentId);
+        if (!comment.getAuthor().equals(user)) throw new DoesNotOwnCommentException(commentId, user);
+
+        // Persist comment to data store
+        dataStore.persistEditComment(commentId, request.getCommentContents());
+
+        // Return a receipt
+        return new Receipt(commentId);
     }
 
     /**

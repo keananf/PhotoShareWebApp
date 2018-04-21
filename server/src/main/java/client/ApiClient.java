@@ -303,6 +303,22 @@ public final class ApiClient {
     }
 
     /**
+     * Requests to edit a comment represented by the given information
+     *
+     * @param id                the id of the comment being edited
+     * @param commentContent    the new comment contents
+     * @return the response of the request
+     */
+    public Response editComment(long id, String commentContent) {
+        // Construct request
+        String path = String.format("%s/%s", EDIT_COMMENT_PATH, id);
+        EditCommentRequest request = new EditCommentRequest(getAuth(path, user, password).getAuth(), commentContent);
+
+        // Encode request and POST
+        return connector.postToUrl(baseTarget, path, gson.toJson(request));
+    }
+
+    /**
      * @param endPoint the endPoint being accessed
      * @param user     the user to get auth info for
      * @return the auth information in json

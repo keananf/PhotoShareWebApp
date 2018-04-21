@@ -215,6 +215,55 @@ public class InvalidInputTests extends TestUtility {
     }
 
     @Test
+    public void editUnknownCommentTest() {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        //Send request to edit unknown comment
+        long randomId = -100;
+        Response commentsResponse = apiClient.editComment(randomId, "some new content");
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), commentsResponse.getStatus());
+    }
+
+    @Test
+    public void editCommentUnauthorisedTest() throws InvalidResourceRequestException {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Create sample data
+        String photoName = "username";
+        String comment = "comment";
+        byte[] contents = new byte[] {1, 2, 3, 4, 5};
+
+        // Upload 'photo' (byte[])
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
+
+        // Send request to add comment to recently uploaded photo
+        Response commentsResponse = apiClient.addComment(id, PHOTO_COMMENT, comment);
+        assertEquals(Response.Status.OK.getStatusCode(), commentsResponse.getStatus());
+
+        // Check data-store has comment recorded
+        List<Comment> comments = resolver.getComments(username);
+        Comment recordedComment = comments.get(0);
+        assertEquals(1, comments.size());
+        assertEquals(comment, recordedComment.getCommentContents());
+
+        // Add another sample users and register them
+        String username2 = username + "2";
+        loginAndSetupNewUser(username2);
+
+        // Since username2 is currently logged-in, attempt to edit the comment
+        // This will fail, as the indicated comment is NOT owned by the logged-in user.
+        response = apiClient.editComment(recordedComment.getId(), "Mallory was here.");
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+
+        // Check data-store that comment was not changed
+        assertEquals(comment, recordedComment.getCommentContents());
+    }
+
+    @Test
     public void addReplyToUnknownCommentTest() throws InvalidResourceRequestException {
         // Add sample user and register it
         loginAndSetupNewUser(username);

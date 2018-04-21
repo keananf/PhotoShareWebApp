@@ -194,7 +194,7 @@ public final class ApiClient {
      * @param id the id of the photo
      * @return the response of the request.
      */
-    public Response removePhoto(long id) {
+    public Response adminRemovePhoto(long id) {
         // Encode request and POST
         String path = String.format("%s/%s", ADMIN_REMOVE_PHOTO_PATH, id);
         String authJson = getSerialisedAuthRequest(path, user, password);

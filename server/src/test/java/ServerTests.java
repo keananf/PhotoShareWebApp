@@ -469,7 +469,7 @@ public final class ServerTests extends TestUtility {
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
         // Remove photo because 'user' is admin
-        Response removeResponse = apiClient.removePhoto(id);
+        Response removeResponse = apiClient.adminRemovePhoto(id);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), removeResponse.getStatus());
 
         // Check photo was removed, InvalidResourceRequestException should be thrown

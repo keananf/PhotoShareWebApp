@@ -319,3 +319,73 @@ PhotoShare RESTful API specification
             console.log(r);
           }
         });
+
+* `/news_feeds/{username}`
+
+    * **Method:** `POST`
+  
+    * **URL Parameters:** 
+        * username: `refers to the username of the user whose
+        feed is wanted`
+     * **Body Parameters**
+        
+          ``` 
+          {
+              "auth" : 
+              {
+                "apiKey" : [alphanumeric],
+                "time": long,
+                "user": string,
+                "password": int
+              }
+          }
+          
+  * **Success Response:**
+      
+    * **Code:** 200 <br />
+        
+    **Content:** 
+    
+           [ 
+            {
+              "albumId": long, 
+              "albumName": string,
+              "description": string,
+              "authorName": string,
+              "albumTime": long 
+            },
+            ... 
+          ]
+       
+  * **Error Response:**
+        
+      * **Code:** 400 Bad Request <br />
+        
+          or
+      * **Code:** 401 Unauthorized <br />
+          
+    * **Sample Call:**
+    
+      ```javascript
+        $.ajax(
+        {
+          url: "/admin/news_feeds/SampleUserUsername",
+          dataType: "json",
+          data :
+          {
+              {
+                "auth" : 
+                {
+                  "apiKey" : abc123,
+                  "time": 1000,
+                  "user": "username1",
+                  "password": 1
+                }
+            }
+          },
+          type : "POST",
+          success : function(r) 
+          {
+            console.log(r);
+          }
+        });

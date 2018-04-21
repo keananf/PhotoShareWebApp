@@ -1353,3 +1353,61 @@ PhotoShare RESTful API specification
             console.log(r);
           }
         });
+        
+* `/admin/removephoto/{photoId}`
+
+    * **Method:** `POST`
+  
+    * **URL Parameters:** 
+        * photoId: `refers to a photo ID (as a long)`
+    
+    * **Body Parameters**
+    
+      ``` 
+      {
+          "auth" : 
+          {
+            "apiKey" : [alphanumeric],
+            "time": long,
+            "user": string,
+            "password": int
+          }
+      }
+      
+    * **Success Response:**
+    
+      * **Code:** 204 <br />
+     
+    * **Error Response:**
+    
+      * **Code:** 400 Bad Request <br />
+    
+      or
+    
+      * **Code:** 401 Unauthorized <br />
+    
+    * **Sample Call:**
+    
+      ```javascript
+        $.ajax(
+        {
+          url: "/admin/removephoto/samplePhotoId",
+          dataType: "json",
+          data :
+          {
+              {
+                "auth" : 
+                {
+                  "apiKey" : abc123,
+                  "time": 1000,
+                  "user": "username1",
+                  "password": 1
+                }
+            }
+          },
+          type : "POST",
+          success : function(r) 
+          {
+            console.log(r);
+          }
+        });

@@ -413,7 +413,7 @@ public class InvalidInputTests extends TestUtility {
     }
 
     @Test
-    public void deleteUnknownCommentTest() throws InvalidResourceRequestException {
+    public void deleteUnknownCommentTest() {
         // Add two users and login as second. Only the first user will be an admin.
         loginAndSetupNewUser(username); // admin
         loginAndSetupNewUser(username + "2"); // not admin

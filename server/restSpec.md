@@ -925,6 +925,124 @@ PhotoShare RESTful API specification
             console.log(r);
           }
         });
+ 
+ * `/comments/edit/{id}`
+ 
+     * **Method:** `POST`
+   
+     * **URL Parameters:** 
+         * id: `refers to a comment's unique ID (as a long)`
+     
+     * **Body Parameters**
+     
+       ``` 
+       {
+           "auth" : 
+           {
+             "apiKey" : [alphanumeric],
+             "time": long,
+             "user": string,
+             "password": int
+           },
+           "commentContents" : string
+       }
+       
+     * **Success Response:**
+     
+       * **Code:** 200 OK <br />
+      
+     * **Error Response:**
+     
+       * **Code:** 400 Bad Request <br />
+     
+       or
+     
+       * **Code:** 401 Unauthorized <br />
+     
+     * **Sample Call:**
+     
+       ```javascript
+         $.ajax(
+         {
+           url: "/comments/edit/sampleCommentId",
+           dataType: "json",
+           data :
+           {
+               {
+                 "auth" : 
+                 {
+                   "apiKey" : abc123,
+                   "time": 1000,
+                   "user": "username1",
+                   "password": 1
+                 },
+                 "commentContents": "new comment content here"
+             }
+           },
+           type : "POST",
+           success : function(r) 
+           {
+             console.log(r);
+           }
+         }); 
+         
+ * `/comments/delete/{id}`
+ 
+     * **Method:** `POST`
+   
+     * **URL Parameters:** 
+         * id: `refers to a comment's unique ID (as a long)`
+     
+     * **Body Parameters**
+     
+       ``` 
+       {
+           "auth" : 
+           {
+             "apiKey" : [alphanumeric],
+             "time": long,
+             "user": string,
+             "password": int
+           }
+       }
+       
+     * **Success Response:**
+     
+       * **Code:** 204 No Content <br />
+      
+     * **Error Response:**
+     
+       * **Code:** 400 Bad Request <br />
+     
+       or
+     
+       * **Code:** 401 Unauthorized <br />
+     
+     * **Sample Call:**
+     
+       ```javascript
+         $.ajax(
+         {
+           url: "/comments/delete/sampleCommentId",
+           dataType: "json",
+           data :
+           {
+               {
+                 "auth" : 
+                 {
+                   "apiKey" : abc123,
+                   "time": 1000,
+                   "user": "username1",
+                   "password": 1
+                 }
+             }
+           },
+           type : "POST",
+           success : function(r) 
+           {
+             console.log(r);
+           }
+         }); 
         
 ## Notification-Related APIs
         
@@ -1333,7 +1451,66 @@ PhotoShare RESTful API specification
       ```javascript
         $.ajax(
         {
-          url: "/admin/removecomment",
+          url: "/admin/removecomment/sampleCommentId",
+          dataType: "json",
+          data :
+          {
+              {
+                "auth" : 
+                {
+                  "apiKey" : abc123,
+                  "time": 1524219966,
+                  "user": "username1",
+                  "password": 1
+                }
+            }
+          },
+          type : "POST",
+          success : function(r) 
+          {
+            console.log(r);
+          }
+        });
+        
+* `/admin/removephoto/{id}`
+
+    * **Method:** `POST`
+  
+    * **URL Parameters:** 
+        
+        id: `a photo's unique id (as a long)`
+    
+    * **Body Parameters**
+    
+      ```
+      {
+          "auth" : 
+          {
+            "apiKey" : string,
+            "time": long,
+            "user": string,
+            "password": int
+          }
+      }
+      
+    * **Success Response:**
+    
+      * **Code:** 204 No Content <br />
+        
+    * **Error Response:**
+    
+      * **Code:** 400 Bad Request <br />
+    
+      or
+    
+      * **Code:** 401 Unauthorized <br />
+    
+    * **Sample Call:**
+    
+      ```javascript
+        $.ajax(
+        {
+          url: "/admin/removephoto/samplePhotoId",
           dataType: "json",
           data :
           {

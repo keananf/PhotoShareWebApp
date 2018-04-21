@@ -47,6 +47,8 @@ public abstract class Resources {
     public static final String REPLY_PATH = "/replies";
     public static final String GET_ALL_REPLIES_PATH = COMMENTS_PATH + REPLY_PATH;
     public static final String GET_ALL_PHOTO_COMMENTS_PATH = COMMENTS_PATH + PHOTOS_PATH;
+    public static final String EDIT_COMMENT = "/edit";
+    public static final String EDIT_COMMENT_PATH = COMMENTS_PATH + EDIT_COMMENT;
 
     // Resources regarding voting
     public static final String DOWNVOTE = "/downvote";

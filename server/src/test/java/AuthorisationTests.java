@@ -231,4 +231,12 @@ public class AuthorisationTests extends TestUtility {
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 
+    @Test
+    public void unauthorisedEditCommentTest() {
+        //Assert unauthorised
+        long randomId = -100;
+        Response response = apiClient.editComment(randomId, "some comment content");
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
+    }
+
 }

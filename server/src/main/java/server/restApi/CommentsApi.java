@@ -2,6 +2,7 @@ package server.restApi;
 
 import com.google.gson.Gson;
 import server.Resources;
+import server.datastore.exceptions.DoesNotOwnCommentException;
 import server.requests.*;
 import server.objects.*;
 import server.datastore.exceptions.InvalidResourceRequestException;
@@ -44,6 +45,33 @@ public class CommentsApi {
             return Response.ok(gson.toJson(receipt)).build();
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
+        catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
+    }
+
+    /**
+     * Attempts to parse the message and edit a comment
+     *
+     * @param message the auth information and serialised comment
+     * @return a response object containing the result of the request
+     */
+    @POST
+    @Path(Resources.EDIT_COMMENT + "/{commentId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response editComment(@PathParam("commentId") long commentId, String message) {
+        // Retrieve request wrapper
+        try {
+            EditCommentRequest request = gson.fromJson(message, EditCommentRequest.class);
+
+            // Retrieve provided auth info
+            Auth auth = request.getAuth();
+            String path = String.format("%s/%s", Resources.EDIT_COMMENT_PATH, commentId);
+            RESOLVER.verifyAuth(path, auth);
+
+            // Update comment in the data store
+            Receipt receipt = RESOLVER.editComment(auth.getUser(), commentId, request);
+            return Response.ok(gson.toJson(receipt)).build();
+        }
+        catch(InvalidResourceRequestException | DoesNotOwnCommentException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
     }
 

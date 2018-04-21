@@ -88,6 +88,6 @@ public abstract class TestUtility {
 
         // Ensure changes reflected in the server's data store
         // This works because User.equals() is overriden.
-        assertTrue(resolver.getUsers().stream().anyMatch(u -> u.getName().equals(name)));
+        assertTrue(resolver.getUsers().stream().anyMatch(u -> u.getUsername().equals(name)));
     }
 }

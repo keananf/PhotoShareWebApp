@@ -26,6 +26,14 @@ interface DataStore {
     List<Photo> getPhotos(String user);
 
     /**
+     * Retrieves photos from a given album.
+     * @param albumId the album's ID
+     * @return the list of photos in this album
+     * @throws InvalidResourceRequestException if the given album ID is unknown
+     */
+    List<Photo> getPhotos(long albumId);
+
+    /**
      * Retrieves the given photo
      * @param id the id of the photo
      * @return the photo
@@ -151,6 +159,14 @@ interface DataStore {
      * @throws InvalidResourceRequestException if the id doesn't correspond to a valid comment
      */
     void persistRemoveComment(long commentId) throws InvalidResourceRequestException;
+
+    /**
+     * Removes the given photo
+     * @param photoId the given photoId
+     * @throws InvalidResourceRequestException if the id doesn't correspond to a valid comment
+     */
+    void persistRemovePhoto(long photoId);
+
 
     /**
      * Registers the given persistVote on the given commemt

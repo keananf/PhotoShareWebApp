@@ -103,6 +103,17 @@ public class InvalidInputTests extends TestUtility {
     }
 
     @Test
+    public void getAllPhotosBadAlbumIdTest() {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Assert bad request, since album was unknown
+        long randomAlbumId = -100;
+        Response response = apiClient.getAllPhotos(randomAlbumId);
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+    }
+
+    @Test
     public void addPhotoToUnknownAlbumTest() throws InvalidResourceRequestException {
         // Add sample user and register it
         loginAndSetupNewUser(username);

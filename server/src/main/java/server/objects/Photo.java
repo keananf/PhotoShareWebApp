@@ -6,16 +6,16 @@ package server.objects;
 public final class Photo {
     // Photo information
     private final String photoContents;
-    private final String postedBy;
+    private final String authorName;
     private final String photoName;
-    private final long timestamp;
+    private final long photoTime;
     private final long id, albumId;
 
-    public Photo(String photoContents, String postedBy, String photoName, long id, long albumId, long timestamp) {
+    public Photo(String photoContents, String authorName, String photoName, long id, long albumId, long photoTime) {
         this.photoContents = photoContents;
-        this.postedBy = postedBy;
+        this.authorName = authorName;
         this.photoName = photoName;
-        this.timestamp = timestamp;
+        this.photoTime = photoTime;
 
         this.albumId = albumId;
         this.id = id;
@@ -31,15 +31,15 @@ public final class Photo {
     /**
      * @return the name of the user who posted this
      */
-    public String getPostedBy() {
-        return postedBy;
+    public String getAuthorName() {
+        return authorName;
     }
 
     /**
      * @return the time this photo was created
      */
-    public long getTimestamp() {
-        return timestamp;
+    public long getPhotoTime() {
+        return photoTime;
     }
 
     /**

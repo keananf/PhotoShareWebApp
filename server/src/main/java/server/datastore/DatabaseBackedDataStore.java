@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static server.Resources.REMOVAL_STRING;
 import static server.datastore.DatabaseResources.*;
 import static server.datastore.DatabaseResources.USER_TO;
 

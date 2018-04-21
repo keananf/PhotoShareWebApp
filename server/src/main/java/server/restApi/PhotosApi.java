@@ -2,6 +2,7 @@ package server.restApi;
 
 import com.google.gson.Gson;
 import server.datastore.exceptions.DoesNotOwnAlbumException;
+import server.datastore.exceptions.DoesNotOwnPhotoException;
 import server.objects.Auth;
 import server.Resources;
 import server.requests.*;
@@ -50,6 +51,27 @@ public class PhotosApi {
         catch(InvalidResourceRequestException | DoesNotOwnAlbumException e) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
+    }
+
+    @POST
+    @Path(Resources.DELETE_PHOTO + "/{photoId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response removePhoto(@PathParam("photoId") long photoId, String message) {
+        // Retrieve request wrapper
+        try {
+            // Retrieve provided auth info and verify it
+            Auth auth = gson.fromJson(message, AuthRequest.class).getAuth();
+            String path = String.format("%s/%s", Resources.DELETE_PHOTO_PATH, photoId);
+            RESOLVER.verifyAuth(path, auth);
+
+            // Upload comment to the data store
+            RESOLVER.removePhoto(auth.getUser(), photoId);
+            return Response.noContent().build();
+
+        } catch (InvalidResourceRequestException | DoesNotOwnPhotoException e) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+
+        } catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
     }
 
     /**

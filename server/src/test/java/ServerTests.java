@@ -511,6 +511,30 @@ public final class ServerTests extends TestUtility {
         resolver.getPhoto(id);
     }
 
+    @Test (expected = InvalidResourceRequestException.class)
+    public void userRemovePhotoTest() throws InvalidResourceRequestException {
+        // Add non-admin sample user and register it
+        addUser(username); // admin
+        String user = username + "2"; // not admin
+        loginAndSetupNewUser(user);
+
+        // Create sample data
+        String photoName = "photo";
+        byte[] contents = new byte[] {1, 2, 3, 4, 5};
+
+        // Upload 'photo' (byte[])
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
+
+        // Remove photo because 'user' is author
+        Response removeResponse = apiClient.removePhoto(id);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), removeResponse.getStatus());
+
+        // Check photo was removed, InvalidResourceRequestException should be thrown
+        resolver.getPhoto(id);
+    }
+
     @Test
     public void editCommentTest() throws InvalidResourceRequestException {
         // Add sample user and register it

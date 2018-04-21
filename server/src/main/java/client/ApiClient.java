@@ -135,6 +135,19 @@ public final class ApiClient {
     }
 
     /**
+     * Sends a remove request to the server.
+     *
+     * @param id the id of the photo
+     * @return the response of the request.
+     */
+    public Response removePhoto(long id) {
+        // Encode request and POST
+        String path = String.format("%s/%s", DELETE_PHOTO_PATH, id);
+        String authJson = getSerialisedAuthRequest(path, user, password);
+        return connector.postToUrl(baseTarget, path, authJson);
+    }
+
+    /**
      * Encoded and uploads the given file
      *
      * @param id the id of the photo

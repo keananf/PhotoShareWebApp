@@ -172,6 +172,13 @@ public class AuthorisationTests extends TestUtility {
     }
 
     @Test
+    public void unauthorisedUserRemovePhotoTest() {
+        // Assert unauthorised because no user logged in
+        Response response = apiClient.removePhoto(100);
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
+    }
+
+    @Test
     public void unauthorisedAddReplyTest() {
         // Assert unauthorised
         Response response = apiClient.addComment(100, REPLY, username);

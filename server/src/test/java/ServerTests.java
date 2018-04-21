@@ -336,6 +336,42 @@ public final class ServerTests extends TestUtility {
     }
 
     @Test
+    public void editCommentTest() throws InvalidResourceRequestException {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Create sample data
+        String photoName = "username";
+        String comment = "comment";
+        byte[] contents = new byte[] {1, 2, 3, 4, 5};
+
+        // Upload 'photo' (byte[])
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
+
+        // Send request to add comment to recently uploaded photo
+        Response commentsResponse = apiClient.addComment(id, PHOTO_COMMENT, comment);
+        assertEquals(Response.Status.OK.getStatusCode(), commentsResponse.getStatus());
+        id = gson.fromJson(commentsResponse.readEntity(String.class), Receipt.class).getReferenceId();
+
+        // Check data-store has comment recorded
+        List<Comment> comments = resolver.getComments(username);
+        Comment recordedComment = comments.get(0);
+        assertEquals(1, comments.size());
+        assertEquals(comment, recordedComment.getContents());
+
+        // Edit comment
+        String newComment = "new comment";
+        Response removeResponse = apiClient.editComment(id, newComment);
+        assertEquals(Response.Status.OK.getStatusCode(), removeResponse.getStatus());
+
+        // Check comment was changed
+        recordedComment = resolver.getComments(username).get(0);
+        assertEquals(newComment, recordedComment.getContents());
+    }
+
+    @Test
     public void addReplyTest() throws InvalidResourceRequestException {
         // Add sample user and register it
         loginAndSetupNewUser(username);

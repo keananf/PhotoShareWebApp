@@ -167,11 +167,11 @@ public class CommentsApi {
         // Retrieve provided auth info
         try {
             Auth auth = gson.fromJson(jsonAuth, AuthRequest.class).getAuth();
-            String path = String.format("%s/%s", Resources.UPVOTE_PATH, commentId);
+            String path = String.format("%s/%s", Resources.COMMENT_UPVOTE_PATH, commentId);
             RESOLVER.verifyAuth(path, auth);
 
             // Register upvote with server
-            RESOLVER.vote(commentId, auth.getUser(), true);
+            RESOLVER.voteOnComment(commentId, auth.getUser(), true);
             return Response.noContent().build();
 
         }
@@ -193,11 +193,11 @@ public class CommentsApi {
         // Retrieve provided auth info
         try {
             Auth auth = gson.fromJson(jsonAuth, AuthRequest.class).getAuth();
-            String path = String.format("%s/%s", Resources.DOWNVOTE_PATH, commentId);
+            String path = String.format("%s/%s", Resources.COMMENT_DOWNVOTE_PATH, commentId);
             RESOLVER.verifyAuth(path, auth);
 
             // Register downvote with server
-            RESOLVER.vote(commentId, auth.getUser(), false);
+            RESOLVER.voteOnComment(commentId, auth.getUser(), false);
             return Response.noContent().build();
 
         }

@@ -16,6 +16,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
+import static server.Resources.*;
 import static server.ServerMain.RESOLVER;
 
 /**
@@ -195,7 +196,7 @@ public final class UsersAPI {
      */
 
     @POST
-    @Path("/{username}" + Resources.FOLLOWING)
+    @Path(Resources.FOLLOWING + "/{username}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response getFollowing(@PathParam("username") String username, String json) {
@@ -207,7 +208,8 @@ public final class UsersAPI {
 
         try {
             // Process request
-            RESOLVER.verifyAuth(Resources.USERS_PATH + "/" + username + Resources.FOLLOWING, auth.getAuth());
+            String path = String.format("%s/%s", USERS_FOLLOWING_PATH , username);
+            RESOLVER.verifyAuth(path, auth.getAuth());
             RESOLVER.getFollowers(username);
 
             List<User> following = RESOLVER.getFollowing(username);
@@ -230,7 +232,7 @@ public final class UsersAPI {
      */
 
     @POST
-    @Path("/{username}" + Resources.FOLLOWERS)
+    @Path(Resources.FOLLOWERS + "/{username}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response getFollowers(@PathParam("username") String username, String json) {
@@ -242,7 +244,8 @@ public final class UsersAPI {
 
         try {
             // Process request
-            RESOLVER.verifyAuth(Resources.USERS_PATH + "/" + username + Resources.FOLLOWERS, auth.getAuth());
+            String path = String.format("%s/%s", USERS_FOLLOWERS_PATH , username);
+            RESOLVER.verifyAuth(path, auth.getAuth());
             RESOLVER.getFollowers(username);
 
             List<User> following = RESOLVER.getFollowers(username);

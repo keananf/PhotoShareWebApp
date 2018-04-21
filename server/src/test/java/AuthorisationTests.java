@@ -201,14 +201,6 @@ public class AuthorisationTests extends TestUtility {
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 
-    @Test
-    public void newsFeedOfNonExistingTest() throws InvalidResourceRequestException {
-
-        // Check Status codes
-        Response newsFeedResponse = apiClient.getNewsFeed();
-        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), newsFeedResponse.getStatus());
-
-    }
 
     @Test
     public void followingOfNonExistingTest() {

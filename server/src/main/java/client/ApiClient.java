@@ -359,7 +359,7 @@ public final class ApiClient {
     public Response getFollowing() {
         // Encode request  and POST
 
-        String path = String.format("%s/%s", USERS_PATH , user) + FOLLOWING;
+        String path = String.format("%s/%s", USERS_FOLLOWING_PATH , user);
 
         String authJson = getSerialisedAuthRequest(path, user, password);
         return connector.postToUrl(baseTarget, path, authJson);
@@ -368,7 +368,7 @@ public final class ApiClient {
     public Response getFollowers() {
         // Encode request  and POST
 
-        String path = String.format("%s/%s", USERS_PATH , user) + FOLLOWERS;
+        String path = String.format("%s/%s", USERS_FOLLOWERS_PATH , user);
 
         String authJson = getSerialisedAuthRequest(path, user, password);
         return connector.postToUrl(baseTarget, path, authJson);

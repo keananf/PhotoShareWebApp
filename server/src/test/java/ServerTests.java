@@ -1087,7 +1087,7 @@ public final class ServerTests extends TestUtility {
 
         // Set up users who are being followeds
         String userBeingFollowedOne = "user_followed_one";
-        String userBeingFollowedTwo = "user_followes_two";
+        String userBeingFollowedTwo = "user_followed_two";
 
         // Create sample data
         byte[] contentsOne = new byte[] {1, 2, 3, 4, 5};
@@ -1098,12 +1098,17 @@ public final class ServerTests extends TestUtility {
         Response uploadResponseOne = apiClient.uploadPhoto(userBeingFollowedOne, albumId, contentsOne);
         assertEquals(Response.Status.OK.getStatusCode(), uploadResponseOne.getStatus());
 
-        // Upload 'photo' (byte[]) for second followee
-        albumId = 1;
+        // ---  Upload 'photo' (byte[]) for second followee
         loginAndSetupNewUser(userBeingFollowedTwo);
-        Response uploadResponseTwo = apiClient.uploadPhoto(userBeingFollowedTwo, albumId, contentsTwo);
+
+        // Add new album for second followee to avoid albums having the same id
+        Response response = apiClient.addAlbum(albumName, description, userBeingFollowedTwo);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        long albumIdTwo = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
+
+        Response uploadResponseTwo = apiClient.uploadPhoto(userBeingFollowedTwo, albumIdTwo, contentsTwo);
         assertEquals(Response.Status.OK.getStatusCode(), uploadResponseTwo.getStatus());
-        albumId = 0;
+
 
         // Set up user whose news feed we want
         loginAndSetupNewUser(username);
@@ -1124,14 +1129,11 @@ public final class ServerTests extends TestUtility {
         ArrayList<Photo> photoOfAllFollowers = new ArrayList<Photo>();
         photoOfAllFollowers.addAll(photosOfFollowedUserOne);
         photoOfAllFollowers.addAll(photosOfFollowedUserTwo);
-        List<Long> photoIdsOfFollowedUser = photoOfAllFollowers.stream().map(e -> e.getId()).collect(Collectors.toList());
 
         // Getting photoIds of all photos in new feed
         List<Photo> photosInNewsFeed =  resolver.getNewsFeed(username);
-        List<Long> photoIdsInNewsFeed = photosInNewsFeed.stream().map(e -> e.getId()).collect(Collectors.toList());
 
-
-        assertArrayEquals(photoIdsOfFollowedUser.toArray(), photoIdsInNewsFeed.toArray());
+        assertEquals(photosInNewsFeed.size(), photoOfAllFollowers.size());
 
     }
 

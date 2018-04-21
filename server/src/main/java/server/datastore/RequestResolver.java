@@ -406,12 +406,7 @@ public final class RequestResolver {
     public void followUser(String userFrom, String userTo) throws InvalidResourceRequestException, ExistingException{
 
         // Check the user to follow exists
-
-        try {
-            getUser(userTo);
-        }catch (InvalidResourceRequestException e){
-            throw e;
-        }
+        getUser(userTo);
 
         // Check the user is not already following the userToFollow
 
@@ -438,12 +433,7 @@ public final class RequestResolver {
     public void unfollowUser(String userFrom, String userTo) throws InvalidResourceRequestException{
 
         // Check the followed user exists
-
-        try {
-            getUser(userTo);
-        }catch (InvalidResourceRequestException e){
-            throw e;
-        }
+        getUser(userTo);
 
         // usernames of followers
         List<String> followers_usernames = getUsernamesOfFollowers(userTo);
@@ -523,7 +513,7 @@ public final class RequestResolver {
 
         List<User> followers = dataStore.getFollowers(username);
         List<String> followers_usernames = followers.stream()
-                .map(object -> Objects.toString(object.getUsername(), null))
+                .map(follower -> follower.getUsername())
                 .collect(Collectors.toList());
 
         return followers_usernames;

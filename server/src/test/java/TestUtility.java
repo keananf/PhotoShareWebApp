@@ -28,8 +28,8 @@ public abstract class TestUtility {
     static final RequestResolver resolver;
 
     // Client
-    static ApiClient apiClient;
-    static final Gson gson;
+    public static ApiClient apiClient;
+    public static final Gson gson;
 
     // Initialise in a static block so all children classes can access
     // the same server, without having to change config.
@@ -61,7 +61,7 @@ public abstract class TestUtility {
      * Also, a default album is set up.
      * @param name the username of the user
      */
-    void loginAndSetupNewUser(String name) {
+    public void loginAndSetupNewUser(String name) {
         // Add user to server
         addUser(name);
 
@@ -79,7 +79,7 @@ public abstract class TestUtility {
      * Attempts to add a user with the given username
      * @param name the username
      */
-    void addUser(String name) {
+    public void addUser(String name) {
         // Call the persistAddUser API from the client
         Response response = apiClient.addUser(name, pw);
 

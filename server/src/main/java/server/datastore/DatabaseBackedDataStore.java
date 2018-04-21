@@ -606,6 +606,22 @@ final class DatabaseBackedDataStore implements DataStore {
     }
 
     @Override
+    public void persistRemovePhoto(long photoId) {
+        // The photo will be deleted.
+        String query = "DELETE FROM " + PHOTOS_TABLE + " WHERE " + PHOTOS_ID + " = ?";
+
+        // Setup delete query.
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setLong(1, photoId);
+
+            // Execute query to delete row
+            stmt.executeUpdate();
+            stmt.close();
+        }
+        catch (SQLException e) {e.printStackTrace();}
+    }
+
+    @Override
     public void persistVote(long commentId, String user, boolean upvote) throws InvalidResourceRequestException {
         // Set up query for updating / inserting a new photo into the table
         String query = "INSERT INTO "+COMMENTS_VOTES_TABLE+"("+REFERENCE_ID+","+USERNAME+","+VOTE+") values(?, ?, ?)";

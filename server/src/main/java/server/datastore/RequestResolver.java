@@ -396,9 +396,19 @@ public final class RequestResolver {
     }
 
     /**
-     * Registers the given comment voteOnComment
-     * @param commentId the id of the comment to voteOnComment on
-     * @param user the user who cast this voteOnComment
+     * Removes the given photo
+     * @param photoId the given photoId
+     * @throws InvalidResourceRequestException if the id doesn't correspond to a valid photo
+     */
+    public void removePhoto(long photoId) throws InvalidResourceRequestException {
+        // Removes the photo from the database
+        dataStore.persistRemovePhoto(photoId);
+    }
+
+    /**
+     * Registers the given vote on the given comment
+     * @param commentId the id of the comment to vote on
+     * @param user the user who cast this vote
      * @param upvote whether or not this is an upvote or a downvote
      */
     public void voteOnComment(long commentId, String user, boolean upvote) throws InvalidResourceRequestException {

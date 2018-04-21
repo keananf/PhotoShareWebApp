@@ -2,6 +2,7 @@ package server.restApi;
 
 import com.google.gson.Gson;
 import server.Resources;
+import server.datastore.exceptions.DoesNotOwnAlbumException;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.datastore.exceptions.UnauthorisedException;
 import server.objects.Album;
@@ -71,11 +72,12 @@ public class AlbumsApi {
             RESOLVER.verifyAuth(Resources.UPDATE_ALBUM_DESCRIPTION_PATH, auth);
 
             // Upload new description to data store
-            RESOLVER.updateAlbumDescription(request.getAlbumId(), request.getDescription());
+            RESOLVER.updateAlbumDescription(auth.getUser(), request.getAlbumId(), request.getDescription());
             return Response.noContent().build();
         }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
+        catch(DoesNotOwnAlbumException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
     }
 
     /**

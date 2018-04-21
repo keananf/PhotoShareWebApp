@@ -125,9 +125,22 @@ public class AuthorisationTests extends TestUtility {
         String newDescription = "new description";
         long id = 1000;
 
-        // Update album's description
+        // Update album's description. Will fail because no user is logged in.
         Response response = apiClient.updateAlbumDescription(id, newDescription);
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void unauthorisedUpdateAlbumDescriptionTest2() {
+        // Login and make a note of the user's album
+        loginAndSetupNewUser(username);
+        long albumId1 = albumId;
+
+        // Login as a new user, and attempt to update the first user's album's description
+        // Assert bad request because it is not the owner calling this
+        loginAndSetupNewUser(username + "2");
+        Response response = apiClient.updateAlbumDescription(albumId1, "new description");
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 
     @Test

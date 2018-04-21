@@ -173,13 +173,17 @@ public final class RequestResolver {
 
     /**
      * Updates an album's description.
+     * @param user the user who submitted the request
      * @param albumId the album's id
      * @param description the new description
      */
-    public void updateAlbumDescription(long albumId, String description) throws InvalidResourceRequestException {
-        // Ensure album exists
-        getAlbum(albumId);
+    public void updateAlbumDescription(String user, long albumId, String description)
+            throws InvalidResourceRequestException, DoesNotOwnAlbumException {
+        // Ensure album exists, and that the user who made the request owns it.
+        Album album = getAlbum(albumId);
+        if(!album.getAuthorName().equals(user)) throw new DoesNotOwnAlbumException(albumId, user);
 
+        // Persist description update
         dataStore.updateAlbumDescription(albumId, description);
     }
 

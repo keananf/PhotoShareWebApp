@@ -4,6 +4,8 @@ import server.datastore.exceptions.InvalidResourceRequestException;
 
 import javax.ws.rs.core.Response;
 
+import java.util.List;
+
 import static server.objects.CommentType.*;
 import static org.junit.Assert.assertEquals;
 
@@ -127,32 +129,39 @@ public class AuthorisationTests extends TestUtility {
     }
 
     @Test
-    public void unauthorisedRemoveCommentTest() {
+    public void unauthorisedAdminRemoveCommentTest() {
+        // Assert unauthorised because no user logged in
+        Response response = apiClient.adminRemoveComment(100);
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void unauthorisedAdminRemoveCommentTest2() {
+        // Add two users and login as second. Only the first user will be an admin.
+        addUser(username); // admin
+        loginAndSetupNewUser(username + "2"); // not admin
+
+        // Assert unauthorised because it is NOT an admin calling this
+        Response response = apiClient.adminRemoveComment(100);
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void unauthorisedUserRemoveCommentTest() {
         // Assert unauthorised because no user logged in
         Response response = apiClient.removeComment(100);
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 
     @Test
-    public void unauthorisedRemoveCommentTest2() {
-        // Add two users and login as second. Only the first user will be an admin.
-        addUser(username); // admin
-        loginAndSetupNewUser(username + "2"); // not admin
-
-        // Assert unauthorised because it is NOT an admin calling this
-        Response response = apiClient.removeComment(100);
-        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
-    }
-
-    @Test
-    public void unauthorisedRemovePhotoTest() {
+    public void unauthorisedAdminRemovePhotoTest() {
         // Assert unauthorised because no user logged in
         Response response = apiClient.adminRemovePhoto(100);
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 
     @Test
-    public void unauthorisedRemovePhotoTest2() {
+    public void unauthorisedAdminRemovePhotoTest2() {
         // Add two users and login as second. Only the first user will be an admin.
         addUser(username); // admin
         loginAndSetupNewUser(username + "2"); // not admin
@@ -220,4 +229,12 @@ public class AuthorisationTests extends TestUtility {
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 
+    @Test
+    public void unauthorisedEditCommentTest() {
+        //Assert unauthorised
+        long randomId = -100;
+        Response response = apiClient.editComment(randomId, "some comment content");
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
+    }
+    
 }

@@ -1,11 +1,9 @@
 package server.datastore;
 
-import server.datastore.exceptions.DoesNotOwnAlbumException;
-import server.datastore.exceptions.ExistingException;
-import server.datastore.exceptions.InvalidResourceRequestException;
-import server.datastore.exceptions.UnauthorisedException;
+import server.datastore.exceptions.*;
 import server.objects.*;
 import server.requests.AddCommentRequest;
+import server.requests.EditCommentRequest;
 import server.requests.UploadPhotoRequest;
 
 import java.util.List;
@@ -340,6 +338,26 @@ public final class RequestResolver {
     }
 
     /**
+     * Edits the given comment
+     * @param user the user requesting to change it
+     * @param request the request for new comment content
+     * @throws InvalidResourceRequestException if the comment doesn't exist
+     */
+    public Receipt editComment(String user, long commentId, EditCommentRequest request) throws InvalidResourceRequestException, DoesNotOwnCommentException {
+
+        // Retrieve the parent comment and check it exists
+        // (exception will be thrown, if not).
+        Comment comment = getComment(commentId);
+        if (!comment.getAuthor().equals(user)) throw new DoesNotOwnCommentException(commentId, user);
+
+        // Persist comment to data store
+        dataStore.persistEditComment(commentId, request.getCommentContents());
+
+        // Return a receipt
+        return new Receipt(commentId);
+    }
+
+    /**
      * Adds a notification on the photo / comment which the given comment
      * commented on
      * @param comment the new comment
@@ -366,6 +384,7 @@ public final class RequestResolver {
      * @throws InvalidResourceRequestException if the id doesn't correspond to a valid notification
      */
     private void removeNotification(String user, long id) throws InvalidResourceRequestException {
+
         // Retrieve notification and remove it, if present.
         dataStore.persistRemoveNotification(user, id);
     }
@@ -373,10 +392,30 @@ public final class RequestResolver {
     /**
      * Removes the given comment
      * @param commentId the given commentId
-     * @throws InvalidResourceRequestException if the id doesn't correspond to a valid comment
+     * @throws InvalidResourceRequestException if the comment ID doesn't correspond to a valid comment
      */
-    public void removeComment(long commentId) throws InvalidResourceRequestException {
-        // Simply overwrites comment with "Removed By Admin"
+    public void removeCommentAdmin(long commentId) throws InvalidResourceRequestException {
+
+        // Checks that comment exists, throws an exception if not
+        getComment(commentId);
+
+        // Cascade deletes a comment
+        dataStore.persistRemoveComment(commentId);
+    }
+
+    /**
+     * Removes the given comment
+     * @param commentId the given commentId
+     * @throws InvalidResourceRequestException if the comment ID doesn't correspond to a valid comment
+     */
+    public void removeComment(String user, long commentId)
+            throws InvalidResourceRequestException, DoesNotOwnCommentException {
+
+        // Checks that comment exists and is owned by requesting user, throws an exception if not
+        Comment c = getComment(commentId);
+        if (!c.getAuthor().equals(user)) throw new DoesNotOwnCommentException(commentId, user);
+
+        // Cascade deletes a comment
         dataStore.persistRemoveComment(commentId);
     }
 
@@ -386,6 +425,10 @@ public final class RequestResolver {
      * @throws InvalidResourceRequestException if the id doesn't correspond to a valid photo
      */
     public void removePhoto(long photoId) throws InvalidResourceRequestException {
+
+        // Checks that the photo exists, throws an exception if not
+        getPhoto(photoId);
+
         // Removes the photo from the database
         dataStore.persistRemovePhoto(photoId);
     }

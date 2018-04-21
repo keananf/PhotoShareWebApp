@@ -31,7 +31,7 @@ public final class RequestResolver {
         Auth serverAuth;
         try {
             User user = getUser(auth.getUser());
-            serverAuth = new Auth(endPoint, user.getName(), user.getPassword());
+            serverAuth = new Auth(endPoint, user.getUsername(), user.getPassword());
         }
         catch (InvalidResourceRequestException ignored) {throw new UnauthorisedException();}
 
@@ -106,6 +106,19 @@ public final class RequestResolver {
         getUser(user);
 
         return dataStore.getPhotos(user);
+    }
+
+    /**
+     * Retrieves photos from a given album.
+     * @param albumId the album's ID
+     * @return the list of photos in this album
+     * @throws InvalidResourceRequestException if the given album ID is unknown
+     */
+    public List<Photo> getPhotos(long albumId) throws InvalidResourceRequestException {
+        // Ensure album exists
+        getAlbum(albumId);
+
+        return dataStore.getPhotos(albumId);
     }
 
     /**
@@ -195,8 +208,8 @@ public final class RequestResolver {
         // Ensure this user doesn't exist
         try {
             // If exception is NOT thrown, then user exists
-            getUser(user.getName());
-            throw new ExistingException(user.getName());
+            getUser(user.getUsername());
+            throw new ExistingException(user.getUsername());
         }
         catch (InvalidResourceRequestException e) {}
 
@@ -301,7 +314,7 @@ public final class RequestResolver {
      */
     public Receipt addComment(String user, AddCommentRequest request) throws InvalidResourceRequestException {
         // Check comment type
-        if(request.getType().equals(CommentType.REPLY)) {
+        if(request.getCommentType().equals(CommentType.REPLY)) {
             // Retrieve the parent comment and check it exists
             // (exception will be thrown, if not).
             getComment(request.getReferenceId());
@@ -336,10 +349,10 @@ public final class RequestResolver {
 
         // Get parent reference based on comment type
         if(comment.getCommentType().equals(CommentType.REPLY)) {
-            parentName = getComment(comment.getReferenceId()).getPostedBy();
+            parentName = getComment(comment.getReferenceId()).getAuthor();
         }
         else {
-            parentName = getPhoto(comment.getReferenceId()).getPostedBy();
+            parentName = getPhoto(comment.getReferenceId()).getAuthorName();
         }
 
         // Add notification using found parent's name
@@ -473,7 +486,7 @@ public final class RequestResolver {
 
         List<User> followers = dataStore.getFollowers(username);
         List<String> followers_usernames = followers.stream()
-                .map(object -> Objects.toString(object.getName(), null))
+                .map(object -> Objects.toString(object.getUsername(), null))
                 .collect(Collectors.toList());
 
         return followers_usernames;

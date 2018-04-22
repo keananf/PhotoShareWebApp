@@ -9,7 +9,7 @@
                 </header>
                 <div class="post-image">
                     <router-link :to="route">
-                        <img src="https://img00.deviantart.net/95e7/i/2014/007/d/3/google_abstract_by_dynamicz34-d718hzj.png"/>
+                        <img :src="post.filename"/>
                     </router-link>
                 </div>
                 <footer>

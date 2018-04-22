@@ -2,6 +2,7 @@ package server.restApi;
 
 import com.google.gson.Gson;
 import server.Resources;
+import server.datastore.exceptions.DoesNotOwnAlbumException;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.datastore.exceptions.UnauthorisedException;
 import server.objects.Album;
@@ -9,6 +10,7 @@ import server.objects.Auth;
 import server.objects.Receipt;
 import server.requests.AddAlbumRequest;
 import server.requests.AuthRequest;
+import server.requests.UpdateAlbumDescriptionRequest;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -48,6 +50,34 @@ public class AlbumsApi {
         }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
+    }
+
+
+    /**
+     * Attempts to update a given album's description
+     *
+     * @param message the auth information and new album information
+     * @return a response object containing the result of the request
+     */
+    @POST
+    @Path(Resources.UPDATE_ALBUM_DESCRIPTION)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response updateAlbumDescription(String message) {
+        // Retrieve request wrapper
+        try {
+            UpdateAlbumDescriptionRequest request = gson.fromJson(message, UpdateAlbumDescriptionRequest.class);
+
+            // Retrieve and verify provided auth info
+            Auth auth = request.getAuth();
+            RESOLVER.verifyAuth(Resources.UPDATE_ALBUM_DESCRIPTION_PATH, auth);
+
+            // Upload new description to data store
+            RESOLVER.updateAlbumDescription(auth.getUser(), request.getAlbumId(), request.getDescription());
+            return Response.noContent().build();
+        }
+        catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
+        catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
+        catch(DoesNotOwnAlbumException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
     }
 
     /**

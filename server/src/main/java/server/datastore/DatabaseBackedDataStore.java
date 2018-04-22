@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static server.Resources.REMOVAL_STRING;
 import static server.datastore.DatabaseResources.*;
 import static server.datastore.DatabaseResources.USER_TO;
 
@@ -23,13 +22,13 @@ import static server.datastore.DatabaseResources.USER_TO;
  * DataStore implemented in terms of a H2 database
  */
 final class DatabaseBackedDataStore implements DataStore {
-    private static final String db_url = "jdbc:h2:~/Documents/CS5031/P3/Code/server/database";
+    private static final String db_url = "jdbc:h2:./database";
     private static final String DB_CONFIG = "src/main/resources/db_config.txt";
     private static String uname;
     private static String pw;
     private Connection conn;
 
-    // Read in the username and password for accessing the database
+    // Before anything else, read in the username and password for accessing the database
     static {
         try {
             Scanner reader = new Scanner(new File(DB_CONFIG), Resources.CHARSET_AS_STRING);
@@ -57,16 +56,17 @@ final class DatabaseBackedDataStore implements DataStore {
     public void persistUploadPhoto(Photo newPhoto) {
         // Set up query for inserting a new photo into the table
         String query = "INSERT INTO "+PHOTOS_TABLE+"("+PHOTOS_ID+","+PHOTOS_NAME+","
-                +USERNAME+","+PHOTOS_CONTENTS+","+PHOTOS_TIME+") values(?, ?, ?, ?, ?)";
+                +USERNAME+","+ALBUMS_ID+","+PHOTOS_CONTENTS+","+PHOTOS_TIME+") values(?, ?, ?, ?, ?, ?)";
 
         // Persist photo
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             // Insert user info into prepared statement
             stmt.setLong(1, newPhoto.getId());
             stmt.setString(2, newPhoto.getPhotoName());
-            stmt.setString(3, newPhoto.getPostedBy());
-            stmt.setBlob(4, new ByteArrayInputStream(newPhoto.getPhotoContents().getBytes(StandardCharsets.UTF_8)));
-            stmt.setTimestamp(5, new Timestamp(newPhoto.getTimestamp()));
+            stmt.setString(3, newPhoto.getAuthorName());
+            stmt.setLong(4, newPhoto.getAlbumId());
+            stmt.setBlob(5, new ByteArrayInputStream(newPhoto.getPhotoContents().getBytes(StandardCharsets.UTF_8)));
+            stmt.setTimestamp(6, new Timestamp(newPhoto.getPhotoTime()));
 
             // Persist data
             stmt.executeUpdate();
@@ -99,7 +99,42 @@ final class DatabaseBackedDataStore implements DataStore {
                 // Retrieve base 64 encoded contents
                 Scanner s = new Scanner(photoContents.getBinaryStream(), Resources.CHARSET_AS_STRING).useDelimiter("\\A");
                 String encodedPhotoContents = s.hasNext() ? s.next() : "";
-                photos.add(new Photo(encodedPhotoContents, username, photoName, id, albumId, timestamp.getTime()));
+                photos.add(new Photo(encodedPhotoContents, username, photoName, id, albumId,
+                        getPhotoRatings(id), timestamp.getTime()));
+            }
+            stmt.close();
+        }
+        catch (SQLException e) {e.printStackTrace(); }
+
+        // Return found photos
+        return photos;
+    }
+
+    @Override
+    public List<Photo> getPhotos(long albumId) {
+        // Set up query to retrieve each row in the photos table
+        String query = "SELECT * FROM "+PHOTOS_TABLE+" WHERE "+ALBUMS_ID+" = ?";
+        List<Photo> photos = new ArrayList<>();
+
+        // Execute query on database
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setLong(1, albumId);
+            ResultSet rs = stmt.executeQuery();
+
+            // Iterate through result set, constructing PHOTO Objects
+            while(rs.next()) {
+                // Create photos
+                long id = rs.getLong(1);
+                String photoName = rs.getString(2);
+                String username = rs.getString(3);
+                Blob photoContents = rs.getBlob(5);
+                Timestamp timestamp = rs.getTimestamp(6);
+
+                // Retrieve base 64 encoded contents
+                Scanner s = new Scanner(photoContents.getBinaryStream(), Resources.CHARSET_AS_STRING).useDelimiter("\\A");
+                String encodedPhotoContents = s.hasNext() ? s.next() : "";
+                photos.add(new Photo(encodedPhotoContents, username, photoName, id, albumId,
+                        getPhotoRatings(id), timestamp.getTime()));
             }
             stmt.close();
         }
@@ -132,7 +167,8 @@ final class DatabaseBackedDataStore implements DataStore {
                 // Retrieve base 64 encoded contents
                 Scanner s = new Scanner(photoContents.getBinaryStream(), Resources.CHARSET_AS_STRING).useDelimiter("\\A");
                 String encodedPhotoContents = s.hasNext() ? s.next() : "";
-                photos.add(new Photo(encodedPhotoContents, username, photoName, id, albumId, timestamp.getTime()));
+                photos.add(new Photo(encodedPhotoContents, username, photoName, id, albumId,
+                        getPhotoRatings(id), timestamp.getTime()));
             }
             stmt.close();
         }
@@ -232,6 +268,27 @@ final class DatabaseBackedDataStore implements DataStore {
     }
 
     @Override
+    public void updateAlbumDescription(long albumId, String description) throws InvalidResourceRequestException {
+        // The album's description will be overwritten.
+        String query = "UPDATE " + ALBUMS_TABLE + " SET " + ALBUMS_DESCRIPTION + " = ? WHERE " + ALBUMS_ID + " = ?";
+
+        // Setup update query.
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, description);
+            stmt.setLong(2, albumId);
+
+            // Execute query and ensure a row was changed
+            int ret = stmt.executeUpdate();
+            stmt.close();
+            if(ret == 1) return;
+        }
+        catch (SQLException e) {e.printStackTrace();}
+
+        // Album didn't exist
+        throw new InvalidResourceRequestException(albumId);
+    }
+
+    @Override
     public Comment getComment(long id) throws InvalidResourceRequestException {
         List<Comment> comments = new ArrayList<>();
 
@@ -256,9 +313,7 @@ final class DatabaseBackedDataStore implements DataStore {
                 CommentType type = reply ? CommentType.REPLY : CommentType.PHOTO_COMMENT;
 
                 // Create comment and retrieve upvotes / downvotes
-                Comment comm = new Comment(username, contents, referenceId, type, timestamp.getTime());
-                comm.setId(id);
-                comm.setVotes(getVotes(id));
+                Comment comm = new Comment(id, username, contents, referenceId, type, getCommentVotes(id), timestamp.getTime());
                 comments.add(comm);
             }
             stmt.close();
@@ -344,7 +399,7 @@ final class DatabaseBackedDataStore implements DataStore {
         // Persist the user
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             // Insert user info into prepared statement
-            stmt.setString(1, user.getName());
+            stmt.setString(1, user.getUsername());
             stmt.setInt(2, user.getPassword());
             stmt.setBoolean(3, user.isAdmin());
 
@@ -378,10 +433,8 @@ final class DatabaseBackedDataStore implements DataStore {
                 boolean reply = rs.getBoolean(4);
                 CommentType type = reply ? CommentType.REPLY : CommentType.PHOTO_COMMENT;
 
-                // Create comment
-                Comment comm = new Comment(username, contents, referenceId, type, timestamp.getTime());
-                comm.setId(id);
-                comm.setVotes(getVotes(id));
+                // Create comment and retrieve upvotes / downvotes
+                Comment comm = new Comment(id, username, contents, referenceId, type, getCommentVotes(id), timestamp.getTime());
                 comments.add(comm);
             }
             stmt.close();
@@ -393,7 +446,7 @@ final class DatabaseBackedDataStore implements DataStore {
     }
 
     @Override
-    public List<Comment> getPhotoComments(String user, long referenceId) {
+    public List<Comment> getPhotoComments(String username, long referenceId) {
         // Set up query to retrieve the requested comments in the comments table
         List<Comment> comments = new ArrayList<>();
         String query = "SELECT * FROM "+COMMENTS_TABLE+" WHERE "+REFERENCE_ID+" = ? AND "+COMMENT_TYPE+" = false";
@@ -410,10 +463,9 @@ final class DatabaseBackedDataStore implements DataStore {
                 String contents = rs.getString(3);
                 Timestamp timestamp = rs.getTimestamp(5);
 
-                // Create comment and add to the collection
-                Comment comm = new Comment(user, contents, referenceId, CommentType.PHOTO_COMMENT, timestamp.getTime());
-                comm.setId(id);
-                comm.setVotes(getVotes(id));
+                // Create comment and retrieve upvotes / downvotes
+                Comment comm = new Comment(id, username, contents, referenceId, CommentType.PHOTO_COMMENT,
+                        getCommentVotes(id), timestamp.getTime());
                 comments.add(comm);
             }
             stmt.close();
@@ -425,7 +477,7 @@ final class DatabaseBackedDataStore implements DataStore {
     }
 
     @Override
-    public List<Comment> getReplies(String user, long referenceId) {
+    public List<Comment> getReplies(String username, long referenceId) {
         // Set up query to retrieve the requested comments in the comments table
         List<Comment> comments = new ArrayList<>();
         String query = "SELECT * FROM "+COMMENTS_TABLE+" WHERE "+REFERENCE_ID+" = ? AND "+COMMENT_TYPE+" = true";
@@ -442,10 +494,9 @@ final class DatabaseBackedDataStore implements DataStore {
                 String contents = rs.getString(3);
                 Timestamp timestamp = rs.getTimestamp(5);
 
-                // Create comment
-                Comment comm = new Comment(user, contents, referenceId, CommentType.REPLY, timestamp.getTime());
-                comm.setId(id);
-                comm.setVotes(getVotes(id));
+                // Create comment and retrieve upvotes / downvotes
+                Comment comm = new Comment(id, username, contents, referenceId, CommentType.REPLY,
+                        getCommentVotes(id), timestamp.getTime());
                 comments.add(comm);
             }
             stmt.close();
@@ -494,20 +545,39 @@ final class DatabaseBackedDataStore implements DataStore {
     public void persistAddComment(Comment comment) {
         // Set up query for inserting a new comment into the table
         String query = "INSERT INTO "+COMMENTS_TABLE+"("+COMMENTS_ID+","+USERNAME+","
-                        +COMMENTS_CONTENTS+","+COMMENT_TYPE+","+REFERENCE_ID+") values(?, ?, ?, ?, ?)";
+                        +COMMENTS_CONTENTS+","+COMMENT_TYPE+","+REFERENCE_ID+","+COMMENTS_TIME+") values(?, ?, ?, ?, ?, ?)";
 
         // Add comment
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             // Insert user info into prepared statement)
             stmt.setLong(1, comment.getId());
-            stmt.setString(2, comment.getPostedBy());
-            stmt.setString(3, comment.getContents());
+            stmt.setString(2, comment.getAuthor());
+            stmt.setString(3, comment.getCommentContents());
             stmt.setBoolean(4, comment.getCommentType() == CommentType.REPLY);
             stmt.setLong(5, comment.getReferenceId());
+            stmt.setTimestamp(6, new Timestamp(comment.getCommentTime()));
 
             // Persist data
             stmt.executeUpdate();
             stmt.close();
+        }
+        catch (SQLException e) { e.printStackTrace(); }
+    }
+
+    @Override
+    public void persistEditComment(long commentId, String content) {
+        // The comment's contents will be overwritten.
+        String query = "UPDATE " + COMMENTS_TABLE + " SET " + COMMENTS_CONTENTS + " = ? WHERE " + COMMENTS_ID + " = ?";
+
+        // Setup update query.
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, content);
+            stmt.setLong(2, commentId);
+
+            // Execute query and ensure a row was changed
+            int ret = stmt.executeUpdate();
+            stmt.close();
+            if(ret == 1) return;
         }
         catch (SQLException e) { e.printStackTrace(); }
     }
@@ -524,7 +594,7 @@ final class DatabaseBackedDataStore implements DataStore {
             stmt.setLong(1, comment.getId());
             stmt.setLong(2, comment.getReferenceId());
             stmt.setString(3, parentName);
-            stmt.setString(4, comment.getPostedBy());
+            stmt.setString(4, comment.getAuthor());
             stmt.setBoolean(5, comment.getCommentType() == CommentType.REPLY);
 
             // Persist data
@@ -550,24 +620,17 @@ final class DatabaseBackedDataStore implements DataStore {
     }
 
     @Override
-    public void persistRemoveComment(long commentId) throws InvalidResourceRequestException {
+    public void persistRemoveComment(long commentId) {
         // The comment's contents will be overwritten.
-        String query = "UPDATE " + COMMENTS_TABLE + " SET " + COMMENTS_CONTENTS + " = ? WHERE " + COMMENTS_ID + " = ?";
+        String query = "DELETE FROM " + COMMENTS_TABLE + " WHERE " + COMMENTS_ID + " = ?";
 
-        // Setup update query.
+        // Setup and execute delete query.
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, REMOVAL_STRING);
-            stmt.setLong(2, commentId);
-
-            // Execute query and ensure a row was changed
-            int ret = stmt.executeUpdate();
+            stmt.setLong(1, commentId);
+            stmt.executeUpdate();
             stmt.close();
-            if(ret == 1) return;
         }
         catch (SQLException e) {e.printStackTrace();}
-
-        // Comment didn't exist
-        throw new InvalidResourceRequestException(commentId);
     }
 
     @Override
@@ -587,10 +650,10 @@ final class DatabaseBackedDataStore implements DataStore {
     }
 
     @Override
-    public void persistVote(long commentId, String user, boolean upvote) throws InvalidResourceRequestException {
+    public void persistCommentVote(long commentId, String user, boolean upvote) throws InvalidResourceRequestException {
         // Set up query for updating / inserting a new photo into the table
-        String query = "INSERT INTO "+COMMENTS_VOTES_TABLE+"("+REFERENCE_ID+","+USERNAME+","+VOTE+") values(?, ?, ?)";
-        String update = "UPDATE "+COMMENTS_VOTES_TABLE+" SET "+VOTE+" = ? " +
+        String query = "INSERT INTO "+COMMENTS_VOTES_TABLE+"("+REFERENCE_ID+","+USERNAME+","+ COMMENT_VOTE +") values(?, ?, ?)";
+        String update = "UPDATE "+COMMENTS_VOTES_TABLE+" SET "+ COMMENT_VOTE +" = ? " +
                 "WHERE "+USERNAME+" = ? AND "+REFERENCE_ID+" = ?";
 
         // Try to update row first
@@ -620,36 +683,39 @@ final class DatabaseBackedDataStore implements DataStore {
         catch (SQLException e) { throw new InvalidResourceRequestException(commentId); }
     }
 
+
     @Override
-    public void clear() {
-        String query = "DELETE FROM ";
-        String[] tables = new String[]
-                {USERS_TABLE,ALBUMS_TABLE,PHOTOS_TABLE,COMMENTS_TABLE,COMMENTS_VOTES_TABLE,NOTIFICATIONS_TABLE};
+    public void persistPhotoRating(long photoId, String user, boolean upvote) throws InvalidResourceRequestException {
+        // Set up query for updating / inserting a new photo into the table
+        String query = "INSERT INTO "+PHOTO_RATINGS_TABLE+"("+REFERENCE_ID+","+USERNAME+","+ PHOTO_RATING +") values(?, ?, ?)";
+        String update = "UPDATE "+PHOTO_RATINGS_TABLE+" SET "+ PHOTO_RATING +" = ? " +
+                "WHERE "+USERNAME+" = ? AND "+REFERENCE_ID+" = ?";
 
-        // Disable foreign key
-        try (Statement stmt = conn.createStatement()) {
-            // Allow clearing of data without caring about foreign keys
-            stmt.executeUpdate("SET REFERENTIAL_INTEGRITY FALSE");
-        }
-        catch (SQLException e) {e.printStackTrace();}
+        // Try to update row first
+        try (PreparedStatement stmt = conn.prepareStatement(update)) {
+            stmt.setBoolean(1, upvote);
+            stmt.setString(2, user);
+            stmt.setLong(3, photoId);
 
-        for(String table : tables) {
-            // Execute statement
-            try (PreparedStatement stmt = conn.prepareStatement(query + table)) {
-                // Allow clearing of data without caring about foreign keys
-                stmt.executeUpdate();
-            }
-            catch (SQLException e) {
-                e.printStackTrace();
-            }
+            // Execute, and check if any updates were made
+            int ret = stmt.executeUpdate();
+            stmt.close();
+            if(ret == 1) return;
         }
+        catch(SQLException e) {e.printStackTrace();}
 
-        // Reset
-        try (Statement stmt = conn.createStatement()) {
-            // Reset, so foreign keys are enforced
-            stmt.executeUpdate("SET REFERENTIAL_INTEGRITY TRUE");
+        // If update didn't succeed, add new row
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            // Insert user info into prepared statement
+            stmt.setLong(1, photoId);
+            stmt.setString(2, user);
+            stmt.setBoolean(3, upvote);
+
+            // Persist data
+            stmt.executeUpdate();
+            stmt.close();
         }
-        catch (SQLException e) {e.printStackTrace();}
+        catch (SQLException e) { throw new InvalidResourceRequestException(photoId); }
     }
 
     /**
@@ -657,7 +723,7 @@ final class DatabaseBackedDataStore implements DataStore {
      * @param commentId the comment
      * @return the votes for the given comment
      */
-    private HashMap<String, Boolean> getVotes(long commentId) {
+    private HashMap<String, Boolean> getCommentVotes(long commentId) {
         // Set up query to retrieve each row in the votes table
         String query = "SELECT * FROM "+COMMENTS_VOTES_TABLE+" WHERE "+REFERENCE_ID+" = ?";
         HashMap<String, Boolean> votes = new HashMap<>();
@@ -665,6 +731,36 @@ final class DatabaseBackedDataStore implements DataStore {
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             // Execute query on database
             stmt.setLong(1, commentId);
+            ResultSet rs = stmt.executeQuery();
+
+            // Iterate through result set
+            while(rs.next()) {
+                String userName = rs.getString(2);
+                boolean vote = rs.getBoolean(3);
+                votes.put(userName, vote);
+            }
+            stmt.close();
+        }
+        catch (SQLException e) { e.printStackTrace();}
+
+        // Return found votes
+        return votes;
+    }
+
+
+    /**
+     * Queries the database for all votes for the given photo
+     * @param photoId the photo
+     * @return the votes for the given photo
+     */
+    private HashMap<String, Boolean> getPhotoRatings(long photoId) {
+        // Set up query to retrieve each row in the votes table
+        String query = "SELECT * FROM "+PHOTO_RATINGS_TABLE+" WHERE "+REFERENCE_ID+" = ?";
+        HashMap<String, Boolean> votes = new HashMap<>();
+
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            // Execute query on database
+            stmt.setLong(1, photoId);
             ResultSet rs = stmt.executeQuery();
 
             // Iterate through result set
@@ -703,7 +799,7 @@ final class DatabaseBackedDataStore implements DataStore {
         catch (SQLException e) {e.printStackTrace();}
     }
 
-
+    @Override
     public void persistDeleteFollowing(String userFrom, String userTo) {
 
         String query = "DELETE FROM "+FOLLOWINGS_TABLE+" WHERE "+USER_FROM+" = ? AND "+USER_TO+" = ?";
@@ -744,10 +840,41 @@ final class DatabaseBackedDataStore implements DataStore {
             }
             stmt.close();
         }
-        catch (SQLException e) { e.printStackTrace(); }
-        catch (InvalidResourceRequestException e) { e.printStackTrace(); }
+        catch (SQLException | InvalidResourceRequestException e) { e.printStackTrace(); }
 
 
         return following;
+    }
+
+    @Override
+    public void clear() {
+        String query = "DELETE FROM ";
+        String[] tables = new String[] {USERS_TABLE,ALBUMS_TABLE,PHOTOS_TABLE,
+                COMMENTS_TABLE,COMMENTS_VOTES_TABLE, PHOTO_RATINGS_TABLE,NOTIFICATIONS_TABLE};
+
+        // Disable foreign key
+        try (Statement stmt = conn.createStatement()) {
+            // Allow clearing of data without caring about foreign keys
+            stmt.executeUpdate("SET REFERENTIAL_INTEGRITY FALSE");
+        }
+        catch (SQLException e) {e.printStackTrace();}
+
+        for(String table : tables) {
+            // Execute statement
+            try (PreparedStatement stmt = conn.prepareStatement(query + table)) {
+                // Allow clearing of data without caring about foreign keys
+                stmt.executeUpdate();
+            }
+            catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Reset
+        try (Statement stmt = conn.createStatement()) {
+            // Reset, so foreign keys are enforced
+            stmt.executeUpdate("SET REFERENTIAL_INTEGRITY TRUE");
+        }
+        catch (SQLException e) {e.printStackTrace();}
     }
 }

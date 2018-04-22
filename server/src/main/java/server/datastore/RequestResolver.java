@@ -506,12 +506,7 @@ public final class RequestResolver {
     public void followUser(String userFrom, String userTo) throws InvalidResourceRequestException, ExistingException{
 
         // Check the user to follow exists
-
-        try {
-            getUser(userTo);
-        }catch (InvalidResourceRequestException e){
-            throw e;
-        }
+        getUser(userTo);
 
         // Check the user is not already following the userToFollow
 
@@ -538,12 +533,8 @@ public final class RequestResolver {
     public void unfollowUser(String userFrom, String userTo) throws InvalidResourceRequestException{
 
         // Check the followed user exists
+        getUser(userTo);
 
-        try {
-            getUser(userTo);
-        }catch (InvalidResourceRequestException e){
-            throw e;
-        }
 
         // usernames of followers
         List<String> followers_usernames = getUsernamesOfFollowers(userTo);

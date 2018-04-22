@@ -166,10 +166,12 @@ class TableCreator {
         // Construct create users table query
         String query = "CREATE TABLE IF NOT EXISTS "+NOTIFICATIONS_TABLE+" ("+COMMENTS_ID+" bigint, " +
                 REFERENCE_ID+" bigint," +
+                FOLLOW_ID +" bigint," +
                 PARENTNAME+" varchar(25) NOT NULL," +
                 USERNAME+" varchar(25) NOT NULL," +
-                COMMENT_TYPE+" boolean," +
-                "PRIMARY KEY("+COMMENTS_ID+", "+REFERENCE_ID+")," +
+                CONTENT_TYPE+" varchar(25) NOT NULL,," +
+                "PRIMARY KEY("+REFERENCE_ID+")," +
+                "FOREIGN KEY("+FOLLOW_ID+") references "+FOLLOWINGS_TABLE+"("+FOLLOW_ID+")," +
                 "FOREIGN KEY("+COMMENTS_ID+") references "+COMMENTS_TABLE+"("+COMMENTS_ID+")," +
                 "FOREIGN KEY("+PARENTNAME+") references "+USERS_TABLE+"("+USERNAME+"))";
 
@@ -185,7 +187,7 @@ class TableCreator {
      */
     private void createFollowingsTable() {
         // Construct create users table query
-        String query = "CREATE TABLE IF NOT EXISTS "+FOLLOWINGS_TABLE+" ("+FOLLOW_ID+" int NOT NULL, " +
+        String query = "CREATE TABLE IF NOT EXISTS "+FOLLOWINGS_TABLE+" ("+FOLLOW_ID+" bigint NOT NULL, " +
                 USER_FROM+" varchar(25) NOT NULL," +
                 USER_TO+" varchar(25) NOT NULL," +
                 "PRIMARY KEY("+FOLLOW_ID+")," +

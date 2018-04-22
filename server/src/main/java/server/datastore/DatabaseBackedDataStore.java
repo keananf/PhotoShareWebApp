@@ -880,7 +880,7 @@ final class DatabaseBackedDataStore implements DataStore {
     public void clear() {
         String query = "DELETE FROM ";
         String[] tables = new String[] {USERS_TABLE,ALBUMS_TABLE,PHOTOS_TABLE,
-                COMMENTS_TABLE,COMMENTS_VOTES_TABLE, PHOTO_RATINGS_TABLE,NOTIFICATIONS_TABLE};
+                COMMENTS_TABLE,COMMENTS_VOTES_TABLE, PHOTO_RATINGS_TABLE,NOTIFICATIONS_TABLE, FOLLOWINGS_TABLE};
 
         // Disable foreign key
         try (Statement stmt = conn.createStatement()) {

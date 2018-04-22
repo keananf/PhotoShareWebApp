@@ -1384,7 +1384,7 @@ public final class ServerTests extends TestUtility {
 
         // Getting photoIds of all photos in new feed
         List<Photo> photosInNewsFeed =  resolver.getNewsFeed(username);
-;
+        ;
 
 
         assertEquals(photoOfAllFollowers.size(), photosInNewsFeed.size());

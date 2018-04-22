@@ -44,7 +44,8 @@ public final class NewsFeedAPI {
 
             // Checking user is authenticated
             AuthRequest auth = gson.fromJson(jsonAuth, AuthRequest.class);
-            RESOLVER.verifyAuth(Resources.NEWS_FEED_PATH + "/" + username, auth.getAuth());
+            String path = String.format("%s/%s", Resources.NEWS_FEED_PATH , username);
+            RESOLVER.verifyAuth(path, auth.getAuth());
 
             // Processing Request
             List<Photo> photos = RESOLVER.getNewsFeed(username);

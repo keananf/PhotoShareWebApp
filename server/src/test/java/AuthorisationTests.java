@@ -285,8 +285,10 @@ public class AuthorisationTests extends TestUtility {
         Response response = apiClient.getFollowers();
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
 
+    }
+
     @Test
-    public void unauthorisedEditCommentTest() {
+    public void unauthorisedEditCommentTest(){
         //Assert unauthorised
         long randomId = -100;
         Response response = apiClient.editComment(randomId, "some comment content");

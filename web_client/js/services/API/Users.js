@@ -32,6 +32,17 @@
                     ])
                 }, 1000) // Simulate API call
             })
+        },
+
+        getUserData(username){
+            // @todo
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    resolve(
+                        new Models.User(username)
+                    )
+                }, 1000)
+            })
         }
 
     }

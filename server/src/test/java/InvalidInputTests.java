@@ -7,8 +7,9 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
-import static server.objects.CommentType.*;
 import static org.junit.Assert.assertEquals;
+import static server.objects.EventType.PHOTO_COMMENT;
+import static server.objects.EventType.REPLY;
 
 /**
  * Tests demonstrating behaviour of APIs when presented with

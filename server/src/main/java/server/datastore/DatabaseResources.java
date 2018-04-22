@@ -48,4 +48,9 @@ abstract class DatabaseResources {
     static final String FOLLOW_ID = "followId";
     static final String USER_FROM = "userFrom";
     static final String USER_TO = "userTo";
+
+    // Notifications table attributes
+    static final String CONTENT_TYPE = "content_type";
+    static final String CONTENT_ID = "content_id";
+
 }

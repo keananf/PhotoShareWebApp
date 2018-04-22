@@ -18,8 +18,8 @@
         
         <button :class="{btn: true, 'btn-sm': true, 'btn-success': isFollowing}"
             @click="toggleFollow">
-            <i :class="{far: !isFollowing, fas: isFollowing, 'fa-star':true}"></i>
-            Follow
+            <i class="fas fa-star"></i>
+            Follow{{ isFollowing ? 'ing' : '' }}
         </button>
     
     </div>

@@ -6,9 +6,9 @@ import server.requests.AddCommentRequest;
 import server.requests.EditCommentRequest;
 import server.requests.UploadPhotoRequest;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 /**
@@ -330,7 +330,7 @@ public final class RequestResolver {
      */
     public Receipt addComment(String user, AddCommentRequest request) throws InvalidResourceRequestException {
         // Check comment type
-        if(request.getCommentType().equals(CommentType.REPLY)) {
+        if(request.getEventType().equals(EventType.REPLY)) {
             // Retrieve the parent comment and check it exists
             // (exception will be thrown, if not).
             getComment(request.getReferenceId());
@@ -383,7 +383,7 @@ public final class RequestResolver {
         String parentName = "";
 
         // Get parent reference based on comment type
-        if(comment.getCommentType().equals(CommentType.REPLY)) {
+        if(comment.getEventType().equals(EventType.REPLY)) {
             parentName = getComment(comment.getReferenceId()).getAuthor();
         }
         else {
@@ -508,6 +508,7 @@ public final class RequestResolver {
         // Check the user to follow exists
         getUser(userTo);
 
+
         // Check the user is not already following the userToFollow
 
         List<String> followers_usernames = getUsernamesOfFollowers(userTo);
@@ -519,6 +520,13 @@ public final class RequestResolver {
         }
 
         dataStore.persistFollowing(userFrom, userTo);
+
+        Random rand = new Random();
+        int  n = rand.nextInt(50) + 1;
+
+        Follow follow = new Follow(userFrom, userTo, n, n + 10);
+
+        dataStore.persistAddNotification(userTo, follow);
 
     }
 

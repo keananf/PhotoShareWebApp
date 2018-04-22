@@ -6,14 +6,13 @@ import server.datastore.exceptions.InvalidResourceRequestException;
 import server.objects.*;
 
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static server.objects.CommentType.*;
+import static server.objects.EventType.PHOTO_COMMENT;
+import static server.objects.EventType.REPLY;
 
 /**
  * Tests Server behaviour in response to RESTful API calls
@@ -1235,6 +1234,31 @@ public final class ServerTests extends TestUtility {
         Comment[] comments = gson.fromJson(commentsResponse.readEntity(String.class), Comment[].class);
         assertEquals(0, comments.length);
     }
+
+    @Test
+    public void getPhotoFollowNotificationTest() throws InvalidResourceRequestException {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Add user to be a follower of sample
+        String userFollowing = "userFollowing";
+        loginAndSetupNewUser(userFollowing);
+
+        // Send a follow request to sample user
+        Response response = apiClient.followUser(username);
+
+        // Check notifications for user
+        apiClient.loginUser(username, pw);
+        Response notificationsResponse = apiClient.getNotifications();
+        assertEquals(Response.Status.OK.getStatusCode(), notificationsResponse.getStatus());
+
+        // Parse notifications, and assert one was generated for the new comment on the photo
+        Notification[] notifications = gson.fromJson(notificationsResponse.readEntity(String.class),
+                Notification[].class);
+        assertEquals(1, notifications.length);
+
+    }
+
 
     @Test
     public void emptyNewsFeedTest() throws InvalidResourceRequestException {

@@ -127,7 +127,7 @@ nav .nav-search .clear-icon {
     display: inline-block;
 }
 
-.post footer .comments:hover {
+.post footer .comments a:hover {
     cursor: pointer;
     text-decoration: underline;
 }
@@ -147,12 +147,12 @@ nav .nav-search .clear-icon {
     color: #ddd;
 }
 
-.post footer .likes button:hover {
-    color: #db5c5f;
+.post footer .likes button:hover, .post footer .likes.liked button {
+    color: #db4646;
 }
 
 .post footer .likes.liked button:hover {
-    color: #db4646;
+    color: #db5c5f;
 }
 
 .side-panel {

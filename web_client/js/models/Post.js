@@ -8,7 +8,8 @@
             this.date = date
 
             this._comments = null
-            this._likes = null
+            this.commentsCount = 0
+            this.likesCount = 0
         }
 
         static fromJson(data) {
@@ -49,7 +50,7 @@
             })
         }
 
-        get comments() {
+        getComments() {
             return new Promise((resolve, reject) => {
                 if (this._comments === null) {
                     API.Posts.getPostComments(this.id).then(comments => {
@@ -57,7 +58,6 @@
                         resolve(this._comments)
                     })
                 } else {
-
                     resolve(this._comments)
                 }
             })
@@ -76,25 +76,11 @@
                 return this._commentsCount
             }
 
-            return null
+            return 0
         }
 
         set commentsCount(count) {
             this._commentsCount = count
-        }
-
-        get likes() {
-            if (this._likes === null) {
-                // Likes are not set
-                // Fetch them
-                // @todo
-            }
-
-            return this._likes
-        }
-
-        set likes(likes) {
-            this._likes = likes
         }
 
         get likesCount() {
@@ -106,7 +92,7 @@
                 return this._likesCount
             }
 
-            return null
+            return 0
         }
 
         set likesCount(count) {

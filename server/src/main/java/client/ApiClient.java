@@ -85,7 +85,7 @@ public final class ApiClient {
      * @return the response of the request.
      */
     public Response getNotifications() {
-        return connector.get(baseTarget, NOTIFICATIONS_PATH + "/" + user);
+        return connector.get(baseTarget, NOTIFICATIONS_PATH);
     }
 
     /**
@@ -149,7 +149,7 @@ public final class ApiClient {
      */
     public Response getPhoto(long id) {
         // Encode path and GET the requested photo
-        String path = String.format("%s/%s", GET_PHOTO_BY_ID_PATH, id);
+        String path = String.format("%s/%s", PHOTOS_PATH, id);
         return connector.get(baseTarget, path);
     }
 

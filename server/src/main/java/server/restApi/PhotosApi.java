@@ -140,7 +140,7 @@ public class PhotosApi {
      * @return the requested photo, serialised in JSON
      */
     @GET
-    @Path(Resources.ID + "/{id}")
+    @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response getPhoto(@PathParam("id") long id, @Context HttpHeaders headers) {
@@ -150,7 +150,7 @@ public class PhotosApi {
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(HttpHeaders.DATE);
 
-            String path = String.format("%s/%s", Resources.GET_PHOTO_BY_ID_PATH, id);
+            String path = String.format("%s/%s", Resources.PHOTOS_PATH, id);
             RESOLVER.verifyAuth(path, sender, apiKey, date);
 
             // Upload encoded photo to the data store

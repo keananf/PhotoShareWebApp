@@ -118,7 +118,7 @@ public class AlbumsApi {
      * @return the serialised response
      */
     @GET
-    @Path(Resources.ID + "/{id}")
+    @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response getPhoto(@PathParam("id") long id, @Context HttpHeaders headers) {

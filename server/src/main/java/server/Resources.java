@@ -33,8 +33,7 @@ public abstract class Resources {
     public static final String ALBUMS_PATH = "/albums";
     public static final String ADD_ALBUM = "/addalbum";
     public static final String ADD_ALBUM_PATH = ALBUMS_PATH + ADD_ALBUM;
-    public static final String ID = "/ids";
-    public static final String GET_ALBUM_BY_ID_PATH = ALBUMS_PATH + ID;
+    public static final String GET_ALBUM_BY_ID_PATH = ALBUMS_PATH;
     public static final String GET_USER_ALBUMS_PATH = ALBUMS_PATH + USERS_PATH;
     public static final String UPDATE_ALBUM_DESCRIPTION = "/updatedescription";
     public static final String UPDATE_ALBUM_DESCRIPTION_PATH = ALBUMS_PATH + UPDATE_ALBUM_DESCRIPTION;
@@ -43,7 +42,6 @@ public abstract class Resources {
     public static final String PHOTOS_PATH = "/photos";
     public static final String UPLOAD_PHOTO = "/upload";
     public static final String UPLOAD_PHOTO_PATH = PHOTOS_PATH + UPLOAD_PHOTO;
-    public static final String GET_PHOTO_BY_ID_PATH = PHOTOS_PATH + ID;
     public static final String GET_USER_PHOTOS_PATH = PHOTOS_PATH + USERS_PATH;
     public static final String GET_PHOTOS_BY_ALBUM_PATH = PHOTOS_PATH + ALBUMS_PATH;
     public static final String DELETE_PHOTO = "/delete";
@@ -77,7 +75,7 @@ public abstract class Resources {
     public static final String ADMIN_REMOVE_PHOTO_PATH = ADMIN_PATH + REMOVE_PHOTO;
 
     // Resources regarding News Feeds
-    public static final String NEWS_FEED_PATH = "/news_feeds";
+    public static final String NEWS_FEED_PATH = "/newsfeeds";
 
     // Resources regarding notifications
     public static final String NOTIFICATIONS_PATH = "/notifications";

@@ -25,7 +25,6 @@ public final class NewsFeedAPI {
     private final Gson gson = new Gson();
 
     /**
-     *
      * @return all the photos posted by the people a user is following
      */
     @GET

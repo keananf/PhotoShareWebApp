@@ -29,17 +29,16 @@ public class NotificationsApi {
      * @return a parsed list of all users in the system
      */
     @GET
-    @Path("/{username}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response getNotifications(@PathParam("username") String user, @Context HttpHeaders headers) {
+    public Response getNotifications(@Context HttpHeaders headers) {
         try {
             // Retrieve provided auth info
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(HttpHeaders.DATE);
 
-            RESOLVER.verifyAuth(Resources.NOTIFICATIONS_PATH + "/" + user, sender, apiKey, date);
+            RESOLVER.verifyAuth(Resources.NOTIFICATIONS_PATH, sender, apiKey, date);
 
             // Retrieve list retrieved from data manipulation layer
             // and convert notifications into JSON array

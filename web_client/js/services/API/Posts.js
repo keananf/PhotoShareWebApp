@@ -2,7 +2,7 @@
 
     window.API.Posts = {
 
-        getNewsFeedForUser(username){
+        getNewsFeedForUser(username) {
             // @todo
             return new Promise((resolve, reject) => {
                 setTimeout(() => {
@@ -16,7 +16,7 @@
             })
         },
 
-        getPostsByUser(username){
+        getPostsByUser(username) {
             // @todo
             return new Promise((resolve, reject) => {
                 setTimeout(() => {
@@ -30,7 +30,7 @@
             })
         },
 
-        getPostData(postId){
+        getPostData(postId) {
             // @todo
             return new Promise((resolve, reject) => {
                 setTimeout(() => {
@@ -44,7 +44,7 @@
             })
         },
 
-        getPostComments(postId){
+        getPostComments(postId) {
             // @todo
             return new Promise((resolve, reject) => {
                 setTimeout(() => {

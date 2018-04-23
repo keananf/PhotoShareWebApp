@@ -70,7 +70,7 @@
         },
 
         methods: {
-            refreshFeed(){
+            refreshFeed() {
                 let loader = this.$refs['posts-loader']
                 loader.show()
 
@@ -86,7 +86,7 @@
             }
         },
 
-        mounted(){
+        mounted() {
             this.refreshFeed()
         }
     }

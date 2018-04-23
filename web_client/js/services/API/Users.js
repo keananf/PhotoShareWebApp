@@ -2,28 +2,28 @@
 
     window.API.Users = {
 
-        isFollowingUser(username){
+        isFollowingUser(username) {
             // @todo
             return new Promise((resolve, reject) => {
                 resolve(false)
             })
         },
 
-        followUser(username){
+        followUser(username) {
             // @todo
             return new Promise((resolve, reject) => {
                 resolve()
             })
         },
 
-        unfollowUser(username){
+        unfollowUser(username) {
             // @todo
             return new Promise((resolve, reject) => {
                 resolve()
             })
         },
 
-        searchByQuery(query){
+        searchByQuery(query) {
             return new Promise((resolve, reject) => {
                 setTimeout(() => {
                     resolve([
@@ -34,7 +34,7 @@
             })
         },
 
-        getUserData(username){
+        getUserData(username) {
             // @todo
             return new Promise((resolve, reject) => {
                 setTimeout(() => {

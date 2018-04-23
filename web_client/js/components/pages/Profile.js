@@ -58,7 +58,7 @@
         },
 
         methods: {
-            toggleFollow(){
+            toggleFollow() {
                 this.isFollowing = !this.isFollowing
 
                 if (this.isFollowing) {
@@ -70,7 +70,7 @@
                 }
             },
 
-            fetchUsersPosts(){
+            fetchUsersPosts() {
 
                 let loader = this.$refs['posts-loader']
                 loader.show()
@@ -81,7 +81,7 @@
                 })
             },
 
-            fetchUsersData(){
+            fetchUsersData() {
 
                 let loader = this.$refs['user-loader']
                 loader.show()

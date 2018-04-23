@@ -34,19 +34,19 @@ const app = new Vue({
     },
 
     methods: {
-        showLoader(){
+        showLoader() {
             this.isLoading = true
         },
 
-        hideLoader(){
+        hideLoader() {
             this.isLoading = false
         },
 
-        error(e){
+        error(e) {
             console.log(e)
         },
 
-        submitSearch(){
+        submitSearch() {
             router.push('/search/' + this.searchQuery)
         }
     }

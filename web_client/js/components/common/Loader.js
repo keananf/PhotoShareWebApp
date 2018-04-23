@@ -16,11 +16,11 @@
         },
 
         methods: {
-            show(){
+            show() {
                 this.isVisible = true
             },
 
-            hide(){
+            hide() {
                 this.isVisible = false
             }
         }

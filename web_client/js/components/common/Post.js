@@ -37,7 +37,7 @@
         },
 
         computed: {
-            route(){
+            route() {
                 return this.post.route
             }
         }

@@ -1,5 +1,7 @@
 (function () {
 
+    let http = API.getHttpWrapper();
+
     window.API.Users = {
 
         isFollowingUser(username){

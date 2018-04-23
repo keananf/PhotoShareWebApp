@@ -31,7 +31,11 @@
             <div class="post-comments" v-if="!loading">
                 <ul>
                     <li v-for="comment in comments">
-                        <span v-text="comment.username"></span>
+                        <span class="username">
+                            <router-link :to="'/user/'+comment.username">
+                                {{ comment.username }}
+                            </router-link>
+                        </span>
                         <p v-text="comment.comment"></p>
                     </li>
                 </ul>

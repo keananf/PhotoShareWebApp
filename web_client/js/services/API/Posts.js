@@ -53,7 +53,7 @@
                             postId: postId,
                             username: 'test-user',
                             comment: 'This is a test comment'
-                        })
+                        }),
                     ])
                 }, 1000) // Simulate API Call
             })

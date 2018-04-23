@@ -186,3 +186,26 @@ nav .nav-search .clear-icon {
 .side-panel a:hover {
     text-decoration: underline;
 }
+
+.post-comments ul {
+    padding: 0;
+}
+
+.post-comments ul li {
+    display: block;
+    padding: 10px 15px;
+    background: #fff;
+    margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: 300;
+    box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.1);
+}
+
+.post-comments ul li .username {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.post-comments ul li p {
+    margin: 0;
+}

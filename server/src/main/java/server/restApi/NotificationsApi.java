@@ -35,14 +35,15 @@ public class NotificationsApi {
     public Response getNotifications(@PathParam("username") String user, @Context HttpHeaders headers) {
         try {
             // Retrieve provided auth info
-            String apiKey = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(HttpHeaders.DATE);
 
-            RESOLVER.verifyAuth(Resources.NOTIFICATIONS_PATH + "/" + user, user, apiKey, date);
+            RESOLVER.verifyAuth(Resources.NOTIFICATIONS_PATH + "/" + user, sender, apiKey, date);
 
             // Retrieve list retrieved from data manipulation layer
             // and convert notifications into JSON array
-            List<Notification> notifications = RESOLVER.getNotifications(user);
+            List<Notification> notifications = RESOLVER.getNotifications(sender);
             return Response.ok(gson.toJson(notifications)).build();
 
         }

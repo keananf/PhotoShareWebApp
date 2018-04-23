@@ -35,16 +35,24 @@ class Connector {
         return headers(pathTarget.request(), path).get();
     }
 
+    /**
+     * Add the date and authorisation headers
+     * @param request the request
+     * @param path the endpoint
+     * @return the request with the headers added
+     */
     private Invocation.Builder headers(Invocation.Builder request, String path) {
         try {
+            // The date format that the server expects
             SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
-            // Get current time
+            // Get current time. and convert it into the correct format while rounding to the nearest second.
             long time = System.currentTimeMillis();
             Date d = format.parse(format.format(new Date(time)));
             time = d.getTime();
 
-            return request.header(USER_AGENT, user).header(DATE, format.format(d))
+            // Add header for encoded date and the apiKey
+            return request.header(DATE, format.format(d))
                     .header(AUTHORIZATION, Auth.getApiKey(path, user, password, time));
         }
         catch(ParseException e) {

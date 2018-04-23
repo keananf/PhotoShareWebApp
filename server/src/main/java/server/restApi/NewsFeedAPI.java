@@ -35,11 +35,11 @@ public final class NewsFeedAPI {
     public Response getUsers(@PathParam("username") String username, @Context HttpHeaders headers) {
         try {
             // Retrieve provided auth info
-            String user = headers.getHeaderString(HttpHeaders.USER_AGENT);
-            String apiKey = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(HttpHeaders.DATE);
             String path = String.format("%s/%s", Resources.NEWS_FEED_PATH , username);
-            RESOLVER.verifyAuth(path, user, apiKey, date);
+            RESOLVER.verifyAuth(path, sender, apiKey, date);
 
             // Processing Request
             List<Photo> photos = RESOLVER.getNewsFeed(username);

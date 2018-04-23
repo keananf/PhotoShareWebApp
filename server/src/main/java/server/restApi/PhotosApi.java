@@ -41,14 +41,14 @@ public class PhotosApi {
             UploadPhotoRequest request = gson.fromJson(message, UploadPhotoRequest.class);
 
             // Retrieve provided auth info
-            String user = headers.getHeaderString(HttpHeaders.USER_AGENT);
-            String apiKey = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(HttpHeaders.DATE);
 
-            RESOLVER.verifyAuth(Resources.UPLOAD_PHOTO_PATH, user, apiKey, date);
+            RESOLVER.verifyAuth(Resources.UPLOAD_PHOTO_PATH, sender, apiKey, date);
 
             // Upload encoded photo to the data store
-            Receipt receipt = RESOLVER.uploadPhoto(user, request);
+            Receipt receipt = RESOLVER.uploadPhoto(sender, request);
             return Response.ok(gson.toJson(receipt)).build();
         }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
@@ -63,15 +63,15 @@ public class PhotosApi {
     public Response removePhoto(@PathParam("photoId") long photoId, @Context HttpHeaders headers) {
         try {
             // Retrieve provided auth info
-            String user = headers.getHeaderString(HttpHeaders.USER_AGENT);
-            String apiKey = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(HttpHeaders.DATE);
 
             String path = String.format("%s/%s", Resources.DELETE_PHOTO_PATH, photoId);
-            RESOLVER.verifyAuth(path, user, apiKey, date);
+            RESOLVER.verifyAuth(path, sender, apiKey, date);
 
             // Upload comment to the data store
-            RESOLVER.removePhoto(user, photoId);
+            RESOLVER.removePhoto(sender, photoId);
             return Response.noContent().build();
 
         } catch (InvalidResourceRequestException | DoesNotOwnPhotoException e) {
@@ -91,12 +91,12 @@ public class PhotosApi {
     public Response getAllPhotosFromUser(@PathParam("username") String username, @Context HttpHeaders headers) {
         try {
             // Retrieve provided auth info
-            String user = headers.getHeaderString(HttpHeaders.USER_AGENT);
-            String apiKey = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(HttpHeaders.DATE);
 
             String path = String.format("%s/%s", Resources.GET_USER_PHOTOS_PATH, username);
-            RESOLVER.verifyAuth(path, user, apiKey, date);
+            RESOLVER.verifyAuth(path, sender, apiKey, date);
 
             // Retrieve list retrieved from data manipulation layer
             // and convert photos into JSON array
@@ -119,12 +119,12 @@ public class PhotosApi {
     public Response getAllPhotosFromAlbum(@PathParam("id") long albumId, @Context HttpHeaders headers) {
         try {
             // Retrieve provided auth info
-            String user = headers.getHeaderString(HttpHeaders.USER_AGENT);
-            String apiKey = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(HttpHeaders.DATE);
 
             String path = String.format("%s/%s", Resources.GET_PHOTOS_BY_ALBUM_PATH, albumId);
-            RESOLVER.verifyAuth(path, user, apiKey, date);
+            RESOLVER.verifyAuth(path, sender, apiKey, date);
 
             // Retrieve list retrieved from data manipulation layer
             // and convert photos into JSON array
@@ -146,12 +146,12 @@ public class PhotosApi {
     public Response getPhoto(@PathParam("id") long id, @Context HttpHeaders headers) {
         try {
             // Retrieve provided auth info
-            String user = headers.getHeaderString(HttpHeaders.USER_AGENT);
-            String apiKey = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(HttpHeaders.DATE);
 
             String path = String.format("%s/%s", Resources.GET_PHOTO_BY_ID_PATH, id);
-            RESOLVER.verifyAuth(path, user, apiKey, date);
+            RESOLVER.verifyAuth(path, sender, apiKey, date);
 
             // Upload encoded photo to the data store
             Photo photo = RESOLVER.getPhoto(id);
@@ -175,15 +175,15 @@ public class PhotosApi {
     public Response upvote(@PathParam("photoId") long photoId, @Context HttpHeaders headers) {
         // Retrieve provided auth info
         try {
-            String user = headers.getHeaderString(HttpHeaders.USER_AGENT);
-            String apiKey = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(HttpHeaders.DATE);
 
             String path = String.format("%s/%s", Resources.PHOTO_UPVOTE_PATH, photoId);
-            RESOLVER.verifyAuth(path, user, apiKey, date);
+            RESOLVER.verifyAuth(path, sender, apiKey, date);
 
             // Register upvote with server
-            RESOLVER.ratePhoto(photoId, user, true);
+            RESOLVER.ratePhoto(photoId, sender, true);
             return Response.noContent().build();
 
         }
@@ -203,15 +203,15 @@ public class PhotosApi {
     public Response downvote(@PathParam("photoId") long photoId, @Context HttpHeaders headers) {
         // Retrieve provided auth info
         try {
-            String user = headers.getHeaderString(HttpHeaders.USER_AGENT);
-            String apiKey = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(HttpHeaders.DATE);
 
             String path = String.format("%s/%s", Resources.PHOTO_DOWNVOTE_PATH, photoId);
-            RESOLVER.verifyAuth(path, user, apiKey, date);
+            RESOLVER.verifyAuth(path, sender, apiKey, date);
 
             // Register downvote with server
-            RESOLVER.ratePhoto(photoId, user, false);
+            RESOLVER.ratePhoto(photoId, sender, false);
             return Response.noContent().build();
 
         }

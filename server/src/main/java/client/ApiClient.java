@@ -63,7 +63,7 @@ public final class ApiClient {
     public Response loginUser(String user, String password) {
         // Send the auth information to the log-in API.
         connector.setUserAndPw(user, Auth.hashAndEncodeBase64(password));
-        Response response = connector.get(baseTarget, LOGIN_USER_PATH + "/" + user);
+        Response response = connector.get(baseTarget, LOGIN_USER_PATH);
 
         // Register user to this client if log-in was successful
         if (response.getStatus() == Response.Status.NO_CONTENT.getStatusCode()) {
@@ -71,6 +71,7 @@ public final class ApiClient {
             this.user = user;
         }
         else {
+            // Unset the entered username and password if the request failed
             connector.setUserAndPw("", "");
         }
 

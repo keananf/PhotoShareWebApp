@@ -35,11 +35,11 @@ public class AdminApi {
     public Response removeComment(@PathParam("commentId") long commentId, @Context HttpHeaders headers) {
         try {
             // Retrieve provided auth info
-            String user = headers.getHeaderString(HttpHeaders.USER_AGENT);
-            String apiKey = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(HttpHeaders.DATE);
             String path = String.format("%s/%s", Resources.ADMIN_REMOVE_COMMENT_PATH, commentId);
-            RESOLVER.verifyAdminAuth(path, user, apiKey, date);
+            RESOLVER.verifyAdminAuth(path, sender, apiKey, date);
 
             // Delete comment from the data store
             RESOLVER.removeCommentAdmin(commentId);
@@ -61,11 +61,11 @@ public class AdminApi {
     public Response removePhoto(@PathParam("photoId") long photoId, @Context HttpHeaders headers) {
         try {
             // Retrieve provided auth info
-            String user = headers.getHeaderString(HttpHeaders.USER_AGENT);
-            String apiKey = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(HttpHeaders.DATE);
             String path = String.format("%s/%s", Resources.ADMIN_REMOVE_PHOTO_PATH, photoId);
-            RESOLVER.verifyAdminAuth(path, user, apiKey, date);
+            RESOLVER.verifyAdminAuth(path, sender, apiKey, date);
 
             // Delete photo from data store
             RESOLVER.removePhotoAdmin(photoId);

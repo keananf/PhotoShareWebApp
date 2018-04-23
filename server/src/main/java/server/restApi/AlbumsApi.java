@@ -41,13 +41,13 @@ public class AlbumsApi {
             AddAlbumRequest request = gson.fromJson(message, AddAlbumRequest.class);
 
             // Retrieve provided auth info
-            String user = headers.getHeaderString(HttpHeaders.USER_AGENT);
-            String apiKey = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(HttpHeaders.DATE);
-            RESOLVER.verifyAuth(Resources.ADD_ALBUM_PATH, user, apiKey, date);
+            RESOLVER.verifyAuth(Resources.ADD_ALBUM_PATH, sender, apiKey, date);
 
             // Upload new album to the data store
-            Receipt receipt = RESOLVER.addAlbum(user, request.getAlbumName(), request.getDescription());
+            Receipt receipt = RESOLVER.addAlbum(sender, request.getAlbumName(), request.getDescription());
             return Response.ok(gson.toJson(receipt)).build();
         }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
@@ -70,13 +70,13 @@ public class AlbumsApi {
             UpdateAlbumDescriptionRequest request = gson.fromJson(message, UpdateAlbumDescriptionRequest.class);
 
             // Retrieve provided auth info
-            String user = headers.getHeaderString(HttpHeaders.USER_AGENT);
-            String apiKey = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(HttpHeaders.DATE);
-            RESOLVER.verifyAuth(Resources.UPDATE_ALBUM_DESCRIPTION_PATH, user, apiKey, date);
+            RESOLVER.verifyAuth(Resources.UPDATE_ALBUM_DESCRIPTION_PATH, sender, apiKey, date);
 
             // Upload new description to data store
-            RESOLVER.updateAlbumDescription(user, request.getAlbumId(), request.getDescription());
+            RESOLVER.updateAlbumDescription(sender, request.getAlbumId(), request.getDescription());
             return Response.noContent().build();
         }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
@@ -97,11 +97,11 @@ public class AlbumsApi {
     public Response getAllAlbums(@PathParam("username") String user, @Context HttpHeaders headers) {
         // Retrieve provided auth info
         try {
-            String username = headers.getHeaderString(HttpHeaders.USER_AGENT);
-            String apiKey = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(HttpHeaders.DATE);
             String path = String.format("%s/%s", Resources.GET_USER_ALBUMS_PATH, user);
-            RESOLVER.verifyAuth(path, username, apiKey, date);
+            RESOLVER.verifyAuth(path, sender, apiKey, date);
 
             // Retrieve list retrieved from data manipulation layer
             // and convert albums into JSON array
@@ -124,12 +124,12 @@ public class AlbumsApi {
     public Response getPhoto(@PathParam("id") long id, @Context HttpHeaders headers) {
         try {
             // Retrieve provided auth info
-            String user = headers.getHeaderString(HttpHeaders.USER_AGENT);
-            String apiKey = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(HttpHeaders.DATE);
 
             String path = String.format("%s/%s", Resources.GET_ALBUM_BY_ID_PATH, id);
-            RESOLVER.verifyAuth(path, user, apiKey, date);
+            RESOLVER.verifyAuth(path, sender, apiKey, date);
 
             // Upload encoded album to the data store
             Album album = RESOLVER.getAlbum(id);

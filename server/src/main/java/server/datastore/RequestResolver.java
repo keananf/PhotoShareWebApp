@@ -43,7 +43,7 @@ public final class RequestResolver {
             if(!DEBUG && time - dateTime > TIMEOUT) throw new UnauthorisedException();
 
             // Compare generated secret API key
-            String key = Auth.getApiKey(endPoint, username, user.getPassword(), dateTime);
+            String key = Auth.getApiKey(endPoint, username, user.getPassword(), dateTime).split(":")[1];
             if(!key.equals(apiKey)) throw new UnauthorisedException();
         }
         catch (InvalidResourceRequestException | ParseException ignored) {throw new UnauthorisedException();}

@@ -36,11 +36,11 @@ public final class UsersAPI {
     public Response getUsers(@Context HttpHeaders headers) {
         try {
             // Retrieve auth headers
-            String apiKey = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(HttpHeaders.DATE);
-            String user = headers.getHeaderString(HttpHeaders.USER_AGENT);
 
-            RESOLVER.verifyAuth(Resources.USERS_PATH, user, apiKey, date);
+            RESOLVER.verifyAuth(Resources.USERS_PATH, sender, apiKey, date);
         }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build(); }
 
@@ -84,18 +84,19 @@ public final class UsersAPI {
      * @return a response object containing the result of the request
      */
     @GET
-    @Path(Resources.LOGIN_USER + "/{username}")
+    @Path(Resources.LOGIN_USER)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response loginUser(@PathParam("username") String user, String message, @Context HttpHeaders headers) {
+    public Response loginUser(String message, @Context HttpHeaders headers) {
         // Retrieve auth headers
-        String apiKey = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
+        String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+        String sender = authHeader[0], apiKey = authHeader[1];
         String date = headers.getHeaderString(HttpHeaders.DATE);
 
         // Attempt to record new session in the data store,
         // and void any previous session.
         try {
             // Process request
-            RESOLVER.loginUser(Resources.LOGIN_USER_PATH + "/" + user, user, apiKey, date);
+            RESOLVER.loginUser(Resources.LOGIN_USER_PATH, sender, apiKey, date);
 
             // Serialise the session. Indicate status as accepted and pass the serialised Session
             return Response.noContent().build();
@@ -122,7 +123,8 @@ public final class UsersAPI {
         FollowUserRequest request = gson.fromJson(json, FollowUserRequest.class);
 
         // Retrieve auth headers
-        String apiKey = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
+        String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+        String sender = authHeader[0], apiKey = authHeader[1];
         String date = headers.getHeaderString(HttpHeaders.DATE);
 
         try {
@@ -130,7 +132,7 @@ public final class UsersAPI {
             String userTo = request.getUserTo();
 
             // Process Request
-            RESOLVER.verifyAuth(Resources.FOLLOW_USERS_PATH, userFrom, apiKey, date);
+            RESOLVER.verifyAuth(Resources.FOLLOW_USERS_PATH, sender, apiKey, date);
             RESOLVER.followUser(userFrom, userTo);
 
         } catch (InvalidResourceRequestException ie) {
@@ -165,7 +167,8 @@ public final class UsersAPI {
         FollowUserRequest request = gson.fromJson(json, FollowUserRequest.class);
 
         // Retrieve provided auth info
-        String apiKey = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
+        String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+        String sender = authHeader[0], apiKey = authHeader[1];
         String date = headers.getHeaderString(HttpHeaders.DATE);
 
         String userFrom = request.getUserFrom();
@@ -173,7 +176,7 @@ public final class UsersAPI {
 
         try {
             // Process Request
-            RESOLVER.verifyAuth(Resources.UNFOLLOW_USERS_PATH, userFrom, apiKey, date);
+            RESOLVER.verifyAuth(Resources.UNFOLLOW_USERS_PATH, sender, apiKey, date);
             RESOLVER.unfollowUser(userFrom, userTo);
 
         } catch (UnauthorisedException e) {
@@ -200,14 +203,14 @@ public final class UsersAPI {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response getFollowing(@PathParam("username") String username, @Context HttpHeaders headers) {
         // Retrieve provided auth info
-        String user = headers.getHeaderString(HttpHeaders.USER_AGENT);
-        String apiKey = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
+        String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+        String sender = authHeader[0], apiKey = authHeader[1];
         String date = headers.getHeaderString(HttpHeaders.DATE);
 
         try {
             // Process request
             String path = String.format("%s/%s", USERS_FOLLOWING_PATH , username);
-            RESOLVER.verifyAuth(path, user, apiKey, date);
+            RESOLVER.verifyAuth(path, sender, apiKey, date);
             RESOLVER.getFollowers(username);
 
             List<User> following = RESOLVER.getFollowing(username);
@@ -231,14 +234,14 @@ public final class UsersAPI {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response getFollowers(@PathParam("username") String username, @Context HttpHeaders headers) {
         // Retrieve provided auth info
-        String user = headers.getHeaderString(HttpHeaders.USER_AGENT);
-        String apiKey = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
+        String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+        String sender = authHeader[0], apiKey = authHeader[1];
         String date = headers.getHeaderString(HttpHeaders.DATE);
 
         try {
             // Process request
             String path = String.format("%s/%s", USERS_FOLLOWERS_PATH , username);
-            RESOLVER.verifyAuth(path, user, apiKey, date);
+            RESOLVER.verifyAuth(path, sender, apiKey, date);
             RESOLVER.getFollowers(username);
 
             List<User> following = RESOLVER.getFollowers(username);

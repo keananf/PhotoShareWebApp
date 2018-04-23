@@ -22,8 +22,8 @@ public abstract class Auth {
         // Compose raw info used to make api key
         String key = String.format("%d%s%s:%s", systemTime, endPoint, user, base64HashedPassword);
 
-        // Hash and encode
-        return hashAndEncodeBase64(key);
+        // Hash and encode the overall key, and append the username before it.
+        return String.format("%s:%s", user, hashAndEncodeBase64(key));
     }
 
     /**

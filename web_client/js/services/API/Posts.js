@@ -1,6 +1,6 @@
 (function () {
 
-    let http = API.getHttpWrapper()
+    let http = API.http
 
     window.API.Posts = {
 

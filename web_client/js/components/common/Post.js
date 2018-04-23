@@ -4,7 +4,11 @@
         template: `
         <article class="post">
                 <header>
-                    <span class="username">{{ post.username }}</span>
+                    <span class="username">
+                        <router-link :to="'/user/'+post.username">
+                            {{ post.username }}
+                        </router-link>
+                    </span>
                     <span class="date">{{ post.date }}</span>
                 </header>
                 <div class="post-image">

@@ -1,17 +1,14 @@
 package server.restApi;
 
 import com.google.gson.Gson;
-
 import server.Resources;
-import server.requests.*;
-import server.objects.*;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.datastore.exceptions.UnauthorisedException;
+import server.objects.Notification;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -29,21 +26,23 @@ public class NotificationsApi {
 
     /**
      * Grabs notifications for the given user
-     * @param jsonAuth the serialised auth information
      * @return a parsed list of all users in the system
      */
-    @POST
+    @GET
+    @Path("/{username}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response getNotifications(String jsonAuth) {
-        // Retrieve provided auth info
+    public Response getNotifications(@PathParam("username") String user, @Context HttpHeaders headers) {
         try {
-            AuthRequest auth = gson.fromJson(jsonAuth, AuthRequest.class);
-            RESOLVER.verifyAuth(Resources.NOTIFICATIONS_PATH, auth.getAuth());
+            // Retrieve provided auth info
+            String apiKey = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
+            String date = headers.getHeaderString(HttpHeaders.DATE);
+
+            RESOLVER.verifyAuth(Resources.NOTIFICATIONS_PATH + "/" + user, user, apiKey, date);
 
             // Retrieve list retrieved from data manipulation layer
             // and convert notifications into JSON array
-            List<Notification> notifications = RESOLVER.getNotifications(auth.getAuth().getUser());
+            List<Notification> notifications = RESOLVER.getNotifications(user);
             return Response.ok(gson.toJson(notifications)).build();
 
         }

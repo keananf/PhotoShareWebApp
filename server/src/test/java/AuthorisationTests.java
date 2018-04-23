@@ -1,13 +1,12 @@
-import server.objects.*;
 import org.junit.Test;
 import server.datastore.exceptions.InvalidResourceRequestException;
+import server.objects.User;
 
 import javax.ws.rs.core.Response;
 
-import java.util.List;
-
-import static server.objects.CommentType.*;
 import static org.junit.Assert.assertEquals;
+import static server.objects.CommentType.PHOTO_COMMENT;
+import static server.objects.CommentType.REPLY;
 
 /**
  * Tests checking unauthorised use of APIs
@@ -219,7 +218,7 @@ public class AuthorisationTests extends TestUtility {
     @Test
     public void unauthorisedGetAllUserCommentsTest() {
         // Create user but don't add it to the client or server.
-        User user = new User(username, 0);
+        User user = new User(username, "");
 
         // Assert unauthorised
         Response response = apiClient.getAllComments(user.getUsername());
@@ -253,10 +252,8 @@ public class AuthorisationTests extends TestUtility {
 
     @Test
     public void unauthorisedUnfollowTest() {
-
         // Assert unauthorised request
-        String random_username = "Edwin";
-        Response response = apiClient.unfollowUser(random_username);
+        Response response = apiClient.unfollowUser(username);
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 

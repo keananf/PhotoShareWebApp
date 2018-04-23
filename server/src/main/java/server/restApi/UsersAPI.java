@@ -2,16 +2,16 @@ package server.restApi;
 
 import com.google.gson.Gson;
 import server.Resources;
-import server.objects.Auth;
-import server.requests.AddUserRequest;
-import server.requests.AuthRequest;
 import server.datastore.exceptions.ExistingException;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.datastore.exceptions.UnauthorisedException;
 import server.objects.User;
+import server.requests.AddUserRequest;
 import server.requests.FollowUserRequest;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -29,14 +29,17 @@ public final class UsersAPI {
     /**
      * @return a parsed list of all users in the system
      */
-    @POST
+    @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response getUsers(String jsonAuth) {
-        // Retrieve provided auth info
+    public Response getUsers(@Context HttpHeaders headers) {
         try {
-            AuthRequest auth = gson.fromJson(jsonAuth, AuthRequest.class);
-            RESOLVER.verifyAuth(Resources.USERS_PATH, auth.getAuth());
+            // Retrieve auth headers
+            String apiKey = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
+            String date = headers.getHeaderString(HttpHeaders.DATE);
+            String user = headers.getHeaderString(HttpHeaders.USER_AGENT);
+
+            RESOLVER.verifyAuth(Resources.USERS_PATH, user, apiKey, date);
         }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build(); }
 
@@ -58,11 +61,11 @@ public final class UsersAPI {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addUser(String message) {
         // Parse message as a User object
-        AddUserRequest user = gson.fromJson(message, AddUserRequest.class);
+        AddUserRequest request = gson.fromJson(message, AddUserRequest.class);
 
-        // Attempt to persist user in data store
+        // Attempt to persist request in data store
         try {
-            RESOLVER.addUser(new User(user.getUser(), user.getPassword()));
+            RESOLVER.addUser(new User(request.getUser(), request.getPassword()));
         }
         catch (ExistingException e) {
             // User already exists. Return bad response code
@@ -79,18 +82,19 @@ public final class UsersAPI {
      * @param message the auth information
      * @return a response object containing the result of the request
      */
-    @POST
-    @Path(Resources.LOGIN_USER)
+    @GET
+    @Path(Resources.LOGIN_USER + "/{username}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response loginUser(String message) {
-        // Parse message as a Auth object
-        AuthRequest auth = gson.fromJson(message, AuthRequest.class);
+    public Response loginUser(@PathParam("username") String user, String message, @Context HttpHeaders headers) {
+        // Retrieve auth headers
+        String apiKey = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
+        String date = headers.getHeaderString(HttpHeaders.DATE);
 
         // Attempt to record new session in the data store,
         // and void any previous session.
         try {
             // Process request
-            RESOLVER.loginUser(Resources.LOGIN_USER_PATH, auth.getAuth());
+            RESOLVER.loginUser(Resources.LOGIN_USER_PATH + "/" + user, user, apiKey, date);
 
             // Serialise the session. Indicate status as accepted and pass the serialised Session
             return Response.noContent().build();
@@ -111,23 +115,21 @@ public final class UsersAPI {
     @Path(Resources.FOLLOW)
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response postFollow(String json) {
+    public Response postFollow(String json, @Context HttpHeaders headers) {
 
         // Retrieve provided auth info
         FollowUserRequest request = gson.fromJson(json, FollowUserRequest.class);
 
-
-        // Retrieve provided auth info
-        Auth auth = request.getAuth();
+        // Retrieve auth headers
+        String apiKey = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
+        String date = headers.getHeaderString(HttpHeaders.DATE);
 
         try {
-
-            // Process Request
-            RESOLVER.verifyAuth( Resources.USERS_PATH + Resources.FOLLOW, auth);
-
             String userFrom = request.getUserFrom();
             String userTo = request.getUserTo();
 
+            // Process Request
+            RESOLVER.verifyAuth(Resources.FOLLOW_USERS_PATH, userFrom, apiKey, date);
             RESOLVER.followUser(userFrom, userTo);
 
         } catch (InvalidResourceRequestException ie) {
@@ -157,21 +159,20 @@ public final class UsersAPI {
     @Path(Resources.UNFOLLOW)
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response postUnfollow(String json) {
-        // Retrieve provided auth info
+    public Response postUnfollow(String json, @Context HttpHeaders headers) {
 
         FollowUserRequest request = gson.fromJson(json, FollowUserRequest.class);
 
         // Retrieve provided auth info
-        Auth auth = request.getAuth();
+        String apiKey = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
+        String date = headers.getHeaderString(HttpHeaders.DATE);
 
         String userFrom = request.getUserFrom();
         String userTo = request.getUserTo();
 
         try {
-
             // Process Request
-            RESOLVER.verifyAuth(Resources.USERS_PATH + Resources.UNFOLLOW, auth);
+            RESOLVER.verifyAuth(Resources.UNFOLLOW_USERS_PATH, userFrom, apiKey, date);
             RESOLVER.unfollowUser(userFrom, userTo);
 
         } catch (UnauthorisedException e) {

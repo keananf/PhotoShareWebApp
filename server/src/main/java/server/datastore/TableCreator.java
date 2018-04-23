@@ -36,8 +36,8 @@ class TableCreator {
      */
     private void createUsersTable() {
         // Construct create users table query
-        String query = "CREATE TABLE IF NOT EXISTS "+USERS_TABLE+" ("+USERNAME+" varchar(25) NOT NULL, " +
-                PASSWORD+" int NOT NULL," +
+        String query = "CREATE TABLE IF NOT EXISTS "+USERS_TABLE+" ("+USERNAME+" varchar(50) NOT NULL, " +
+                PASSWORD+" varchar(50) NOT NULL," +
                 USERS_ADMIN+" boolean NOT NULL," +
                 "PRIMARY KEY("+USERNAME+"))";
 

@@ -1,6 +1,5 @@
 package server.objects;
 
-import server.Resources;
 import server.requests.AddCommentRequest;
 
 import java.util.HashMap;
@@ -11,54 +10,56 @@ import java.util.stream.Collectors;
  * Class representing a comment on either a photo / another comment
  */
 public class Comment {
-    private final String postedBy;
-    private final long timestamp;
-    private String contents;
+    private final String author;
+    private final long commentTime;
+    private String commentContents;
     private long id;
 
     // Indicates if this is a reply or not
     // as well as notes the id of the 'parent' photo or comment
     private final long referenceId;
-    private final CommentType type;
+    private final CommentType commentType;
 
     private HashMap<String, Boolean> votes;
 
-    public Comment(String postedBy, String contents, long referenceId, CommentType type, long time) {
+    public Comment(long id, String author, String commentContents, long referenceId, CommentType commentType,
+                   HashMap<String, Boolean> commentVotes, long time) {
         // Comment information
-        this.postedBy = postedBy;
-        this.contents = contents;
-        this.timestamp = time;
-        votes = new HashMap<>();
+        this.author = author;
+        this.commentContents = commentContents;
+        this.commentTime = time;
+        this.id = id;
+        this.votes = commentVotes;
 
         // Reference information
         this.referenceId = referenceId;
-        this.type = type;
+        this.commentType = commentType;
     }
 
-    public Comment(String postedBy, AddCommentRequest request) {
-        this(postedBy, request.getCommentContents(), request.getReferenceId(),
-                request.getType(), request.getTimestamp());
+    public Comment(long id, String author, AddCommentRequest request) {
+        this(id, author, request.getCommentContents(), request.getReferenceId(),
+                request.getCommentType(), new HashMap<>(), System.nanoTime());
     }
 
     /**
      * @return the name of the user who posted this
      */
-    public String getPostedBy() {
-        return postedBy;
+    public String getAuthor() {
+        return author;
     }
 
     /**
      * @return the time this photo was created
      */
-    public long getTimestamp() {
-        return timestamp;
+    public long getCommentTime() {
+        return commentTime;
     }
 
     /**
      * @return the actual parent
      */
-    public String getContents() {
-        return contents;
+    public String getCommentContents() {
+        return commentContents;
     }
 
     /**
@@ -69,14 +70,6 @@ public class Comment {
     }
 
     /**
-     * Sets the id of this comment.
-     * @param id the new id
-     */
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    /**
      * @return the id of the photo / comment this is commenting on / replying to.
      */
     public long getReferenceId() {
@@ -84,27 +77,10 @@ public class Comment {
     }
 
     /**
-     * @return the type of comment (photo comment or reply)
+     * @return the commentType of comment (photo comment or reply)
      */
     public CommentType getCommentType() {
-        return type;
-    }
-
-    /**
-     * Replaces the message with "Removed By Admin."
-     */
-    public void remove() {
-        contents = Resources.REMOVAL_STRING;
-    }
-
-    /**
-     * Registers the persistVote on this comment from the given user
-     * @param user the user who made this persistVote
-     * @param upvote whether this is an upvote or not
-     */
-    public void vote(String user, boolean upvote) {
-        // Using a map ensures that a user can never persistVote more than once
-        votes.put(user, upvote);
+        return commentType;
     }
 
     /**
@@ -123,12 +99,5 @@ public class Comment {
         // Filter out all downvotes, and then create a list of the names of the users who cast them
         return votes.entrySet().stream().filter(kv -> !kv.getValue())
                 .map(kv -> kv.getKey()).collect(Collectors.toList());
-    }
-
-    /**
-     * @param votes the votes made on this comment
-     */
-    public void setVotes(HashMap<String, Boolean> votes) {
-        this.votes = votes;
     }
 }

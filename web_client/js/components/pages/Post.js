@@ -57,7 +57,7 @@
         },
 
         methods: {
-            fetchPostData(){
+            fetchPostData() {
                 this.loading = true
                 let loader = this.$refs['post-loader']
                 loader.show()
@@ -74,7 +74,7 @@
             }
         },
 
-        mounted(){
+        mounted() {
             this.fetchPostData()
         }
     }

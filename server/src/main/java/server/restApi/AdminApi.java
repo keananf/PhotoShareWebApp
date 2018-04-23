@@ -14,6 +14,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import java.sql.SQLException;
+
 import static server.ServerMain.RESOLVER;
 
 /**
@@ -41,8 +43,34 @@ public class AdminApi {
             String path = String.format("%s/%s", Resources.ADMIN_REMOVE_COMMENT_PATH, commentId);
             RESOLVER.verifyAdminAuth(path, auth);
 
-            // Upload comment to the data store
-            RESOLVER.removeComment(commentId);
+            // Delete comment from the data store
+            RESOLVER.removeCommentAdmin(commentId);
+            return Response.noContent().build();
+        }
+        catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
+        catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
+    }
+
+    /**
+     * Attempts to parse the photo and remove it
+     *
+     * @param photoId the provided comment id
+     * @param message the auth information
+     * @return a response object containing the result of the request
+     */
+    @POST
+    @Path(Resources.REMOVE_PHOTO + "/{photoId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response removePhoto(@PathParam("photoId") long photoId, String message) {
+        // Retrieve request wrapper
+        try {
+            // Retrieve provided auth info and verify it
+            Auth auth = gson.fromJson(message, AuthRequest.class).getAuth();
+            String path = String.format("%s/%s", Resources.ADMIN_REMOVE_PHOTO_PATH, photoId);
+            RESOLVER.verifyAdminAuth(path, auth);
+
+            // Delete photo from data store
+            RESOLVER.removePhotoAdmin(photoId);
             return Response.noContent().build();
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }

@@ -40,7 +40,7 @@
         },
 
         methods: {
-            performSearch(){
+            performSearch() {
                 if (!this.hasQuery) {
                     // No query, nothing to perform
                     return
@@ -58,12 +58,12 @@
         },
 
         computed: {
-            hasQuery(){
+            hasQuery() {
                 return this.query && this.query.length > 0
             }
         },
 
-        mounted(){
+        mounted() {
             this.performSearch()
         }
     }

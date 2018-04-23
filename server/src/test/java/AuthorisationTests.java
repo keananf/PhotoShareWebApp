@@ -261,11 +261,38 @@ public class AuthorisationTests extends TestUtility {
     }
 
     @Test
-    public void unauthorisedEditCommentTest() {
+    public void unauthorisedNewsFeedTest() {
+
+        // Assert unauthorised request
+        Response response = apiClient.getNewsFeed();
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
+    }
+
+
+    @Test
+    public void followingOfNonExistingTest() {
+
+        // Check Status codes
+        Response response = apiClient.getFollowing();
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
+
+    }
+
+    @Test
+    public void followersOfNonExistingTest() {
+
+        // Check Status codes
+        Response response = apiClient.getFollowers();
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
+
+    }
+
+    @Test
+    public void unauthorisedEditCommentTest(){
         //Assert unauthorised
         long randomId = -100;
         Response response = apiClient.editComment(randomId, "some comment content");
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
-    
+
 }

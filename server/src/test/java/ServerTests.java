@@ -33,7 +33,7 @@ public final class ServerTests extends TestUtility {
 
         // Parse JSON
         String users = response.readEntity(String.class);
-        assertEquals(gson.fromJson(users, User[].class)[0].getName(), username);
+        assertEquals(gson.fromJson(users, User[].class)[0].getUsername(), username);
     }
 
     @Test
@@ -49,7 +49,23 @@ public final class ServerTests extends TestUtility {
         // Check server has record of album
         Album album = resolver.getAlbum(albumId);
         assertEquals(albumName, album.getAlbumName());
-        assertEquals(description, album.getAlbumDescription());
+        assertEquals(description, album.getDescription());
+    }
+
+    @Test
+    public void updateAlbumDescriptionTest() throws InvalidResourceRequestException {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Update album's description
+        String newDescription = "new " + description;
+        Response response = apiClient.updateAlbumDescription(albumId, newDescription);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+
+        // Check server has record of album's new description
+        Album album = resolver.getAlbum(albumId);
+        assertEquals(albumName, album.getAlbumName());
+        assertEquals(newDescription, album.getDescription());
     }
 
     @Test
@@ -64,7 +80,7 @@ public final class ServerTests extends TestUtility {
         // Check server has record of both albums
         for(Album album : resolver.getAlbums(username)) {
             assertEquals(albumName, album.getAlbumName());
-            assertEquals(description, album.getAlbumDescription());
+            assertEquals(description, album.getDescription());
         }
     }
 
@@ -94,7 +110,7 @@ public final class ServerTests extends TestUtility {
         loginAndSetupNewUser(username);
 
         // Create sample data
-        String photoName = "username";
+        String photoName = "name";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
@@ -124,7 +140,7 @@ public final class ServerTests extends TestUtility {
         loginAndSetupNewUser(username);
 
         // Create sample data
-        String photoName = "username";
+        String photoName = "name";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
@@ -135,11 +151,54 @@ public final class ServerTests extends TestUtility {
         Response photosResponse = apiClient.getAllPhotos(username);
 
         // Parse JSON and check photo contents and who posted it
-        String photos = photosResponse.readEntity(String.class);
-        Photo photo = gson.fromJson(photos, Photo[].class)[0];
-        assertEquals(photo.getPostedBy(), username);
-        assertEquals(photo.getPhotoName(), photoName);
-        assertArrayEquals(contents, UploadPhotoRequest.decodeContents(photo.getPhotoContents()));
+        String photosStr = photosResponse.readEntity(String.class);
+        Photo[] photos = gson.fromJson(photosStr, Photo[].class);
+        for(Photo photo : photos) {
+            assertEquals(photo.getAuthorName(), username);
+            assertEquals(photo.getPhotoName(), photoName);
+            assertArrayEquals(contents, UploadPhotoRequest.decodeContents(photo.getPhotoContents()));
+        }
+    }
+
+    @Test
+    public void getAllPhotosFromAlbumTest() {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Create sample data
+        String photoName = "name";
+        byte[] contents = new byte[] {1, 2, 3, 4, 5};
+
+        // Upload photo to default album twice
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        response = apiClient.uploadPhoto(photoName, albumId, contents);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        // Create second album, in preparation to upload a photo to it.
+        response = apiClient.addAlbum(albumName, description, username);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        long albumId2 = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
+
+        // Upload photo to second album
+        response = apiClient.uploadPhoto(photoName, albumId2, contents);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        // Get all photos from album on server
+        response = apiClient.getAllPhotos(albumId);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        // Parse response, ensuring only the 2 original photos are present.
+        String photosStr = response.readEntity(String.class);
+        Photo[] photoArray = gson.fromJson(photosStr, Photo[].class);
+        assertEquals(2, photoArray.length);
+
+        // Check each photo's contents and who posted it
+        for(Photo photo : photoArray) {
+            assertEquals(photo.getAuthorName(), username);
+            assertEquals(photo.getPhotoName(), photoName);
+            assertArrayEquals(contents, UploadPhotoRequest.decodeContents(photo.getPhotoContents()));
+        }
     }
 
     @Test
@@ -162,7 +221,7 @@ public final class ServerTests extends TestUtility {
         loginAndSetupNewUser(username);
 
         // Create sample data
-        String photoName = "username";
+        String photoName = "name";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
@@ -177,13 +236,89 @@ public final class ServerTests extends TestUtility {
         // Parse JSON and check photo contents and who posted it
         String photoStr = photosResponse.readEntity(String.class);
         Photo photo = gson.fromJson(photoStr, Photo.class);
-        assertEquals(photo.getPostedBy(), username);
+        assertEquals(photo.getAuthorName(), username);
         assertEquals(photo.getPhotoName(), photoName);
         assertArrayEquals(contents, UploadPhotoRequest.decodeContents(photo.getPhotoContents()));
     }
 
+
     @Test
-    public void voteTest() throws InvalidResourceRequestException {
+    public void ratePhotoTest() throws InvalidResourceRequestException {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Create sample data
+        String photoName = "username";
+        byte[] contents = new byte[] {1, 2, 3, 4, 5};
+
+        // Upload 'photo' (byte[])
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
+
+        // Send upvote request to server, and check it was successful on the server.
+        Response voteResponse = apiClient.ratePhoto(id, true);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
+        assertEquals(1, resolver.getPhoto(id).getUpvotes().size());
+        assertEquals(0, resolver.getPhoto(id).getDownvotes().size());
+    }
+
+    @Test
+    public void idempotentPhotoRateTest() throws InvalidResourceRequestException {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Create sample data
+        String photoName = "username";
+        byte[] contents = new byte[] {1, 2, 3, 4, 5};
+
+        // Upload 'photo' (byte[])
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
+
+        // Send upvote request to server, and check it was successful on the server.
+        Response voteResponse = apiClient.ratePhoto(id, true);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
+        assertEquals(1, resolver.getPhoto(id).getUpvotes().size());
+        assertEquals(0, resolver.getPhoto(id).getDownvotes().size());
+
+        // Send same upvote request again. Ensure it worked, but that nothing changed on the server
+        voteResponse = apiClient.ratePhoto(id, true);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
+        assertEquals(1, resolver.getPhoto(id).getUpvotes().size());
+        assertEquals(0, resolver.getPhoto(id).getDownvotes().size());
+    }
+
+    @Test
+    public void undoPhotoRatingTest() throws InvalidResourceRequestException {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Create sample data
+        String photoName = "username";
+        byte[] contents = new byte[] {1, 2, 3, 4, 5};
+
+        // Upload 'photo' (byte[])
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
+
+        // Send upvote request to server, and check it was successful on the server.
+        Response voteResponse = apiClient.ratePhoto(id, true);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
+        assertEquals(1, resolver.getPhoto(id).getUpvotes().size());
+        assertEquals(0, resolver.getPhoto(id).getDownvotes().size());
+
+        // Send same upvote request again. Ensure it worked, but that nothing changed on the server
+        voteResponse = apiClient.ratePhoto(id, false);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
+        assertEquals(0, resolver.getPhoto(id).getUpvotes().size());
+        assertEquals(1, resolver.getPhoto(id).getDownvotes().size());
+    }
+
+    @Test
+    public void commentVoteTest() throws InvalidResourceRequestException {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
@@ -202,14 +337,14 @@ public final class ServerTests extends TestUtility {
         id = gson.fromJson(commentsResponse.readEntity(String.class), Receipt.class).getReferenceId();
 
         // Send upvote request to server, and check it was successful on the server.
-        Response voteResponse = apiClient.vote(id, true);
+        Response voteResponse = apiClient.voteOnComment(id, true);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
         assertEquals(1, resolver.getComment(id).getUpvotes().size());
         assertEquals(0, resolver.getComment(id).getDownvotes().size());
     }
 
     @Test
-    public void idempotentVoteTest() throws InvalidResourceRequestException {
+    public void idempotentCommentVoteTest() throws InvalidResourceRequestException {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
@@ -228,20 +363,20 @@ public final class ServerTests extends TestUtility {
         id = gson.fromJson(commentsResponse.readEntity(String.class), Receipt.class).getReferenceId();
 
         // Send upvote request to server, and check it was successful on the server.
-        Response voteResponse = apiClient.vote(id, true);
+        Response voteResponse = apiClient.voteOnComment(id, true);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
         assertEquals(1, resolver.getComment(id).getUpvotes().size());
         assertEquals(0, resolver.getComment(id).getDownvotes().size());
 
         // Send same upvote request again. Ensure it worked, but that nothing changed on the server
-        voteResponse = apiClient.vote(id, true);
+        voteResponse = apiClient.voteOnComment(id, true);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
         assertEquals(1, resolver.getComment(id).getUpvotes().size());
         assertEquals(0, resolver.getComment(id).getDownvotes().size());
     }
 
     @Test
-    public void undoVoteTest() throws InvalidResourceRequestException {
+    public void undoCommentVoteTest() throws InvalidResourceRequestException {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
@@ -260,14 +395,14 @@ public final class ServerTests extends TestUtility {
         id = gson.fromJson(commentsResponse.readEntity(String.class), Receipt.class).getReferenceId();
 
         // Send upvote request to server, and check it was successful on the server.
-        Response voteResponse = apiClient.vote(id, true);
+        Response voteResponse = apiClient.voteOnComment(id, true);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
         assertEquals(1, resolver.getComment(id).getUpvotes().size());
         assertEquals(0, resolver.getComment(id).getDownvotes().size());
 
         // Send downvote request to server, and check it was successful on the server.
-        // Also check it overwrote previous persistVote
-        voteResponse = apiClient.vote(id, false);
+        // Also check it overwrote previous persistCommentVote
+        voteResponse = apiClient.voteOnComment(id, false);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
         assertEquals(1, resolver.getComment(id).getDownvotes().size());
         assertEquals(0, resolver.getComment(id).getUpvotes().size());
@@ -297,11 +432,11 @@ public final class ServerTests extends TestUtility {
         Comment recordedComment = comments.get(0);
 
         assertEquals(1, comments.size());
-        assertEquals(comment, recordedComment.getContents());
+        assertEquals(comment, recordedComment.getCommentContents());
     }
 
     @Test
-    public void removeCommentTest() throws InvalidResourceRequestException {
+    public void adminRemoveCommentTest() throws InvalidResourceRequestException {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
@@ -324,15 +459,132 @@ public final class ServerTests extends TestUtility {
         List<Comment> comments = resolver.getComments(username);
         Comment recordedComment = comments.get(0);
         assertEquals(1, comments.size());
-        assertEquals(comment, recordedComment.getContents());
+        assertEquals(comment, recordedComment.getCommentContents());
 
         // Remove comment because 'user' is admin
+        Response removeResponse = apiClient.adminRemoveComment(id);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), removeResponse.getStatus());
+
+        // Check comment was removed
+        assertEquals(0, resolver.getComments(username).size());
+    }
+
+    @Test
+    public void userRemoveCommentTest() throws InvalidResourceRequestException {
+        // Add and register 2 sample users, only the first is the admin
+        addUser(username);
+        String user = username + "2";
+        loginAndSetupNewUser(user);
+
+        // Create sample data
+        String photoName = "photo";
+        String comment = "a comment";
+        byte[] contents = new byte[] {1, 2, 3, 4, 5};
+
+        // Upload 'photo' (byte[])
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
+
+        // Send request to add comment to recently uploaded photo
+        Response commentsResponse = apiClient.addComment(id, PHOTO_COMMENT, comment);
+        assertEquals(Response.Status.OK.getStatusCode(), commentsResponse.getStatus());
+        id = gson.fromJson(commentsResponse.readEntity(String.class), Receipt.class).getReferenceId();
+
+        // Check data-store has comment recorded
+        List<Comment> comments = resolver.getComments(user);
+        Comment recordedComment = comments.get(0);
+        assertEquals(1, comments.size());
+        assertEquals(comment, recordedComment.getCommentContents());
+
+        // Remove comment because 'user' is author
         Response removeResponse = apiClient.removeComment(id);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), removeResponse.getStatus());
 
         // Check comment was removed
+        assertEquals(0, resolver.getComments(user).size());
+    }
+
+    @Test (expected = InvalidResourceRequestException.class)
+    public void adminRemovePhotoTest() throws InvalidResourceRequestException {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Create sample data
+        String photoName = "username";
+        byte[] contents = new byte[] {1, 2, 3, 4, 5};
+
+        // Upload 'photo' (byte[])
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
+
+        // Remove photo because 'user' is admin
+        Response removeResponse = apiClient.adminRemovePhoto(id);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), removeResponse.getStatus());
+
+        // Check photo was removed, InvalidResourceRequestException should be thrown
+        resolver.getPhoto(id);
+    }
+
+    @Test (expected = InvalidResourceRequestException.class)
+    public void userRemovePhotoTest() throws InvalidResourceRequestException {
+        // Add non-admin sample user and register it
+        addUser(username); // admin
+        String user = username + "2"; // not admin
+        loginAndSetupNewUser(user);
+
+        // Create sample data
+        String photoName = "photo";
+        byte[] contents = new byte[] {1, 2, 3, 4, 5};
+
+        // Upload 'photo' (byte[])
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
+
+        // Remove photo because 'user' is author
+        Response removeResponse = apiClient.removePhoto(id);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), removeResponse.getStatus());
+
+        // Check photo was removed, InvalidResourceRequestException should be thrown
+        resolver.getPhoto(id);
+    }
+
+    @Test
+    public void editCommentTest() throws InvalidResourceRequestException {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Create sample data
+        String photoName = "username";
+        String comment = "comment";
+        byte[] contents = new byte[] {1, 2, 3, 4, 5};
+
+        // Upload 'photo' (byte[])
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
+
+        // Send request to add comment to recently uploaded photo
+        Response commentsResponse = apiClient.addComment(id, PHOTO_COMMENT, comment);
+        assertEquals(Response.Status.OK.getStatusCode(), commentsResponse.getStatus());
+        id = gson.fromJson(commentsResponse.readEntity(String.class), Receipt.class).getReferenceId();
+
+        // Check data-store has comment recorded
+        List<Comment> comments = resolver.getComments(username);
+        Comment recordedComment = comments.get(0);
+        assertEquals(1, comments.size());
+        assertEquals(comment, recordedComment.getCommentContents());
+
+        // Edit comment
+        String newComment = "new comment";
+        Response editResponse = apiClient.editComment(id, newComment);
+        assertEquals(Response.Status.OK.getStatusCode(), editResponse.getStatus());
+
+        // Check comment was changed
         recordedComment = resolver.getComments(username).get(0);
-        assertEquals(Resources.REMOVAL_STRING, recordedComment.getContents());
+        assertEquals(newComment, recordedComment.getCommentContents());
     }
 
     @Test
@@ -365,7 +617,7 @@ public final class ServerTests extends TestUtility {
 
         // Ensure correct contents
         for(Comment recordedComment : comments) {
-            assertEquals(comment, recordedComment.getContents());
+            assertEquals(comment, recordedComment.getCommentContents());
         }
     }
 
@@ -406,7 +658,7 @@ public final class ServerTests extends TestUtility {
 
         // Ensure correct contents
         for(Comment recordedComment : comments) {
-            assertEquals(comment, recordedComment.getContents());
+            assertEquals(comment, recordedComment.getCommentContents());
         }
 
         // Now, ask for photo comments for the photo.
@@ -462,7 +714,7 @@ public final class ServerTests extends TestUtility {
 
         // Ensure correct contents
         for(Comment recordedComment : comments) {
-            assertEquals(comment, recordedComment.getContents());
+            assertEquals(comment, recordedComment.getCommentContents());
         }
 
         // Now, ask for replies for the original comment.
@@ -477,7 +729,7 @@ public final class ServerTests extends TestUtility {
     }
 
     @Test
-    public void removeReplyTest() throws InvalidResourceRequestException {
+    public void adminRemoveReplyTest() throws InvalidResourceRequestException {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
@@ -507,16 +759,61 @@ public final class ServerTests extends TestUtility {
 
         // Ensure correct contents
         for(Comment recordedComment : comments) {
-            assertEquals(comment, recordedComment.getContents());
+            assertEquals(comment, recordedComment.getCommentContents());
         }
 
         // Remove reply because 'user' is admin
-        Response removeResponse = apiClient.removeComment(id);
+        Response removeResponse = apiClient.adminRemoveComment(id);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), removeResponse.getStatus());
 
         // Check comment was removed
         comments = resolver.getComments(username);
-        assertEquals(Resources.REMOVAL_STRING, comments.get(1).getContents());
+        assertEquals(1, comments.size());
+    }
+
+    @Test
+    public void userRemoveReplyTest() throws InvalidResourceRequestException {
+        // Add two users and login as second. Only the first user will be an admin.
+        addUser(username);
+        String user = username + "2";
+        loginAndSetupNewUser(user);
+
+        // Create sample data
+        String photoName = "photo";
+        String comment = "a comment";
+        byte[] contents = new byte[] {1, 2, 3, 4, 5};
+
+        // Upload 'photo' (byte[])
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
+
+        // Send request to add comment to recently uploaded photo
+        Response commentsResponse = apiClient.addComment(id, PHOTO_COMMENT, comment);
+        assertEquals(Response.Status.OK.getStatusCode(), commentsResponse.getStatus());
+        id = gson.fromJson(commentsResponse.readEntity(String.class), Receipt.class).getReferenceId();
+
+        // Send reply request. Reply will contain same contents as first comment.
+        commentsResponse = apiClient.addComment(id, REPLY, comment);
+        assertEquals(Response.Status.OK.getStatusCode(), commentsResponse.getStatus());
+        id = gson.fromJson(commentsResponse.readEntity(String.class), Receipt.class).getReferenceId();
+
+        // Check data-store has comment recorded
+        List<Comment> comments = resolver.getComments(user);
+        assertEquals(2, comments.size());
+
+        // Ensure correct contents
+        for(Comment recordedComment : comments) {
+            assertEquals(comment, recordedComment.getCommentContents());
+        }
+
+        // Remove reply because 'user' is author
+        Response removeResponse = apiClient.removeComment(id);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), removeResponse.getStatus());
+
+        // Check comment was removed
+        comments = resolver.getComments(user);
+        assertEquals(1, comments.size());
     }
 
     @Test
@@ -550,7 +847,7 @@ public final class ServerTests extends TestUtility {
         assertEquals(commentId, notifications[0].getCommentId());
         assertEquals(id, notifications[0].getReferenceId());
         assertEquals(PHOTO_COMMENT, notifications[0].getCommentType());
-        assertEquals(username, notifications[0].getCommentPostedBy());
+        assertEquals(username, notifications[0].getCommentAuthor());
     }
 
     @Test
@@ -616,8 +913,8 @@ public final class ServerTests extends TestUtility {
         assertEquals(2, notifications.length);
 
         // Ensure the user posted both
-        assertEquals(username, notifications[0].getCommentPostedBy());
-        assertEquals(username, notifications[1].getCommentPostedBy());
+        assertEquals(username, notifications[0].getCommentAuthor());
+        assertEquals(username, notifications[1].getCommentAuthor());
 
         // Ensure the second comment is registered as a reply to the first
         assertEquals(PHOTO_COMMENT, notifications[0].getCommentType());
@@ -660,7 +957,7 @@ public final class ServerTests extends TestUtility {
         assertEquals(commentId, notifications[0].getCommentId());
         assertEquals(id, notifications[0].getReferenceId());
         assertEquals(PHOTO_COMMENT, notifications[0].getCommentType());
-        assertEquals(username, notifications[0].getCommentPostedBy());
+        assertEquals(username, notifications[0].getCommentAuthor());
 
         // Get all user comments, such that the notification generated by this user's comment on its OWN photo
         // is removed.
@@ -706,7 +1003,7 @@ public final class ServerTests extends TestUtility {
         assertEquals(commentId, notifications[0].getCommentId());
         assertEquals(id, notifications[0].getReferenceId());
         assertEquals(PHOTO_COMMENT, notifications[0].getCommentType());
-        assertEquals(username, notifications[0].getCommentPostedBy());
+        assertEquals(username, notifications[0].getCommentAuthor());
 
         // Get all photo comments
         commentsResponse = apiClient.getAllPhotoComments(id);
@@ -755,8 +1052,8 @@ public final class ServerTests extends TestUtility {
         assertEquals(2, notifications.length);
 
         // Ensure the user posted both
-        assertEquals(username, notifications[0].getCommentPostedBy());
-        assertEquals(username, notifications[1].getCommentPostedBy());
+        assertEquals(username, notifications[0].getCommentAuthor());
+        assertEquals(username, notifications[1].getCommentAuthor());
 
         // Ensure the second comment is registered as a reply to the first
         assertEquals(PHOTO_COMMENT, notifications[0].getCommentType());
@@ -811,7 +1108,7 @@ public final class ServerTests extends TestUtility {
 
         // Check each comment. They're identical.
         for(Comment recordedComment : comments) {
-            assertEquals(comment, recordedComment.getContents());
+            assertEquals(comment, recordedComment.getCommentContents());
         }
     }
 
@@ -846,7 +1143,7 @@ public final class ServerTests extends TestUtility {
 
         // Check each comment. They're identical.
         for(Comment recordedComment : comments) {
-            assertEquals(comment, recordedComment.getContents());
+            assertEquals(comment, recordedComment.getCommentContents());
         }
     }
 
@@ -881,7 +1178,7 @@ public final class ServerTests extends TestUtility {
         // Parse comments array and ensure it has two elements in it
         Comment[] comments = gson.fromJson(commentsResponse.readEntity(String.class), Comment[].class);
         assertEquals(1, comments.length);
-        assertEquals(comment, comments[0].getContents());
+        assertEquals(comment, comments[0].getCommentContents());
     }
 
     @Test

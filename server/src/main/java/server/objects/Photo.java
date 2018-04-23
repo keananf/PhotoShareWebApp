@@ -1,24 +1,39 @@
 package server.objects;
 
+import server.requests.UploadPhotoRequest;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Class representing an uploaded photo
  */
 public final class Photo {
     // Photo information
     private final String photoContents;
-    private final String postedBy;
+    private final String authorName;
     private final String photoName;
-    private final long timestamp;
+    private final long photoTime;
     private final long id, albumId;
 
-    public Photo(String photoContents, String postedBy, String photoName, long id, long albumId, long timestamp) {
+    private HashMap<String, Boolean> votes;
+
+    public Photo(String photoContents, String authorName, String photoName, long id, long albumId,
+                 HashMap<String, Boolean> photoRatings, long photoTime) {
         this.photoContents = photoContents;
-        this.postedBy = postedBy;
+        this.authorName = authorName;
         this.photoName = photoName;
-        this.timestamp = timestamp;
+        this.photoTime = photoTime;
 
         this.albumId = albumId;
         this.id = id;
+        votes = photoRatings;
+    }
+
+    public Photo(long id, String author, UploadPhotoRequest request) {
+        this(request.getEncodedPhotoContents(),author, request.getPhotoName(), id, request.getAlbumId(),
+                new HashMap<>(), System.nanoTime());
     }
 
     /**
@@ -31,15 +46,15 @@ public final class Photo {
     /**
      * @return the name of the user who posted this
      */
-    public String getPostedBy() {
-        return postedBy;
+    public String getAuthorName() {
+        return authorName;
     }
 
     /**
      * @return the time this photo was created
      */
-    public long getTimestamp() {
-        return timestamp;
+    public long getPhotoTime() {
+        return photoTime;
     }
 
     /**
@@ -61,5 +76,24 @@ public final class Photo {
      */
     public long getAlbumId() {
         return albumId;
+    }
+
+
+    /**
+     * @return the users who upvoted  this comment
+     */
+    public List<String> getUpvotes() {
+        // Filter out all upvotes, and then create a list of the names of the users who cast them
+        return votes.entrySet().stream().filter(kv -> kv.getValue())
+                .map(kv -> kv.getKey()).collect(Collectors.toList());
+    }
+
+    /**
+     * @return the users who downvoted  this comment
+     */
+    public List<String> getDownvotes() {
+        // Filter out all downvotes, and then create a list of the names of the users who cast them
+        return votes.entrySet().stream().filter(kv -> !kv.getValue())
+                .map(kv -> kv.getKey()).collect(Collectors.toList());
     }
 }

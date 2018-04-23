@@ -356,8 +356,23 @@ public final class ApiClient {
 
         // Encode request and POST
         return connector.post(baseTarget, UNFOLLOW_USERS_PATH, gson.toJson(request));
-
     }
+
+    public Response getNewsFeed() {
+        String path = String.format("%s/%s", NEWS_FEED_PATH, user);
+        return connector.get(baseTarget, path);
+    }
+
+    public Response getFollowing() {
+        String path = String.format("%s/%s", USERS_FOLLOWING_PATH , user);
+        return connector.get(baseTarget, path);
+    }
+
+    public Response getFollowers() {
+        String path = String.format("%s/%s", USERS_FOLLOWERS_PATH , user);
+        return connector.get(baseTarget, path);
+    }
+
 
     /**
      * Resets the logged-in user

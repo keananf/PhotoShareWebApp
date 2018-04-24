@@ -341,7 +341,7 @@ final class DatabaseBackedDataStore implements DataStore {
             while(rs.next()) {
                 // Create users
                 String userName = rs.getString(1);
-                int password = rs.getInt(2);
+                String password = rs.getString(2);
                 boolean admin = rs.getBoolean(3);
 
                 // Add users to collection to return
@@ -372,7 +372,7 @@ final class DatabaseBackedDataStore implements DataStore {
             while(rs.next()) {
                 // Create users
                 String userName = rs.getString(1);
-                int password = rs.getInt(2);
+                String password = rs.getString(2);
                 boolean admin = rs.getBoolean(3);
 
                 // Add users to collection to return
@@ -400,7 +400,7 @@ final class DatabaseBackedDataStore implements DataStore {
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             // Insert user info into prepared statement
             stmt.setString(1, user.getUsername());
-            stmt.setInt(2, user.getPassword());
+            stmt.setString(2, user.getPassword());
             stmt.setBoolean(3, user.isAdmin());
 
             stmt.executeUpdate();

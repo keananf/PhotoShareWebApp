@@ -1,20 +1,17 @@
 package server.requests;
 
-import server.objects.Auth;
-
 import java.util.Base64;
 
 /**
  * Request wrapper for uploading a photo
  */
-public final class UploadPhotoRequest extends AuthRequest {
+public final class UploadPhotoRequest {
 
     private final String encodedPhotoContents;
     private final String photoName;
     private final long albumId;
 
-    public UploadPhotoRequest(Auth auth, String photoName, byte[] photoContents, long albumId) {
-        super(auth);
+    public UploadPhotoRequest(String photoName, byte[] photoContents, long albumId) {
         this.photoName = photoName;
         this.albumId = albumId;
 

@@ -2,18 +2,13 @@ package server.restApi;
 
 import com.google.gson.Gson;
 import server.Resources;
-import server.objects.Album;
-import server.objects.Auth;
-import server.objects.Photo;
-import server.requests.AddUserRequest;
-import server.requests.AuthRequest;
-import server.datastore.exceptions.ExistingException;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.datastore.exceptions.UnauthorisedException;
-import server.objects.User;
-import server.requests.FollowUserRequest;
+import server.objects.Photo;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -30,22 +25,20 @@ public final class NewsFeedAPI {
     private final Gson gson = new Gson();
 
     /**
-     *
      * @return all the photos posted by the people a user is following
      */
-    @POST
+    @GET
     @Path("/{username}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response getUsers(@PathParam("username") String username, String jsonAuth) {
-        // Retrieve provided auth info
-
+    public Response getUsers(@PathParam("username") String username, @Context HttpHeaders headers) {
         try {
-
-            // Checking user is authenticated
-            AuthRequest auth = gson.fromJson(jsonAuth, AuthRequest.class);
+            // Retrieve provided auth info
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
+            String date = headers.getHeaderString(HttpHeaders.DATE);
             String path = String.format("%s/%s", Resources.NEWS_FEED_PATH , username);
-            RESOLVER.verifyAuth(path, auth.getAuth());
+            RESOLVER.verifyAuth(path, sender, apiKey, date);
 
             // Processing Request
             List<Photo> photos = RESOLVER.getNewsFeed(username);

@@ -14,14 +14,19 @@ public abstract class Resources {
     // Base URI the Grizzly HTTP server will listen on
     public static final String BASE_URL = "http://localhost:8080/photoshare/";
 
-    // Resources regarding  users
+    // Resources regarding users
     public static final String USERS_PATH = "/users";
     public static final String ADD_USER = "/adduser";
     public static final String LOGIN_USER = "/login";
     public static final String FOLLOW = "/follow";
+    public static final String FOLLOWERS = "/followers";
+    public static final String FOLLOWING = "/following";
     public static final String UNFOLLOW = "/unfollow";
     public static final String ADD_USER_PATH = USERS_PATH + ADD_USER;
     public static final String LOGIN_USER_PATH = USERS_PATH + LOGIN_USER;
+    public static final String USERS_FOLLOWING_PATH = USERS_PATH + FOLLOWING;
+    public static final String USERS_FOLLOWERS_PATH = USERS_PATH + FOLLOWERS;
+
 
     // Resources regarding albums
     public static final String ALBUMS_PATH = "/albums";
@@ -69,6 +74,9 @@ public abstract class Resources {
     public static final String ADMIN_REMOVE_COMMENT_PATH = ADMIN_PATH + REMOVE_COMMENT;
     public static final String REMOVE_PHOTO = "/removephoto";
     public static final String ADMIN_REMOVE_PHOTO_PATH = ADMIN_PATH + REMOVE_PHOTO;
+
+    // Resources regarding News Feeds
+    public static final String NEWS_FEED_PATH = "/news_feeds";
 
     // Resources regarding notifications
     public static final String NOTIFICATIONS_PATH = "/notifications";

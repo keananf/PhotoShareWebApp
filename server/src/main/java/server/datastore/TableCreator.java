@@ -164,12 +164,13 @@ class TableCreator {
      */
     private void createNotificationsTable() {
         // Construct create users table query
-        String query = "CREATE TABLE IF NOT EXISTS "+NOTIFICATIONS_TABLE+" ("+CONTENT_ID+" bigint, " +
+        String query = "CREATE TABLE IF NOT EXISTS "+NOTIFICATIONS_TABLE+" ("+NOTIFICATIONS_ID+" bigint, " +
+                CONTENT_ID+" bigint, " +
                 REFERENCE_ID+" bigint," +
                 PARENTNAME+" varchar(25) NOT NULL," +
                 USERNAME+" varchar(25) NOT NULL," +
                 CONTENT_TYPE+" varchar(25) NOT NULL," +
-                "PRIMARY KEY("+REFERENCE_ID+")," +
+                "PRIMARY KEY("+NOTIFICATIONS_ID+")," +
                 "FOREIGN KEY("+PARENTNAME+") references "+USERS_TABLE+"("+USERNAME+"))";
 
         // Execute statement such that table is made

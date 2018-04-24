@@ -40,4 +40,21 @@ public class Connector {
         Response result = pathTarget.request().post(Entity.entity(message, MediaType.APPLICATION_JSON));
         return result;
     }
+
+    /**
+     * Performs a GET request on the provided path with query
+     *
+     * @param baseTarget the web target for the base url
+     * @param path       the path to GET from
+     */
+    protected Response getFromUrlWithQuery(WebTarget baseTarget, String path, String queryKey, String queryValue, String message) {
+
+        // Get API resource
+        WebTarget pathTarget = baseTarget.path(path);
+        // Get API resource
+        WebTarget search = pathTarget.queryParam(queryKey, queryValue);
+
+        // Get result and return
+        return search.request().post(Entity.entity(message, MediaType.APPLICATION_JSON));
+    }
 }

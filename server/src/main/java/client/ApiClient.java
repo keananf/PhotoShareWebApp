@@ -1,6 +1,7 @@
 package client;
 
 import com.google.gson.Gson;
+import com.sun.xml.internal.rngom.nc.SimpleNameClass;
 import server.objects.Auth;
 import server.objects.EventType;
 import server.requests.*;
@@ -454,6 +455,15 @@ public final class ApiClient {
         return connector.postToUrl(baseTarget, path, authJson);
     }
 
+    public Response getUserWithName(String name) {
+        // Encode request  and POST
+
+        //String path = USERS_SEARCH_BAR_PATH;
+        String p =  String.format("%s=%s", USERS_SEARCH_BAR_ON_NAME_PATH , name);
+        String authJson = getSerialisedAuthRequest(p, user, password);
+
+        return connector.getFromUrlWithQuery(baseTarget, USERS_SEARCH_BAR_PATH, "name", name, authJson);
+    }
 
     /**
      * Resets the logged-in user

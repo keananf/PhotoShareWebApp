@@ -259,5 +259,25 @@ public final class UsersAPI {
 
     }
 
+    @POST
+    @Path("search")
+    public Response bar(@QueryParam("name") String value, String json) {
 
+        // Parse message as a Auth object
+        AuthRequest auth = gson.fromJson(json, AuthRequest.class);
+
+
+        try {
+            // Process request
+            String path = String.format("%s=%s", USERS_SEARCH_BAR_ON_NAME_PATH , value);
+            RESOLVER.verifyAuth(path, auth.getAuth());
+
+
+            return Response.noContent().build();
+
+        } catch (UnauthorisedException e) {
+            System.out.println("Unauthorised");
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+    }
 }

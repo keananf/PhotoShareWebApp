@@ -1,7 +1,8 @@
 package client;
 
 import com.google.gson.Gson;
-import server.objects.Auth;
+import server.Auth;
+import server.Resources;
 import server.objects.CommentType;
 import server.requests.*;
 
@@ -18,11 +19,14 @@ import static server.Resources.*;
 public final class ApiClient {
     // Connector object facilitating actual objects.common
     private final Connector connector;
+
     // Gson object serialiser
     private final Gson gson;
+
     // Registered user
     private String user;
-    private int password;
+    private String password;
+
     // Set up client and base web target
     private Client client = ClientBuilder.newClient();
     private WebTarget baseTarget = client.target(BASE_URL);
@@ -42,10 +46,10 @@ public final class ApiClient {
      */
     public Response addUser(String user, String password) {
         // Convert the user into JSON
-        String userJson = gson.toJson(new AddUserRequest(user, password.hashCode()));
+        String userJson = gson.toJson(new AddUserRequest(user, Auth.hashAndEncodeBase64(password)));
 
         // POST jsonUser to the resource for adding users.
-        return connector.postToUrl(baseTarget, ADD_USER_PATH, userJson);
+        return connector.post(baseTarget, ADD_USER_PATH, userJson);
     }
 
     /**
@@ -58,16 +62,18 @@ public final class ApiClient {
      * @return the response of the request.
      */
     public Response loginUser(String user, String password) {
-        // Encode auth information
-        String authJson = getSerialisedAuthRequest(LOGIN_USER_PATH, user, password.hashCode());
-
-        // POST the auth information to the log-in API.
-        Response response = connector.postToUrl(baseTarget, LOGIN_USER_PATH, authJson);
+        // Send the auth information to the log-in API.
+        connector.setUserAndPw(user, Auth.hashAndEncodeBase64(password));
+        Response response = connector.get(baseTarget, LOGIN_USER_PATH);
 
         // Register user to this client if log-in was successful
         if (response.getStatus() == Response.Status.NO_CONTENT.getStatusCode()) {
+            this.password = Auth.hashAndEncodeBase64(password);
             this.user = user;
-            this.password = password.hashCode();
+        }
+        else {
+            // Unset the entered username and password if the request failed
+            connector.setUserAndPw("", "");
         }
 
         // Return response
@@ -80,11 +86,7 @@ public final class ApiClient {
      * @return the response of the request.
      */
     public Response getNotifications() {
-        // Encode auth information
-        String authJson = getSerialisedAuthRequest(NOTIFICATIONS_PATH, user, password);
-
-        // POST request with auth information
-        return connector.postToUrl(baseTarget, NOTIFICATIONS_PATH, authJson);
+        return connector.get(baseTarget, NOTIFICATIONS_PATH);
     }
 
     /**
@@ -93,11 +95,7 @@ public final class ApiClient {
      * @return the response of the request.
      */
     public Response getUsers() {
-        // Encode auth information
-        String authJson = getSerialisedAuthRequest(USERS_PATH, user, password);
-
-        // POST request with auth information
-        return connector.postToUrl(baseTarget, USERS_PATH, authJson);
+        return connector.get(baseTarget, USERS_PATH);
     }
 
     /**
@@ -110,11 +108,10 @@ public final class ApiClient {
      */
     public Response addAlbum(String albumName, String description, String user) {
         // Convert the request into JSON
-        String albumJSON = gson.toJson(new AddAlbumRequest(getAuth(ADD_ALBUM_PATH, user, password).getAuth(),
-                albumName, description));
+        String albumJSON = gson.toJson(new AddAlbumRequest(albumName, description));
 
-        // POST jsonUser to the resource for adding users.
-        return connector.postToUrl(baseTarget, ADD_ALBUM_PATH, albumJSON);
+        // POST to the resource for adding an album.
+        return connector.post(baseTarget, ADD_ALBUM_PATH, albumJSON);
     }
 
     /**
@@ -127,11 +124,10 @@ public final class ApiClient {
      */
     public Response uploadPhoto(String photoName, long albumId, byte[] photoContents) {
         // Construct request
-        UploadPhotoRequest request = new UploadPhotoRequest(getAuth(UPLOAD_PHOTO_PATH, user, password)
-                .getAuth(), photoName, photoContents, albumId);
+        UploadPhotoRequest request = new UploadPhotoRequest(photoName, photoContents, albumId);
 
         // Encode request and POST
-        return connector.postToUrl(baseTarget, UPLOAD_PHOTO_PATH, gson.toJson(request));
+        return connector.post(baseTarget, UPLOAD_PHOTO_PATH, gson.toJson(request));
     }
 
     /**
@@ -143,8 +139,7 @@ public final class ApiClient {
     public Response removePhoto(long id) {
         // Encode request and POST
         String path = String.format("%s/%s", DELETE_PHOTO_PATH, id);
-        String authJson = getSerialisedAuthRequest(path, user, password);
-        return connector.postToUrl(baseTarget, path, authJson);
+        return connector.delete(baseTarget, path);
     }
 
     /**
@@ -154,10 +149,9 @@ public final class ApiClient {
      * @return the response of the request.
      */
     public Response getPhoto(long id) {
-        // Encode request and POST
-        String path = String.format("%s/%s", GET_PHOTO_BY_ID_PATH, id);
-        String authJson = getSerialisedAuthRequest(path, user, password);
-        return connector.postToUrl(baseTarget, path, authJson);
+        // Encode path and GET the requested photo
+        String path = String.format("%s/%s", PHOTOS_PATH, id);
+        return connector.get(baseTarget, path);
     }
 
     /**
@@ -168,10 +162,9 @@ public final class ApiClient {
      * @parm upvote whether or not this is an upvote
      */
     public Response voteOnComment(long id, boolean upvote) {
-        // Encode request and POST
+        // Encode request and PUT the given vote
         String path = String.format("%s/%s", (upvote ? COMMENT_UPVOTE_PATH : COMMENT_DOWNVOTE_PATH), id);
-        String authJson = getSerialisedAuthRequest(path, user, password);
-        return connector.postToUrl(baseTarget, path, authJson);
+        return connector.put(baseTarget, path);
     }
 
     /**
@@ -182,10 +175,9 @@ public final class ApiClient {
      * @parm upvote whether or not this is an upvote
      */
     public Response ratePhoto(long id, boolean upvote) {
-        // Encode request and POST
+        // Encode request and PUT the given vote
         String path = String.format("%s/%s", (upvote ? PHOTO_UPVOTE_PATH : PHOTO_DOWNVOTE_PATH), id);
-        String authJson = getSerialisedAuthRequest(path, user, password);
-        return connector.postToUrl(baseTarget, path, authJson);
+        return connector.put(baseTarget, path);
     }
 
     /**
@@ -195,10 +187,9 @@ public final class ApiClient {
      * @return the response of the request.
      */
     public Response adminRemoveComment(long id) {
-        // Encode request and POST
+        // Encode request and DELETE
         String path = String.format("%s/%s", ADMIN_REMOVE_COMMENT_PATH, id);
-        String authJson = getSerialisedAuthRequest(path, user, password);
-        return connector.postToUrl(baseTarget, path, authJson);
+        return connector.delete(baseTarget, path);
     }
 
 
@@ -211,11 +202,10 @@ public final class ApiClient {
      */
     public Response updateAlbumDescription(long id, String description) {
         // Construct request
-        UpdateAlbumDescriptionRequest request = new UpdateAlbumDescriptionRequest(
-                getAuth(UPDATE_ALBUM_DESCRIPTION_PATH, user, password).getAuth(), id, description);
+        UpdateAlbumDescriptionRequest request = new UpdateAlbumDescriptionRequest(id, description);
 
         // Encode request and POST
-        return connector.postToUrl(baseTarget, UPDATE_ALBUM_DESCRIPTION_PATH, gson.toJson(request));
+        return connector.post(baseTarget, UPDATE_ALBUM_DESCRIPTION_PATH, gson.toJson(request));
     }
 
     /**
@@ -225,10 +215,8 @@ public final class ApiClient {
      * @return the response of the request.
      */
     public Response adminRemovePhoto(long id) {
-        // Encode request and POST
         String path = String.format("%s/%s", ADMIN_REMOVE_PHOTO_PATH, id);
-        String authJson = getSerialisedAuthRequest(path, user, password);
-        return connector.postToUrl(baseTarget, path, authJson);
+        return connector.delete(baseTarget, path);
     }
 
     /**
@@ -238,10 +226,8 @@ public final class ApiClient {
      * @return the response of the request
      */
     public Response getAllPhotos(String name) {
-        // Encode request and POST
-        String path = String.format("%s/%s", GET_USER_PHOTOS_PATH, name);
-        String authJson = getSerialisedAuthRequest(path, user, password);
-        return connector.postToUrl(baseTarget, path, authJson);
+        String path = String.format(Resources.GET_USER_PHOTOS_PATH, name);
+        return connector.get(baseTarget, path);
     }
 
     /**
@@ -251,10 +237,8 @@ public final class ApiClient {
      * @return the response of the request
      */
     public Response getAllPhotos(long albumId) {
-        // Encode request and POST
         String path = String.format("%s/%s", GET_PHOTOS_BY_ALBUM_PATH, albumId);
-        String authJson = getSerialisedAuthRequest(path, user, password);
-        return connector.postToUrl(baseTarget, path, authJson);
+        return connector.get(baseTarget, path);
     }
 
     /**
@@ -264,10 +248,8 @@ public final class ApiClient {
      * @return the response of the request
      */
     public Response getAllAlbums(String name) {
-        // Encode request and POST
         String path = String.format("%s/%s", GET_USER_ALBUMS_PATH, name);
-        String authJson = getSerialisedAuthRequest(path, user, password);
-        return connector.postToUrl(baseTarget, path, authJson);
+        return connector.get(baseTarget, path);
     }
 
     /**
@@ -277,10 +259,8 @@ public final class ApiClient {
      * @return the response of the request
      */
     public Response getAlbum(long id) {
-        // Encode request and POST
         String path = String.format("%s/%s", GET_ALBUM_BY_ID_PATH, id);
-        String authJson = getSerialisedAuthRequest(path, user, password);
-        return connector.postToUrl(baseTarget, path, authJson);
+        return connector.get(baseTarget, path);
     }
 
     /**
@@ -290,10 +270,8 @@ public final class ApiClient {
      * @return the response of the request
      */
     public Response getAllComments(String name) {
-        // Encode request and POST
         String path = String.format("%s/%s", COMMENTS_PATH, name);
-        String authJson = getSerialisedAuthRequest(path, user, password);
-        return connector.postToUrl(baseTarget, path, authJson);
+        return connector.get(baseTarget, path);
     }
 
     /**
@@ -303,10 +281,8 @@ public final class ApiClient {
      * @return the response of the request
      */
     public Response getAllReplies(long id) {
-        // Encode request and POST
         String path = String.format("%s/%s", GET_ALL_REPLIES_PATH, id);
-        String authJson = getSerialisedAuthRequest(path, user, password);
-        return connector.postToUrl(baseTarget, path, authJson);
+        return connector.get(baseTarget, path);
     }
 
     /**
@@ -316,10 +292,8 @@ public final class ApiClient {
      * @return the response of the request
      */
     public Response getAllPhotoComments(long id) {
-        // Encode request and POST
         String path = String.format("%s/%s", GET_ALL_PHOTO_COMMENTS_PATH, id);
-        String authJson = getSerialisedAuthRequest(path, user, password);
-        return connector.postToUrl(baseTarget, path, authJson);
+        return connector.get(baseTarget, path);
     }
 
     /**
@@ -332,18 +306,15 @@ public final class ApiClient {
      */
     public Response addComment(long id, CommentType type, String commentContent) {
         // Construct request
-        AddCommentRequest request = new AddCommentRequest(getAuth(ADD_COMMENT_PATH, user, password).getAuth(),
-                commentContent, id, type);
+        AddCommentRequest request = new AddCommentRequest(commentContent, id, type);
 
         // Encode request and POST
-        return connector.postToUrl(baseTarget, ADD_COMMENT_PATH, gson.toJson(request));
+        return connector.post(baseTarget, ADD_COMMENT_PATH, gson.toJson(request));
     }
 
     public Response removeComment(long id) {
-        // Encode request and POST
         String path = String.format("%s/%s", DELETE_COMMENT_PATH, id);
-        String authJson = getSerialisedAuthRequest(path, user, password);
-        return connector.postToUrl(baseTarget, path, authJson);
+        return connector.delete(baseTarget, path);
     }
 
     /**
@@ -356,39 +327,10 @@ public final class ApiClient {
     public Response editComment(long id, String commentContent) {
         // Construct request
         String path = String.format("%s/%s", EDIT_COMMENT_PATH, id);
-        EditCommentRequest request = new EditCommentRequest(getAuth(path, user, password).getAuth(), commentContent);
+        EditCommentRequest request = new EditCommentRequest(commentContent);
 
         // Encode request and POST
-        return connector.postToUrl(baseTarget, path, gson.toJson(request));
-    }
-
-    /**
-     * @param endPoint the endPoint being accessed
-     * @param user     the user to get auth info for
-     * @return the auth information in json
-     */
-    private AuthRequest getAuth(String endPoint, String user, int password) {
-        // Return nothing if this client does not have a registered user
-        if (user == null) return new AuthRequest(new Auth("", "", 0));
-
-        // Wrap auth information in a request
-        Auth auth = new Auth(endPoint, user, password);
-        AuthRequest request = new AuthRequest(auth);
-
-        return request;
-    }
-
-    /**
-     * @param endPoint the endPoint being accessed
-     * @param user     the user to get auth info for
-     * @return the auth information in json
-     */
-    private String getSerialisedAuthRequest(String endPoint, String user, int password) {
-        AuthRequest request = getAuth(endPoint, user, password);
-
-        // Encode auth information
-        String authJson = gson.toJson(request);
-        return authJson;
+        return connector.post(baseTarget, path, gson.toJson(request));
     }
 
     /**
@@ -398,14 +340,8 @@ public final class ApiClient {
      * @return the response of the request
      */
     public Response followUser(String name) {
-        // Encode request and POST
-        String path = USERS_PATH + FOLLOW;
-
-        FollowUserRequest request = new FollowUserRequest(getAuth(path, user, password)
-                .getAuth(), user, name);
-
-        // Encode request and POST
-        return connector.postToUrl(baseTarget, path, gson.toJson(request));
+        String path = String.format("%s/%s", FOLLOW_USERS_PATH, name);
+        return connector.put(baseTarget, path);
 
     }
 
@@ -416,42 +352,23 @@ public final class ApiClient {
      * @return the response of the request
      */
     public Response unfollowUser(String name) {
-        // Encode request and POST
-        String path = USERS_PATH + UNFOLLOW;
-
-        FollowUserRequest request = new FollowUserRequest(getAuth(path, user, password)
-                .getAuth(), user, name);
-
-        // Encode request and POST
-        return connector.postToUrl(baseTarget, path, gson.toJson(request));
-
+        String path = String.format("%s/%s", UNFOLLOW_USERS_PATH, name);
+        return connector.delete(baseTarget, path);
     }
 
     public Response getNewsFeed() {
-        // Encode request  and POST
-
         String path = String.format("%s/%s", NEWS_FEED_PATH, user);
-
-        String authJson = getSerialisedAuthRequest(path, user, password);
-        return connector.postToUrl(baseTarget, path, authJson);
+        return connector.get(baseTarget, path);
     }
 
     public Response getFollowing() {
-        // Encode request  and POST
-
         String path = String.format("%s/%s", USERS_FOLLOWING_PATH , user);
-
-        String authJson = getSerialisedAuthRequest(path, user, password);
-        return connector.postToUrl(baseTarget, path, authJson);
+        return connector.get(baseTarget, path);
     }
 
     public Response getFollowers() {
-        // Encode request  and POST
-
         String path = String.format("%s/%s", USERS_FOLLOWERS_PATH , user);
-
-        String authJson = getSerialisedAuthRequest(path, user, password);
-        return connector.postToUrl(baseTarget, path, authJson);
+        return connector.get(baseTarget, path);
     }
 
 

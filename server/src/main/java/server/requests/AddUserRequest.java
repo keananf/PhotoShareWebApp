@@ -5,17 +5,17 @@ package server.requests;
  */
 public class AddUserRequest {
     private final String user;
-    private final int password;
+    private final String password;
 
-    public AddUserRequest(String user, int password) {
+    public AddUserRequest(String user, String password) {
         this.user = user;
         this.password = password;
     }
 
     /**
-     * @return the pw
+     * @return the pw, hashed and encoded as a base64 string
      */
-    public int getPassword() {
+    public String getPassword() {
         return password;
     }
 

@@ -1,19 +1,15 @@
 package server.requests;
 
-import server.objects.Auth;
-
 /**
  * Request wrapper for adding an album
  */
-public class AddAlbumRequest extends AuthRequest {
+public class AddAlbumRequest {
 
     private final String albumName, description;
 
-    public AddAlbumRequest(Auth auth, String albumName, String description) {
-        super(auth);
+    public AddAlbumRequest(String albumName, String description) {
         this.albumName = albumName;
         this.description = description;
-
     }
 
     /**

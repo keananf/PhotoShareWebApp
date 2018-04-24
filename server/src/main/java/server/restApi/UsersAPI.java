@@ -16,6 +16,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
+import static server.Resources.*;
 import static server.ServerMain.RESOLVER;
 
 /**
@@ -186,4 +187,77 @@ public final class UsersAPI {
 
         return Response.noContent().build();
     }
+
+    /**
+     * Gets a list of persons (Users) the user is currently following
+     * @param username
+     * @param json
+     * @return
+     */
+
+    @POST
+    @Path(Resources.FOLLOWING + "/{username}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response getFollowing(@PathParam("username") String username, String json) {
+        // Retrieve provided auth info
+
+        // Parse message as a Auth object
+        AuthRequest auth = gson.fromJson(json, AuthRequest.class);
+
+
+        try {
+            // Process request
+            String path = String.format("%s/%s", USERS_FOLLOWING_PATH , username);
+            RESOLVER.verifyAuth(path, auth.getAuth());
+            RESOLVER.getFollowers(username);
+
+            List<User> following = RESOLVER.getFollowing(username);
+            return Response.ok(gson.toJson(following)).build();
+
+        } catch (InvalidResourceRequestException e) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        } catch (UnauthorisedException e) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+
+    }
+
+    /**
+     * Gets a list of persons (Users) who follow the user
+     * @param username
+     * @param json
+     * @return
+     */
+
+    @POST
+    @Path(Resources.FOLLOWERS + "/{username}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response getFollowers(@PathParam("username") String username, String json) {
+        // Retrieve provided auth info
+
+        // Parse message as a Auth object
+        AuthRequest auth = gson.fromJson(json, AuthRequest.class);
+
+
+        try {
+            // Process request
+            String path = String.format("%s/%s", USERS_FOLLOWERS_PATH , username);
+            RESOLVER.verifyAuth(path, auth.getAuth());
+            RESOLVER.getFollowers(username);
+
+            List<User> following = RESOLVER.getFollowers(username);
+            return Response.ok(gson.toJson(following)).build();
+
+        } catch (InvalidResourceRequestException e) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        } catch (UnauthorisedException e) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+    }
+
+
 }

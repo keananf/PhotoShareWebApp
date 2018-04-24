@@ -427,6 +427,34 @@ public final class ApiClient {
 
     }
 
+    public Response getNewsFeed() {
+        // Encode request  and POST
+
+        String path = String.format("%s/%s", NEWS_FEED_PATH, user);
+
+        String authJson = getSerialisedAuthRequest(path, user, password);
+        return connector.postToUrl(baseTarget, path, authJson);
+    }
+
+    public Response getFollowing() {
+        // Encode request  and POST
+
+        String path = String.format("%s/%s", USERS_FOLLOWING_PATH , user);
+
+        String authJson = getSerialisedAuthRequest(path, user, password);
+        return connector.postToUrl(baseTarget, path, authJson);
+    }
+
+    public Response getFollowers() {
+        // Encode request  and POST
+
+        String path = String.format("%s/%s", USERS_FOLLOWERS_PATH , user);
+
+        String authJson = getSerialisedAuthRequest(path, user, password);
+        return connector.postToUrl(baseTarget, path, authJson);
+    }
+
+
     /**
      * Resets the logged-in user
      */

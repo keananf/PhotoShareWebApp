@@ -8,12 +8,10 @@ import server.objects.*;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+import static org.junit.Assert.*;
 import static server.objects.EventType.PHOTO_COMMENT;
 import static server.objects.EventType.REPLY;
 
@@ -1608,16 +1606,25 @@ public final class ServerTests extends TestUtility {
         loginAndSetupNewUser(username);
 
         // Set up users who are following our sample user
-        String userFollowingOne = "user_following_one";
-        loginAndSetupNewUser(userFollowingOne);
+        String sampleSearchedUser = "user_following_one";
+        loginAndSetupNewUser(sampleSearchedUser);
 
         // Log back into the sample user
         apiClient.loginUser(username, pw);
 
 
         // Get followers, and ensure it was successful
-        Response response = apiClient.getUserWithName("user");
-        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        String searchTerm = sampleSearchedUser.substring(0, 5);
+        Response response = apiClient.getUserWithName(searchTerm);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        String content = response.readEntity(String.class);
+        User[] users = gson.fromJson(content, User[].class);
+        assertEquals(1, users.length);
+
+        for (User user: users){
+            assertTrue(user.getUsername().contains(searchTerm));
+        }
 
     }
 }

@@ -230,6 +230,8 @@ interface DataStore {
      * Empties the data store
      *
      */
+    List<User> getUserWithNameBegining(String name);
+
     void clear();
 
 }

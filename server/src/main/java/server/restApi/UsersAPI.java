@@ -272,8 +272,9 @@ public final class UsersAPI {
             String path = String.format("%s=%s", USERS_SEARCH_BAR_ON_NAME_PATH , value);
             RESOLVER.verifyAuth(path, auth.getAuth());
 
+            List<User> users = RESOLVER.getUsersWithName(value);
 
-            return Response.noContent().build();
+            return Response.ok(gson.toJson(users)).build();
 
         } catch (UnauthorisedException e) {
             System.out.println("Unauthorised");

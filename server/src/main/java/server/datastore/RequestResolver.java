@@ -628,6 +628,10 @@ public final class RequestResolver {
         return newsFeed;
     }
 
+    public List<User> getUsersWithName(String name){
+        return dataStore.getUserWithNameBegining(name);
+    }
+
     public void clear() {
         // Empty records
         dataStore.clear();

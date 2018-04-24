@@ -22,6 +22,9 @@ const routes = [
     },
     {
         path: '/login', component: window.Components.Pages.Login
+    },
+    {
+        path: '/register', component: window.Components.Pages.Register
     }
 ]
 

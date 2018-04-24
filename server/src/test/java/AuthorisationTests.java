@@ -52,11 +52,11 @@ public class AuthorisationTests extends TestUtility {
     @Test
     public void unauthorisedUploadPhotoTest() {
         // Create sample data
-        String photoName = "username";
+        String photoName = "username", ext = "jpg";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, 0, contents);
+        Response response = apiClient.uploadPhoto(photoName, ext, 0, contents);
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 

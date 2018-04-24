@@ -79,6 +79,7 @@ class TableCreator {
         // Construct create photos table query
         String query = "CREATE TABLE IF NOT EXISTS "+PHOTOS_TABLE+" ("+PHOTOS_ID+" BIGINT, " +
                 PHOTOS_NAME+" varchar(25) NOT NULL," +
+                PHOTOS_EXT+" varchar(10) NOT NULL," +
                 USERNAME+" varchar(25) NOT NULL," +
                 ALBUMS_ID+" BIGINT NOT NULL," +
                 PHOTOS_CONTENTS+" BLOB NOT NULL," +

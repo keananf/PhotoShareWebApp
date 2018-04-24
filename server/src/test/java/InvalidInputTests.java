@@ -119,12 +119,9 @@ public class InvalidInputTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "photo";
-
         // Send request to add photo to unknown album. Fail because unknown album id
         long randomId = -100;
-        Response commentsResponse = apiClient.uploadPhoto(photoName, randomId, new byte[] {});
+        Response commentsResponse = apiClient.uploadPhoto(photoName, ext, randomId, new byte[] {});
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), commentsResponse.getStatus());
 
         // Check data-store that no comment is recorded
@@ -151,7 +148,6 @@ public class InvalidInputTests extends TestUtility {
     @Test
     public void addPhotoToAlbumUnauthorisedTest() throws InvalidResourceRequestException {
         // Create sample data
-        String photoName = "photo";
         String username2 = username + "2";
 
         // Add sample users and register them
@@ -162,7 +158,7 @@ public class InvalidInputTests extends TestUtility {
 
         // Since username2 is currently logged-in, attempt to upload a photo
         // to username's album. This will fail, as the indicated album is NOT owned by the logged-in user.
-        Response response = apiClient.uploadPhoto(photoName, albumId1, new byte[] {});
+        Response response = apiClient.uploadPhoto(photoName, ext, albumId1, new byte[] {});
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
 
         // Check data-store that no photo is uploaded
@@ -262,13 +258,8 @@ public class InvalidInputTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "username";
-        String comment = "comment";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        Response response = apiClient.uploadPhoto(photoName, ext, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -405,7 +396,7 @@ public class InvalidInputTests extends TestUtility {
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        Response response = apiClient.uploadPhoto(photoName, ext, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -449,7 +440,7 @@ public class InvalidInputTests extends TestUtility {
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        Response response = apiClient.uploadPhoto(photoName, ext, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 

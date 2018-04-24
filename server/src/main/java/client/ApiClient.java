@@ -117,13 +117,14 @@ public final class ApiClient {
      * Encoded and uploads the given file
      *
      * @param photoName     the name of the photo
+     * @param ext the photo's extension
      * @param albumId the id of the album this photo is to be uploaded to
      * @param photoContents the byte[] representing the photo's contents
      * @return the response of the request.
      */
-    public Response uploadPhoto(String photoName, long albumId, byte[] photoContents) {
+    public Response uploadPhoto(String photoName, String ext, long albumId, byte[] photoContents) {
         // Construct request
-        UploadPhotoRequest request = new UploadPhotoRequest(photoName, photoContents, albumId);
+        UploadPhotoRequest request = new UploadPhotoRequest(photoName, ext, photoContents, albumId);
 
         // Encode request and POST
         return connector.post(baseTarget, UPLOAD_PHOTO_PATH, gson.toJson(request));

@@ -56,19 +56,20 @@ final class DatabaseBackedDataStore implements DataStore {
     @Override
     public void persistUploadPhoto(long id, String author, UploadPhotoRequest request) {
         // Set up query for inserting a new photo into the table
-        String query = "INSERT INTO "+PHOTOS_TABLE+"("+PHOTOS_ID+","+PHOTOS_NAME+","
-                +USERNAME+","+ALBUMS_ID+","+PHOTOS_CONTENTS+","+PHOTOS_TIME+") values(?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO "+PHOTOS_TABLE+"("+PHOTOS_ID+","+PHOTOS_NAME+","+PHOTOS_EXT+","
+                +USERNAME+","+ALBUMS_ID+","+PHOTOS_CONTENTS+","+PHOTOS_TIME+") values(?, ?, ?, ?, ?, ?, ?)";
 
         // Persist photo
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             // Insert user info into prepared statement
             stmt.setLong(1, id);
             stmt.setString(2, request.getPhotoName());
-            stmt.setString(3, author);
-            stmt.setLong(4, request.getAlbumId());
-            stmt.setBlob(5, new ByteArrayInputStream(request.getEncodedPhotoContents()
+            stmt.setString(3, request.getExt());
+            stmt.setString(4, author);
+            stmt.setLong(5, request.getAlbumId());
+            stmt.setBlob(6, new ByteArrayInputStream(request.getEncodedPhotoContents()
                     .getBytes(StandardCharsets.UTF_8)));
-            stmt.setTimestamp(6, new Timestamp(System.nanoTime()));
+            stmt.setTimestamp(7, new Timestamp(System.nanoTime()));
 
             // Persist data
             stmt.executeUpdate();
@@ -93,11 +94,12 @@ final class DatabaseBackedDataStore implements DataStore {
                 // Create photos
                 long id = rs.getLong(1);
                 String photoName = rs.getString(2);
-                String username = rs.getString(3);
-                long albumId = rs.getLong(4);
-                Timestamp timestamp = rs.getTimestamp(6);
+                String ext = rs.getString(3);
+                String username = rs.getString(4);
+                long albumId = rs.getLong(5);
+                Timestamp timestamp = rs.getTimestamp(7);
 
-                photos.add(new Photo(username, photoName, id, albumId, getPhotoRatings(id), timestamp.getTime()));
+                photos.add(new Photo(username, photoName, ext, id, albumId, getPhotoRatings(id), timestamp.getTime()));
             }
             stmt.close();
         }
@@ -123,10 +125,11 @@ final class DatabaseBackedDataStore implements DataStore {
                 // Create photos
                 long id = rs.getLong(1);
                 String photoName = rs.getString(2);
-                String username = rs.getString(3);
-                Timestamp timestamp = rs.getTimestamp(6);
+                String ext = rs.getString(3);
+                String username = rs.getString(4);
+                Timestamp timestamp = rs.getTimestamp(7);
 
-                photos.add(new Photo(username, photoName, id, albumId, getPhotoRatings(id), timestamp.getTime()));
+                photos.add(new Photo(username, photoName, ext, id, albumId, getPhotoRatings(id), timestamp.getTime()));
             }
             stmt.close();
         }
@@ -151,11 +154,12 @@ final class DatabaseBackedDataStore implements DataStore {
             while(rs.next()) {
                 // Create photos
                 String photoName = rs.getString(2);
-                String username = rs.getString(3);
-                long albumId = rs.getLong(4);
-                Timestamp timestamp = rs.getTimestamp(6);
+                String ext = rs.getString(3);
+                String username = rs.getString(4);
+                long albumId = rs.getLong(5);
+                Timestamp timestamp = rs.getTimestamp(7);
 
-                photos.add(new Photo(username, photoName, id, albumId,
+                photos.add(new Photo(username, photoName, ext, id, albumId,
                         getPhotoRatings(id), timestamp.getTime()));
             }
             stmt.close();
@@ -183,7 +187,7 @@ final class DatabaseBackedDataStore implements DataStore {
             // Iterate through result set, constructing PHOTO Objects
             while(rs.next()) {
                 // Retrieve base 64 encoded contents
-                Blob photo = rs.getBlob(5);
+                Blob photo = rs.getBlob(6);
                 Scanner s = new Scanner(photo.getBinaryStream(), Resources.CHARSET_AS_STRING).useDelimiter("\\A");
                 String encodedPhotoContents = s.hasNext() ? s.next() : "";
                 photoContents.add(encodedPhotoContents);

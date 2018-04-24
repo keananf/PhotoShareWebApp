@@ -10,17 +10,19 @@ import java.util.stream.Collectors;
 public final class Photo {
     // Photo information
     private final String authorName;
+    private final String ext;
     private final String photoName;
     private final long photoTime;
     private final long id, albumId;
 
     private HashMap<String, Boolean> votes;
 
-    public Photo(String authorName, String photoName, long id, long albumId,
+    public Photo(String authorName, String photoName, String ext, long id, long albumId,
                  HashMap<String, Boolean> photoRatings, long photoTime) {
         this.authorName = authorName;
         this.photoName = photoName;
         this.photoTime = photoTime;
+        this.ext = ext;
 
         this.albumId = albumId;
         this.id = id;
@@ -39,6 +41,13 @@ public final class Photo {
      */
     public long getPhotoTime() {
         return photoTime;
+    }
+
+    /**
+     * @return the photo's extension
+     */
+    public String getExt() {
+        return ext;
     }
 
     /**

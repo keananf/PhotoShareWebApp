@@ -139,6 +139,7 @@ PhotoShare RESTful API specification
       ```
       {
           "photoName": string,
+          "extension": string,
           "albumId": long,
           "encodedPhotoContents": string
       }
@@ -174,9 +175,9 @@ PhotoShare RESTful API specification
             {
                 "id": long, 
                 "photoName": string,
+                "extension": string,
                 "authorName": string,
                 "albumId": long,                 
-                "photoContents": (base64) string,
                 "photoTime": long 
             },
             ...
@@ -207,6 +208,7 @@ PhotoShare RESTful API specification
         {
             "id": long, 
             "photoName": string,
+            "extension": string,
             "authorName": string,
             "albumId": long,
             "photoTime": long 
@@ -641,9 +643,9 @@ PhotoShare RESTful API specification
             {
                 "id": long, 
                 "photoName": string,
+                "extension": string,
                 "authorName": string,
                 "albumId": long,                 
-                "photoContents": (base64) string,
                 "photoTime": long 
             },
             ...
@@ -729,7 +731,20 @@ PhotoShare RESTful API specification
       
     * **Success Response:**
     
-      * **Code:** 204 No Content <br />
+      * **Code:** 200 OK <br />
+      **Content:** 
+      ``` 
+      [
+          {
+              "id": long, 
+              "photoName": string,
+              "extension": string,
+              "authorName": string,
+              "albumId": long,                 
+              "photoTime": long 
+          },
+          ...
+      ]
       
     * **Error Response:**
     

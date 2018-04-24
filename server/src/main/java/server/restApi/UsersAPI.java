@@ -86,6 +86,7 @@ public final class UsersAPI {
      */
     @GET
     @Path(Resources.LOGIN_USER)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response loginUser(@Context HttpHeaders headers) {
         // Retrieve auth headers
         String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
@@ -96,10 +97,10 @@ public final class UsersAPI {
         // and void any previous session.
         try {
             // Process request
-            RESOLVER.loginUser(Resources.LOGIN_USER_PATH, sender, apiKey, date);
+            User user = RESOLVER.loginUser(Resources.LOGIN_USER_PATH, sender, apiKey, date);
 
             // Serialise the session. Indicate status as accepted and pass the serialised Session
-            return Response.noContent().build();
+            return Response.ok(gson.toJson(user)).build();
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}

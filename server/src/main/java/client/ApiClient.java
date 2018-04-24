@@ -152,7 +152,7 @@ public final class ApiClient {
         String path = String.format(PHOTO_CONTENTS_PATH, id);
         return connector.get(baseTarget, path);
     }
-    
+
     /**
      * Retrieves the photo meta-data for the given photo
      *

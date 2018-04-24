@@ -192,7 +192,7 @@ PhotoShare RESTful API specification
 
 * `/photos/{id}`
 
-    * **Summary:** Retrieves the given photo 
+    * **Summary:** Retrieves the given photo's meta-data 
 
     * **Method:** `GET`
   
@@ -208,10 +208,33 @@ PhotoShare RESTful API specification
             "id": long, 
             "photoName": string,
             "authorName": string,
-            "albumId": long,                 
-            "photoContents": (base64) string,
+            "albumId": long,
             "photoTime": long 
         }
+     
+    * **Error Response:**
+    
+      * **Code:** 400 Bad Request <br />
+    
+      or
+    
+      * **Code:** 401 Unauthorized <br />
+
+* `/photos/{id}/content`
+
+    * **Summary:** Retrieves the content for the given photo 
+
+    * **Method:** `GET`
+  
+    * **URL Parameters:** 
+        * id: `a photo's unique id (as a long)`
+    
+    * **Success Response:**
+    
+      * **Code:** 200 OK <br />
+        **Content:** 
+        ``` 
+        The photo, encoded as a raw base64 string.
      
     * **Error Response:**
     

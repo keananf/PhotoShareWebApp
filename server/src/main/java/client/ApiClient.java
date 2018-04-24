@@ -67,7 +67,7 @@ public final class ApiClient {
         Response response = connector.get(baseTarget, LOGIN_USER_PATH);
 
         // Register user to this client if log-in was successful
-        if (response.getStatus() == Response.Status.NO_CONTENT.getStatusCode()) {
+        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
             this.password = Auth.hashAndEncodeBase64(password);
             this.user = user;
         }
@@ -103,10 +103,9 @@ public final class ApiClient {
      *
      * @param albumName the album's name
      * @param description the album's description
-     * @param user     the author of the album
      * @return the response of the request.
      */
-    public Response addAlbum(String albumName, String description, String user) {
+    public Response addAlbum(String albumName, String description) {
         // Convert the request into JSON
         String albumJSON = gson.toJson(new AddAlbumRequest(albumName, description));
 

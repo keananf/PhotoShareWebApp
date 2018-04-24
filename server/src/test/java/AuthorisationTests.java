@@ -20,7 +20,7 @@ public class AuthorisationTests extends TestUtility {
 
         // Attempt to log the user in. Analyse the response and parse for the session info
         Response response = apiClient.loginUser(username, pw);
-        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
     }
 
     @Test
@@ -92,7 +92,7 @@ public class AuthorisationTests extends TestUtility {
     @Test
     public void unauthorisedAddAlbumTest() {
         // Assert unauthorised
-        Response response = apiClient.addAlbum(albumName, description, username);
+        Response response = apiClient.addAlbum(albumName, description);
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 

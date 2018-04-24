@@ -1,5 +1,11 @@
 package server.objects;
 
+/**
+ *
+ * Class representing a follow relationship from one user to another
+ *
+ */
+
 public class Follow implements NotifiableEvent{
 
     String userFrom;

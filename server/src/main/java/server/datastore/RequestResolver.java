@@ -6,6 +6,7 @@ import server.requests.AddCommentRequest;
 import server.requests.EditCommentRequest;
 import server.requests.UploadPhotoRequest;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -522,7 +523,7 @@ public final class RequestResolver {
         dataStore.persistFollowing(userFrom, userTo);
 
         Random rand = new Random();
-        int  n = rand.nextInt(50) + 1;
+        int  n = rand.nextInt(50000) + 1;
 
         Follow follow = new Follow(userFrom, userTo, n, n + 10);
 

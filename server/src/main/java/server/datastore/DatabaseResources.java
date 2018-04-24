@@ -52,5 +52,7 @@ abstract class DatabaseResources {
     // Notifications table attributes
     static final String CONTENT_TYPE = "content_type";
     static final String CONTENT_ID = "content_id";
+    static final String NOTIFICATIONS_ID = "notification_id";
+
 
 }

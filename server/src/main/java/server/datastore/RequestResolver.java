@@ -8,10 +8,7 @@ import server.requests.EditCommentRequest;
 import server.requests.UploadPhotoRequest;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -23,6 +20,14 @@ public final class RequestResolver {
     private static final long TIMEOUT = (long) (10 * (Math.pow(10, 9)));
     private int CURRENT_ID = 0;
     private DataStore dataStore = new DatabaseBackedDataStore();
+
+    // Allowed extensions
+    private static Set<String> allowedExtensions = new HashSet<>();
+    static {
+        allowedExtensions.add("jpg");
+        allowedExtensions.add("png");
+        allowedExtensions.add("gif");
+    }
 
     /**
      * Verify the auth info sent by the client. Try to generate shared secret.
@@ -91,13 +96,20 @@ public final class RequestResolver {
      * @param request the upload photo request
      */
     public Receipt uploadPhoto(String user, UploadPhotoRequest request)
-            throws InvalidResourceRequestException, DoesNotOwnAlbumException {
+            throws InvalidResourceRequestException, DoesNotOwnAlbumException, InvalidFileTypeException {
         // Ensure user is known
         getUser(user);
 
         // Ensure albumId is known, and that it belongs to the user
         Album album = getAlbum(request.getAlbumId());
-        if(!album.getAuthorName().equals(user)) throw new DoesNotOwnAlbumException(request.getAlbumId(), user);
+        if(!album.getAuthorName().equals(user)) {
+            throw new DoesNotOwnAlbumException(request.getAlbumId(), user);
+        }
+
+        // Ensure photo extension is permitted
+        if(!allowedExtensions.contains(request.getExt().toLowerCase())) {
+            throw new InvalidFileTypeException(request.getExt().toLowerCase());
+        }
 
         // Create photo and persist it
         long id = CURRENT_ID++;

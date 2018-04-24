@@ -220,7 +220,6 @@ public final class ServerTests extends TestUtility {
         assertArrayEquals(contents, decodedContents);
     }
 
-
     @Test
     public void ratePhotoTest() throws InvalidResourceRequestException {
         // Add sample user and register it

@@ -1,14 +1,16 @@
-import server.objects.*;
 import org.junit.Test;
 import server.datastore.exceptions.InvalidResourceRequestException;
+import server.objects.Album;
+import server.objects.Comment;
+import server.objects.Receipt;
 
 import javax.ws.rs.core.Response;
-
 import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
-import static server.objects.CommentType.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static server.objects.CommentType.PHOTO_COMMENT;
+import static server.objects.CommentType.REPLY;
 
 /**
  * Tests demonstrating behaviour of APIs when presented with
@@ -49,6 +51,16 @@ public class InvalidInputTests extends TestUtility {
         // get processed by the server.
         photosResponse = apiClient.getAllPhotos("");
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), photosResponse.getStatus());
+    }
+
+    @Test
+    public void uploadBadExtensionTest() {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Upload photo with bad extension
+        Response response = apiClient.uploadPhoto(photoName, "BAD EXTENSION", albumId, contents);
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 
     @Test

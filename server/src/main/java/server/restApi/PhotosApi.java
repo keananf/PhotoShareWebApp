@@ -2,10 +2,7 @@ package server.restApi;
 
 import com.google.gson.Gson;
 import server.Resources;
-import server.datastore.exceptions.DoesNotOwnAlbumException;
-import server.datastore.exceptions.DoesNotOwnPhotoException;
-import server.datastore.exceptions.InvalidResourceRequestException;
-import server.datastore.exceptions.UnauthorisedException;
+import server.datastore.exceptions.*;
 import server.objects.Photo;
 import server.objects.Receipt;
 import server.requests.UploadPhotoRequest;
@@ -55,7 +52,7 @@ public class PhotosApi {
             return Response.ok(gson.toJson(receipt)).build();
         }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
-        catch(InvalidResourceRequestException | DoesNotOwnAlbumException e) {
+        catch(InvalidResourceRequestException | DoesNotOwnAlbumException | InvalidFileTypeException e) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
     }

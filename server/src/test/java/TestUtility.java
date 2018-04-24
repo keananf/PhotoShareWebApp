@@ -22,7 +22,7 @@ public abstract class TestUtility {
 
     // Create sample data
     long albumId = 0;
-    String photoName = "username", comment = "comment", ext = "ext";
+    String photoName = "username", comment = "comment", ext = "jpg";
     byte[] contents = new byte[] {1, 2, 3, 4, 5};
     String albumName = "albumName", description = "description";
 

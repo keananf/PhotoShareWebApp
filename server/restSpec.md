@@ -583,7 +583,14 @@ PhotoShare RESTful API specification
       
     * **Success Response:**
     
-      * **Code:** 204 No Content <br />
+      * **Code:** 200 OK <br />
+      * **Content:** 
+      ```
+      {
+        "username": string,
+        "admin": boolean
+      }
+      ```
       
     * **Error Response:**
     

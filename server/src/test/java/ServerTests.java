@@ -1,19 +1,16 @@
 import org.junit.Test;
-
-import server.Resources;
-import server.requests.*;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.objects.*;
+import server.requests.UploadPhotoRequest;
 
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static server.objects.CommentType.*;
+import static org.junit.Assert.*;
+import static server.objects.CommentType.PHOTO_COMMENT;
+import static server.objects.CommentType.REPLY;
 
 /**
  * Tests Server behaviour in response to RESTful API calls
@@ -44,7 +41,7 @@ public final class ServerTests extends TestUtility {
         loginAndSetupNewUser(username);
 
         // Add new album, and retrieve the returned id
-        Response response = apiClient.addAlbum(albumName, description, username);
+        Response response = apiClient.addAlbum(albumName, description);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long albumId = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -76,7 +73,7 @@ public final class ServerTests extends TestUtility {
         loginAndSetupNewUser(username);
 
         // Add a new album, with the same name and description as the default album.
-        Response response = apiClient.addAlbum(albumName, description, username);
+        Response response = apiClient.addAlbum(albumName, description);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         // Check server has record of both albums
@@ -178,7 +175,7 @@ public final class ServerTests extends TestUtility {
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         // Create second album, in preparation to upload a photo to it.
-        response = apiClient.addAlbum(albumName, description, username);
+        response = apiClient.addAlbum(albumName, description);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long albumId2 = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -1355,7 +1352,7 @@ public final class ServerTests extends TestUtility {
         loginAndSetupNewUser(userBeingFollowedTwo);
 
         // Add new album, and retrieve the returned id
-        Response response = apiClient.addAlbum(albumName, description, userBeingFollowedTwo);
+        Response response = apiClient.addAlbum(albumName, description);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long albumIdTwo = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 

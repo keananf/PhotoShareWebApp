@@ -7,11 +7,12 @@ import java.nio.charset.StandardCharsets;
  * Abstract class used for maintaining information about resource location.
  */
 public abstract class Resources {
-    public static final Charset CHARSET = StandardCharsets.UTF_8;
+    static final Charset CHARSET = StandardCharsets.UTF_8;
     public static final String CHARSET_AS_STRING = CHARSET.name();
 
     // Base URI the Grizzly HTTP server will listen on
-    public static final String BASE_URL = "http://localhost:8080/photoshare/";
+    private static final String BASE_URI = "http://localhost:8080";
+    public static final String BASE_URL = BASE_URI + "/photoshare";
 
     // Resources regarding users
     public static final String USERS_PATH = "/users";

@@ -82,12 +82,11 @@ public final class UsersAPI {
     /**
      * Attempts to parse the message and log in the user
      *
-     * @param message the auth information
      * @return a response object containing the result of the request
      */
     @GET
     @Path(Resources.LOGIN_USER)
-    public Response loginUser(String message, @Context HttpHeaders headers) {
+    public Response loginUser(@Context HttpHeaders headers) {
         // Retrieve auth headers
         String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
         String sender = authHeader[0], apiKey = authHeader[1];

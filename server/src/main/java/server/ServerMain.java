@@ -32,9 +32,11 @@ public class ServerMain {
 
         // Statically load in the html client code
         try {
-            String path = new File(".").getCanonicalPath() + "/static/";
+            String path = new File(".").getCanonicalPath().replace("server", "web_client");
             System.out.println(String.format("Client exposed from: %s", path));
             serv.getServerConfiguration().addHttpHandler(new StaticHttpHandler(path), "/");
+
+            serv.start();
         }
         catch (IOException e) {
             e.printStackTrace();

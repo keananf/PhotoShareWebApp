@@ -108,6 +108,10 @@
             }
         }
 
+        static unsetAuthParameters(){
+            HW.auth = null
+        }
+
     }
 
     // Export to global scope

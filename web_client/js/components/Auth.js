@@ -20,6 +20,9 @@
             logoutUser(){
                 this.currentUser = null
 
+                // Reset the HttpWrapper class auth
+                HW.unsetAuthParameters()
+
                 // Take user to the landing page
                 router.push('/')
             }

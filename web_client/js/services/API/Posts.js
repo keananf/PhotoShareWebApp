@@ -59,6 +59,25 @@
                     ])
                 }, 1000) // Simulate API Call
             })
+        },
+
+        createPost(title, albumId, base64contents){
+            return new Promise((resolve, reject) => {
+                // Debug
+                return resolve(31)
+
+                http.post(API.endpoints.POSTS_CREATE, {photoName: title, albumId, encodedPhotoContents: base64contents}).then(res => {
+                    if (res.referenceId) {
+                        // All succesfull, return the post id
+                        resolve(res.referenceId)
+                    } else {
+                        // Something went wrong
+                        reject('Unknown error')
+                    }
+                }).catch(err => {
+                    reject(err)
+                })
+            })
         }
 
     }

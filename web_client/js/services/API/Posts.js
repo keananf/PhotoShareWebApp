@@ -35,6 +35,7 @@
         getPostData(postId) {
             // @todo
             return new Promise((resolve, reject) => {
+                // Debug
                 setTimeout(() => {
                     resolve(Models.Post.fromJson({
                         id: 'testId',
@@ -43,6 +44,20 @@
                         date: '5 minutes ago'
                     }))
                 }, 1000) // Simulate API Call
+
+                return;
+
+                http.get(API.endpoints.POSTS_GET.replace(':id', postId)).then(data => {
+                    if (!data) {
+                        // @todo 404?
+                        console.log(data)
+                        reject(null)
+                    } else {
+                        resolve(Models.Post.fromJson(data))
+                    }
+                }).catch(err => {
+                    reject(err)
+                })
             })
         },
 

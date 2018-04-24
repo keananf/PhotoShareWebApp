@@ -90,10 +90,11 @@ public final class ServerTests extends TestUtility {
 
         // Create sample data
         String name = "username";
+        String description = "some photo";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(name, albumId, contents, "some photo");
+        Response response = apiClient.uploadPhoto(name, albumId, contents, description);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         // Check server has record of photo by decoding its base64 representation and checking for
@@ -101,6 +102,7 @@ public final class ServerTests extends TestUtility {
         List<Photo> photos = resolver.getPhotos(this.username);
         assertArrayEquals(contents, UploadPhotoRequest.decodeContents(photos.get(0).getPhotoContents()));
         assertEquals(name, photos.get(0).getPhotoName());
+        assertEquals(description, photos.get(0).getDescription());
     }
 
     @Test
@@ -110,6 +112,7 @@ public final class ServerTests extends TestUtility {
 
         // Create sample data
         String photoName = "name";
+        String description = "some photo";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
@@ -130,6 +133,7 @@ public final class ServerTests extends TestUtility {
         for(Photo p : photos) {
             assertArrayEquals(contents, UploadPhotoRequest.decodeContents(p.getPhotoContents()));
             assertEquals(photoName, p.getPhotoName());
+            assertEquals(description, p.getDescription());
         }
     }
 
@@ -140,10 +144,11 @@ public final class ServerTests extends TestUtility {
 
         // Create sample data
         String photoName = "name";
+        String description = "some photo";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents, "some photo");
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents, description);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         // Get all photos from user on server
@@ -156,6 +161,7 @@ public final class ServerTests extends TestUtility {
             assertEquals(photo.getAuthorName(), username);
             assertEquals(photo.getPhotoName(), photoName);
             assertArrayEquals(contents, UploadPhotoRequest.decodeContents(photo.getPhotoContents()));
+            assertEquals(photo.getDescription(), description);
         }
     }
 

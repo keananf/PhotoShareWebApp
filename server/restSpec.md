@@ -1591,6 +1591,77 @@ PhotoShare RESTful API specification
           }
         });
 
+* `/users/search?name={username}`
+
+    * **Method:** `POST`
+  
+    * **URL Parameters:** 
+        * username: `Search term on the username of desired user`
+    
+    * **Body Parameters**
+        
+          ```
+          {
+              "auth" : 
+              {
+                "apiKey" : string,
+                "time": long,
+                "user": string,
+                "password": int
+              }
+          }
+          
+    * **Success Response:**
+        
+       * **Code:** 200 OK <br />
+       
+            **Content:**
+          ``` 
+          [
+              {
+                  "username": string, 
+                  "admin": boolean
+              },
+              ...
+          ]
+          ```
+    * **Error Response:**
+        
+      * **Code:** 400 Bad Request <br />
+        
+          or
+        
+      * **Code:** 401 Unauthorized <br />
+        
+    * **Sample Call:**
+        
+          ```javascript
+            $.ajax(
+            {
+              url: "/users/search?name={john}",
+              dataType: "json",
+              data :
+              {
+                  {
+                    "auth" : 
+                    {
+                      "apiKey" : abc123,
+                      "time": 1524219966,
+                      "user": "username1",
+                      "password": 1
+                    }
+                }
+              },
+              type : "POST",
+              success : function(r) 
+              {
+                console.log(r);
+              }
+            });
+            
+          
+    
+
 ## Admin APIs
         
 * `/admin/removecomment/{id}`
@@ -1768,3 +1839,4 @@ PhotoShare RESTful API specification
             console.log(r);
           }
         });
+

@@ -116,12 +116,12 @@ public final class ServerTests extends TestUtility {
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents, "some photo");
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents, description);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
         // Upload photo again
-        response = apiClient.uploadPhoto(photoName, albumId, contents, "some photo");
+        response = apiClient.uploadPhoto(photoName, albumId, contents, description);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id2 = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -173,11 +173,12 @@ public final class ServerTests extends TestUtility {
         // Create sample data
         String photoName = "name";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
+        String description = "some photo";
 
         // Upload photo to default album twice
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents, "some photo");
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents, description);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        response = apiClient.uploadPhoto(photoName, albumId, contents, "some photo");
+        response = apiClient.uploadPhoto(photoName, albumId, contents, description);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         // Create second album, in preparation to upload a photo to it.
@@ -186,7 +187,7 @@ public final class ServerTests extends TestUtility {
         long albumId2 = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
         // Upload photo to second album
-        response = apiClient.uploadPhoto(photoName, albumId2, contents, "some photo");
+        response = apiClient.uploadPhoto(photoName, albumId2, contents, description);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         // Get all photos from album on server
@@ -202,6 +203,7 @@ public final class ServerTests extends TestUtility {
         for(Photo photo : photoArray) {
             assertEquals(photo.getAuthorName(), username);
             assertEquals(photo.getPhotoName(), photoName);
+            assertEquals(photo.getDescription(), description);
             assertArrayEquals(contents, UploadPhotoRequest.decodeContents(photo.getPhotoContents()));
         }
     }
@@ -228,9 +230,10 @@ public final class ServerTests extends TestUtility {
         // Create sample data
         String photoName = "name";
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
+        String description = "some photo";
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents, "some photo");
+        Response response = apiClient.uploadPhoto(photoName, albumId, contents, description);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -243,6 +246,7 @@ public final class ServerTests extends TestUtility {
         Photo photo = gson.fromJson(photoStr, Photo.class);
         assertEquals(photo.getAuthorName(), username);
         assertEquals(photo.getPhotoName(), photoName);
+        assertEquals(photo.getDescription(), description);
         assertArrayEquals(contents, UploadPhotoRequest.decodeContents(photo.getPhotoContents()));
     }
 

@@ -5,6 +5,7 @@ import org.junit.Before;
 import server.ServerMain;
 import server.datastore.RequestResolver;
 import server.objects.Receipt;
+import server.objects.User;
 
 import javax.ws.rs.core.Response;
 
@@ -24,12 +25,12 @@ public abstract class TestUtility {
     String albumName = "albumName", description = "Descriptions";
 
     // Server
-    static final ServerMain server;
+    private static final ServerMain server;
     static final RequestResolver resolver;
 
     // Client
-    public static ApiClient apiClient;
-    public static final Gson gson;
+    static ApiClient apiClient;
+    static final Gson gson;
 
     // Initialise in a static block so all children classes can access
     // the same server, without having to change config.
@@ -62,16 +63,18 @@ public abstract class TestUtility {
      * Also, a default album is set up.
      * @param name the username of the user
      */
-    public void loginAndSetupNewUser(String name) {
+    void loginAndSetupNewUser(String name) {
         // Add user to server
         addUser(name);
 
         // login as user
         Response response = apiClient.loginUser(name, pw);
-        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        User receivedUser = gson.fromJson(response.readEntity(String.class), User.class);
+        assertEquals(receivedUser.getUsername(), name);
 
         // Add new album, and retrieve the returned id
-        response = apiClient.addAlbum(albumName, description, name);
+        response = apiClient.addAlbum(albumName, description);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         albumId = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
     }
@@ -80,7 +83,7 @@ public abstract class TestUtility {
      * Attempts to add a user with the given username
      * @param name the username
      */
-    public void addUser(String name) {
+    void addUser(String name) {
         // Call the persistAddUser API from the client
         Response response = apiClient.addUser(name, pw);
 

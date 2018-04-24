@@ -75,10 +75,13 @@ public final class RequestResolver {
      * @throws UnauthorisedException if invalid password presented
      * @throws InvalidResourceRequestException if invalid user presented
      */
-    public void loginUser(String endPoint, String user, String apiKey, String date)
+    public User loginUser(String endPoint, String user, String apiKey, String date)
             throws UnauthorisedException, InvalidResourceRequestException {
         // Verify auth information
         verifyAuth(endPoint, user, apiKey, date);
+
+        // Return user information to client
+        return getUser(user);
     }
 
     /**

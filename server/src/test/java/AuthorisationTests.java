@@ -56,7 +56,7 @@ public class AuthorisationTests extends TestUtility {
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, 0, contents);
+        Response response = apiClient.uploadPhoto(photoName, 0, contents, "some photo");
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 

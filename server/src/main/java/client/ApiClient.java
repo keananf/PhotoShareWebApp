@@ -455,7 +455,7 @@ public final class ApiClient {
         return connector.postToUrl(baseTarget, path, authJson);
     }
 
-    public Response getUserWithName(String name) {
+    public Response getUserWithNameBegining(String name) {
         // Encode request  and POST
 
         //String path = USERS_SEARCH_BAR_PATH;

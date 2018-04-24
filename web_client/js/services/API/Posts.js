@@ -49,15 +49,33 @@
         getPostComments(postId) {
             // @todo
             return new Promise((resolve, reject) => {
+                // Debug
                 setTimeout(() => {
                     resolve([
                         Models.PostComment.fromJson({
-                            postId: postId,
-                            username: 'test-user',
-                            comment: 'This is a test comment'
+                            referenceId: postId,
+                            author: 'test-user',
+                            commentContents: 'This is a test comment'
                         }),
                     ])
                 }, 1000) // Simulate API Call
+
+                return
+
+                http.get(API.endpoints.COMMENTS_GET_FOR_POST.replace(':id', postId)).then(data => {
+                    let posts = []
+
+                    if (data.length > 0) {
+                        for (let i = 0; i < data.length; i++) {
+                            posts.push(Models.PostComment.fromJson(data[i]))
+                        }
+                    }
+
+                    resolve(posts)
+                }).catch(err => {
+                    reject(err)
+                })
+
             })
         },
 

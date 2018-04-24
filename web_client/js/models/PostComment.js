@@ -13,7 +13,7 @@
                 data = JSON.parse(data)
             }
 
-            return new PostComment(data.postId, data.username, data.comment)
+            return new PostComment(data.referenceId, data.author, data.commentContents)
         }
     }
 

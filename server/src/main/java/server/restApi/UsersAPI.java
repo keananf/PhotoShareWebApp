@@ -85,7 +85,6 @@ public final class UsersAPI {
      */
     @GET
     @Path(Resources.LOGIN_USER)
-    @Consumes(MediaType.APPLICATION_JSON)
     public Response loginUser(String message, @Context HttpHeaders headers) {
         // Retrieve auth headers
         String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");

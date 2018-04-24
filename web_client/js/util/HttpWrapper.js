@@ -11,6 +11,20 @@
 
             let $this = this
 
+            // Set additional headers if auth is provided
+            if (HW.auth !== undefined && HW.auth !== null) {
+                // Make the token/digest
+                let timestamp = Math.round((new Date()).getTime() / 1000)
+                let endPoint = '/' + url
+                let token = timestamp + endPoint + HW.auth.username + ':' + HW.auth.passwordHash
+                token = sha256(token)
+                token = btoa(token)
+
+                HW.setAdditionalHeaders({
+                    'Authentication': HW.auth.username + ':' + token
+                })
+            }
+
             return new Promise(function (resolve, reject) {
 
                 // Generate the full url from base url and endpoint
@@ -84,7 +98,14 @@
         }
 
         static setAdditionalHeaders(headers) {
-            this.additionalHeaders = headers
+            HW.additionalHeaders = headers
+        }
+
+        static setAuthParameters(username, passwordHash) {
+            HW.auth = {
+                username: username,
+                passwordHash: passwordHash
+            }
         }
 
     }

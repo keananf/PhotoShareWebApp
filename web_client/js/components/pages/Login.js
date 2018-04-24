@@ -69,6 +69,9 @@
                         if (!user) {
                             this.authSuccess = false
                         } else {
+                            // Save typed password to user record for the token generation
+                            user.password = this.password
+
                             this.authSuccess = true
                             this.postLogin()
                             this.$root.auth().loginUser(user)

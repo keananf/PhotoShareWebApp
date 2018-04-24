@@ -848,7 +848,7 @@ final class DatabaseBackedDataStore implements DataStore {
     }
 
     @Override
-    public List<User> getFollowers(String username) {
+    public List<User> getFollowers(String username) throws InvalidResourceRequestException{
 
         // Set up query to retrieve each row in the votes table
         String query = "SELECT * FROM "+FOLLOWINGS_TABLE+" WHERE "+USER_TO+" = ?";
@@ -866,12 +866,42 @@ final class DatabaseBackedDataStore implements DataStore {
                 String usernameOfFollower = rs.getString(2);
                 User follower = getUser(usernameOfFollower);
 
+                // Add to list of followees
+                following.add(follower);
+            }
+            stmt.close();
+        }
+        catch (SQLException e) { e.printStackTrace(); }
+
+        return following;
+    }
+
+    @Override
+    public List<User> getFollowing(String username) {
+
+        // Set up query to retrieve each row in the votes table
+        String query = "SELECT * FROM "+FOLLOWINGS_TABLE+" WHERE "+USER_FROM+" = ?";
+        List<User> following = new ArrayList<>();
+
+        // Get followers
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            // Execute query on database
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+
+            // Iterate through result set, constructing PHOTO Objects
+            while (rs.next()) {
+                // Get info
+                String usernameOfFollowee = rs.getString(3);
+                User follower = getUser(usernameOfFollowee);
+
                 // Add to list of followes
                 following.add(follower);
             }
             stmt.close();
         }
-        catch (SQLException | InvalidResourceRequestException e) { e.printStackTrace(); }
+        catch (SQLException e) { e.printStackTrace(); }
+        catch (InvalidResourceRequestException e) { e.printStackTrace(); }
 
 
         return following;

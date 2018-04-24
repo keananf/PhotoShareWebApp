@@ -627,13 +627,14 @@ PhotoShare RESTful API specification
     
       * **Code:** 401 Unauthorized <br />
   
-* `/users/follow`
+* `/users/follow/{username}`
 
     * **Summary:** Follows the given user
 
-    * **Method:** `POST`
+    * **Method:** `PUT`
   
-    * **URL Parameters:** `None`
+    * **URL Parameters:** 
+         * username: `refers to a user's unique name (as a string)`
     
     * **Body Parameters**
     
@@ -655,13 +656,14 @@ PhotoShare RESTful API specification
     
       * **Code:** 401 Unauthorized <br />
     
-* `/users/unfollow`
+* `/users/unfollow/{username}`
 
     * **Summary:** Unfollows the given user
 
-    * **Method:** `POST`
+    * **Method:** `DELETE`
   
-    * **URL Parameters:** `None`
+    * **URL Parameters:** 
+         * username: `refers to a user's unique name (as a string)`
     
     * **Body Parameters**
     

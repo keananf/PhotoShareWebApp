@@ -339,10 +339,8 @@ public final class ApiClient {
      * @return the response of the request
      */
     public Response followUser(String name) {
-        FollowUserRequest request = new FollowUserRequest(user, name);
-
-        // Encode request and POST
-        return connector.post(baseTarget, FOLLOW_USERS_PATH, gson.toJson(request));
+        String path = String.format("%s/%s", FOLLOW_USERS_PATH, name);
+        return connector.put(baseTarget, path);
 
     }
 
@@ -353,10 +351,8 @@ public final class ApiClient {
      * @return the response of the request
      */
     public Response unfollowUser(String name) {
-        FollowUserRequest request = new FollowUserRequest(user, name);
-
-        // Encode request and POST
-        return connector.post(baseTarget, UNFOLLOW_USERS_PATH, gson.toJson(request));
+        String path = String.format("%s/%s", UNFOLLOW_USERS_PATH, name);
+        return connector.delete(baseTarget, path);
     }
 
     public Response getNewsFeed() {

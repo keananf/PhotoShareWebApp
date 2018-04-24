@@ -7,7 +7,6 @@ import server.datastore.exceptions.InvalidResourceRequestException;
 import server.datastore.exceptions.UnauthorisedException;
 import server.objects.User;
 import server.requests.AddUserRequest;
-import server.requests.FollowUserRequest;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -16,7 +15,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-import static server.Resources.*;
+import static server.Resources.USERS_FOLLOWERS_PATH;
+import static server.Resources.USERS_FOLLOWING_PATH;
 import static server.ServerMain.RESOLVER;
 
 /**
@@ -105,34 +105,22 @@ public final class UsersAPI {
     }
 
     /**
-     *
      * Attempts to follow a user
      *
-     * @param json the serialised FollowUserRequest passed as the request body.
      * @return a parsed list of all photos from the requested user in the system
      */
-
-    @POST
-    @Path(Resources.FOLLOW)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response postFollow(String json, @Context HttpHeaders headers) {
-
-        // Retrieve provided auth info
-        FollowUserRequest request = gson.fromJson(json, FollowUserRequest.class);
-
+    @PUT
+    @Path(Resources.FOLLOW +"/{username}")
+    public Response follow(@PathParam("username") String userTo, @Context HttpHeaders headers) {
         // Retrieve auth headers
         String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
         String sender = authHeader[0], apiKey = authHeader[1];
         String date = headers.getHeaderString(HttpHeaders.DATE);
 
         try {
-            String userFrom = request.getUserFrom();
-            String userTo = request.getUserTo();
-
             // Process Request
-            RESOLVER.verifyAuth(Resources.FOLLOW_USERS_PATH, sender, apiKey, date);
-            RESOLVER.followUser(userFrom, userTo);
+            RESOLVER.verifyAuth(Resources.FOLLOW_USERS_PATH + "/" + userTo, sender, apiKey, date);
+            RESOLVER.followUser(sender, userTo);
 
         } catch (InvalidResourceRequestException ie) {
 
@@ -150,33 +138,23 @@ public final class UsersAPI {
     }
 
     /**
-     *
      * Attempts to unfollow user
      *
-     * @param json the serialised FollowUserRequest passed as the request body.
      * @return a parsed list of all photos from the requested user in the system
      */
 
-    @POST
-    @Path(Resources.UNFOLLOW)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response postUnfollow(String json, @Context HttpHeaders headers) {
-
-        FollowUserRequest request = gson.fromJson(json, FollowUserRequest.class);
-
+    @DELETE
+    @Path(Resources.UNFOLLOW + "/{username}")
+    public Response unfollow(@PathParam("username") String userTo, @Context HttpHeaders headers) {
         // Retrieve provided auth info
         String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
         String sender = authHeader[0], apiKey = authHeader[1];
         String date = headers.getHeaderString(HttpHeaders.DATE);
 
-        String userFrom = request.getUserFrom();
-        String userTo = request.getUserTo();
-
         try {
             // Process Request
-            RESOLVER.verifyAuth(Resources.UNFOLLOW_USERS_PATH, sender, apiKey, date);
-            RESOLVER.unfollowUser(userFrom, userTo);
+            RESOLVER.verifyAuth(Resources.UNFOLLOW_USERS_PATH + "/" + userTo, sender, apiKey, date);
+            RESOLVER.unfollowUser(sender, userTo);
 
         } catch (UnauthorisedException e) {
 

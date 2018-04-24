@@ -142,12 +142,24 @@ public final class ApiClient {
     }
 
     /**
-     * Encoded and uploads the given file
+     * Retrieves the photo contents from the given photo
      *
      * @param id the id of the photo
      * @return the response of the request.
      */
-    public Response getPhoto(long id) {
+    public Response getPhotoContents(long id) {
+        // Encode path and GET the requested photo
+        String path = String.format(PHOTO_CONTENTS_PATH, id);
+        return connector.get(baseTarget, path);
+    }
+    
+    /**
+     * Retrieves the photo meta-data for the given photo
+     *
+     * @param id the id of the photo
+     * @return the response of the request.
+     */
+    public Response getPhotoMetaData(long id) {
         // Encode path and GET the requested photo
         String path = String.format("%s/%s", PHOTOS_PATH, id);
         return connector.get(baseTarget, path);

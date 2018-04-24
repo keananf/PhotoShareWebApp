@@ -38,7 +38,7 @@ public class AuthorisationTests extends TestUtility {
     @Test
     public void unauthorisedGetPhotoTest() {
         // Assert unauthorised
-        Response response = apiClient.getPhoto(100);
+        Response response = apiClient.getPhotoContents(100);
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 

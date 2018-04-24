@@ -99,7 +99,6 @@ public final class ServerTests extends TestUtility {
         // Check server has record of photo by decoding its base64 representation and checking for
         // equivalence.
         List<Photo> photos = resolver.getPhotos(this.username);
-        assertArrayEquals(contents, UploadPhotoRequest.decodeContents(photos.get(0).getPhotoContents()));
         assertEquals(name, photos.get(0).getPhotoName());
     }
 
@@ -128,7 +127,6 @@ public final class ServerTests extends TestUtility {
         assertEquals(2, photos.size());
         assertNotEquals(id, id2);
         for(Photo p : photos) {
-            assertArrayEquals(contents, UploadPhotoRequest.decodeContents(p.getPhotoContents()));
             assertEquals(photoName, p.getPhotoName());
         }
     }
@@ -155,7 +153,6 @@ public final class ServerTests extends TestUtility {
         for(Photo photo : photos) {
             assertEquals(photo.getAuthorName(), username);
             assertEquals(photo.getPhotoName(), photoName);
-            assertArrayEquals(contents, UploadPhotoRequest.decodeContents(photo.getPhotoContents()));
         }
     }
 
@@ -196,7 +193,6 @@ public final class ServerTests extends TestUtility {
         for(Photo photo : photoArray) {
             assertEquals(photo.getAuthorName(), username);
             assertEquals(photo.getPhotoName(), photoName);
-            assertArrayEquals(contents, UploadPhotoRequest.decodeContents(photo.getPhotoContents()));
         }
     }
 
@@ -229,15 +225,19 @@ public final class ServerTests extends TestUtility {
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
         // Get recently uploaded photo from server
-        Response photosResponse = apiClient.getPhoto(id);
+        Response photosResponse = apiClient.getAllPhotos(albumId);
         assertEquals(Response.Status.OK.getStatusCode(), photosResponse.getStatus());
 
         // Parse JSON and check photo contents and who posted it
         String photoStr = photosResponse.readEntity(String.class);
-        Photo photo = gson.fromJson(photoStr, Photo.class);
+        Photo photo = gson.fromJson(photoStr, Photo[].class)[0];
         assertEquals(photo.getAuthorName(), username);
         assertEquals(photo.getPhotoName(), photoName);
-        assertArrayEquals(contents, UploadPhotoRequest.decodeContents(photo.getPhotoContents()));
+
+        // Make separate request for photo contents
+        String receivedContents = apiClient.getPhotoContents(id).readEntity(String.class);
+        byte[] decodedContents = UploadPhotoRequest.decodeContents(receivedContents);
+        assertArrayEquals(contents, decodedContents);
     }
 
 
@@ -258,8 +258,8 @@ public final class ServerTests extends TestUtility {
         // Send upvote request to server, and check it was successful on the server.
         Response voteResponse = apiClient.ratePhoto(id, true);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
-        assertEquals(1, resolver.getPhoto(id).getUpvotes().size());
-        assertEquals(0, resolver.getPhoto(id).getDownvotes().size());
+        assertEquals(1, resolver.getPhotoMetaData(id).getUpvotes().size());
+        assertEquals(0, resolver.getPhotoMetaData(id).getDownvotes().size());
     }
 
     @Test
@@ -279,14 +279,14 @@ public final class ServerTests extends TestUtility {
         // Send upvote request to server, and check it was successful on the server.
         Response voteResponse = apiClient.ratePhoto(id, true);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
-        assertEquals(1, resolver.getPhoto(id).getUpvotes().size());
-        assertEquals(0, resolver.getPhoto(id).getDownvotes().size());
+        assertEquals(1, resolver.getPhotoMetaData(id).getUpvotes().size());
+        assertEquals(0, resolver.getPhotoMetaData(id).getDownvotes().size());
 
         // Send same upvote request again. Ensure it worked, but that nothing changed on the server
         voteResponse = apiClient.ratePhoto(id, true);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
-        assertEquals(1, resolver.getPhoto(id).getUpvotes().size());
-        assertEquals(0, resolver.getPhoto(id).getDownvotes().size());
+        assertEquals(1, resolver.getPhotoMetaData(id).getUpvotes().size());
+        assertEquals(0, resolver.getPhotoMetaData(id).getDownvotes().size());
     }
 
     @Test
@@ -306,14 +306,14 @@ public final class ServerTests extends TestUtility {
         // Send upvote request to server, and check it was successful on the server.
         Response voteResponse = apiClient.ratePhoto(id, true);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
-        assertEquals(1, resolver.getPhoto(id).getUpvotes().size());
-        assertEquals(0, resolver.getPhoto(id).getDownvotes().size());
+        assertEquals(1, resolver.getPhotoMetaData(id).getUpvotes().size());
+        assertEquals(0, resolver.getPhotoMetaData(id).getDownvotes().size());
 
         // Send same upvote request again. Ensure it worked, but that nothing changed on the server
         voteResponse = apiClient.ratePhoto(id, false);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
-        assertEquals(0, resolver.getPhoto(id).getUpvotes().size());
-        assertEquals(1, resolver.getPhoto(id).getDownvotes().size());
+        assertEquals(0, resolver.getPhotoMetaData(id).getUpvotes().size());
+        assertEquals(1, resolver.getPhotoMetaData(id).getDownvotes().size());
     }
 
     @Test
@@ -523,7 +523,7 @@ public final class ServerTests extends TestUtility {
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), removeResponse.getStatus());
 
         // Check photo was removed, InvalidResourceRequestException should be thrown
-        resolver.getPhoto(id);
+        resolver.getPhotoContents(id);
     }
 
     @Test (expected = InvalidResourceRequestException.class)
@@ -547,7 +547,7 @@ public final class ServerTests extends TestUtility {
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), removeResponse.getStatus());
 
         // Check photo was removed, InvalidResourceRequestException should be thrown
-        resolver.getPhoto(id);
+        resolver.getPhotoContents(id);
     }
 
     @Test

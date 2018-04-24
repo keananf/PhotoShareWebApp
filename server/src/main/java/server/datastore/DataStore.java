@@ -2,6 +2,7 @@ package server.datastore;
 
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.objects.*;
+import server.requests.UploadPhotoRequest;
 
 import java.util.List;
 
@@ -14,9 +15,11 @@ interface DataStore {
 
     /**
      * Uploads the given photo
-     * @param newPhoto the photo
+     * @param id the photo's new id
+     * @param author the user who posted the photo
+     * @param request the photo request
      */
-    void persistUploadPhoto(Photo newPhoto);
+    void persistUploadPhoto(long id, String author, UploadPhotoRequest request);
 
     /**
      * Retrieves photos a user has posted.
@@ -39,8 +42,15 @@ interface DataStore {
      * @return the photo
      * @throws InvalidResourceRequestException if the photo doesn't exist
      */
-    Photo getPhoto(long id) throws InvalidResourceRequestException;
+    Photo getPhotoMetaData(long id) throws InvalidResourceRequestException;
 
+    /**
+     * Retrieves the photo contents of given photo
+     * @param id the id of the photo
+     * @return the photo contents
+     * @throws InvalidResourceRequestException if the photo doesn't exist
+     */
+    String getPhotoContents(long id) throws InvalidResourceRequestException;
 
     /**
      * Adds the given album

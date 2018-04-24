@@ -100,11 +100,11 @@ public final class RequestResolver {
         if(!album.getAuthorName().equals(user)) throw new DoesNotOwnAlbumException(request.getAlbumId(), user);
 
         // Create photo and persist it
-        Photo newPhoto = new Photo(CURRENT_ID++, user, request);
-        dataStore.persistUploadPhoto(newPhoto);
+        long id = CURRENT_ID++;
+        dataStore.persistUploadPhoto(id, user, request);
 
         // Return receipt confirming photo was created
-        return new Receipt(newPhoto.getId());
+        return new Receipt(id);
     }
 
     /**
@@ -134,13 +134,23 @@ public final class RequestResolver {
     }
 
     /**
+     * Retrieves the photo contents for given photo
+     * @param id the id of the photo
+     * @return the encoded photo contents
+     * @throws InvalidResourceRequestException if the photo doesn't exist
+     */
+    public String getPhotoContents(long id) throws InvalidResourceRequestException {
+        return dataStore.getPhotoContents(id);
+    }
+
+    /**
      * Retrieves the given photo
      * @param id the id of the photo
      * @return the photo
      * @throws InvalidResourceRequestException if the photo doesn't exist
      */
-    public Photo getPhoto(long id) throws InvalidResourceRequestException {
-        return dataStore.getPhoto(id);
+    public Photo getPhotoMetaData(long id) throws InvalidResourceRequestException {
+        return dataStore.getPhotoMetaData(id);
     }
 
     /**
@@ -281,7 +291,7 @@ public final class RequestResolver {
      */
     public List<Comment> getPhotoComments(String user, long referenceId) throws InvalidResourceRequestException {
         // Get photo the reference is referring to (exception thrown if doesn't exist)
-        getPhoto(referenceId);
+        getPhotoMetaData(referenceId);
         getUser(user);
 
         // Find all comments on this photo
@@ -350,7 +360,7 @@ public final class RequestResolver {
         else {
             // Retrieve the parent photo and check it exists
             // (exception will be thrown, if not).
-            getPhoto(request.getReferenceId());
+            getPhotoMetaData(request.getReferenceId());
         }
 
         // Add unique id to be able to future identify this comment
@@ -399,7 +409,7 @@ public final class RequestResolver {
             parentName = getComment(comment.getReferenceId()).getAuthor();
         }
         else {
-            parentName = getPhoto(comment.getReferenceId()).getAuthorName();
+            parentName = getPhotoMetaData(comment.getReferenceId()).getAuthorName();
         }
 
         // Add notification using found parent's name
@@ -457,7 +467,7 @@ public final class RequestResolver {
     public void removePhotoAdmin(long photoId) throws InvalidResourceRequestException {
 
         // Checks that the photo exists, throws an exception if not
-        getPhoto(photoId);
+        getPhotoMetaData(photoId);
 
         // Removes the photo from the database
         dataStore.persistRemovePhoto(photoId);
@@ -473,7 +483,7 @@ public final class RequestResolver {
             throws InvalidResourceRequestException, DoesNotOwnPhotoException {
 
         // Checks that the photo exists and is owned by requesting user, throws an exception if not
-        Photo p = getPhoto(photoId);
+        Photo p = getPhotoMetaData(photoId);
         if (!p.getAuthorName().equals(user)) throw new DoesNotOwnPhotoException(photoId, user);
 
         // Removes the photo from the database
@@ -501,7 +511,7 @@ public final class RequestResolver {
      */
     public void ratePhoto(long photoId, String user, boolean upvote) throws InvalidResourceRequestException {
         getUser(user);
-        getPhoto(photoId);
+        getPhotoMetaData(photoId);
 
         dataStore.persistPhotoRating(photoId, user, upvote);
     }

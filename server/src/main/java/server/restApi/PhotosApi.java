@@ -18,6 +18,8 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 
 import static server.Resources.PHOTOS_PATH;
+import static server.Resources.PHOTO_CONTENTS;
+import static server.Resources.PHOTO_CONTENTS_PATH;
 import static server.ServerMain.RESOLVER;
 
 /**
@@ -110,13 +112,38 @@ public class PhotosApi {
     }
 
     /**
-     * @return the requested photo, serialised in JSON
+     * @return the requested photo contents, sent as raw data
+     */
+    @GET
+    @Path("/{id}" + PHOTO_CONTENTS)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response getPhotoContents(@PathParam("id") long id, @Context HttpHeaders headers) {
+        try {
+            // Retrieve provided auth info
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
+            String date = headers.getHeaderString(HttpHeaders.DATE);
+
+            String path = String.format(PHOTO_CONTENTS_PATH, id);
+            RESOLVER.verifyAuth(path, sender, apiKey, date);
+
+            // Send the given photo's contents back to the client
+            String contents = RESOLVER.getPhotoContents(id);
+            return Response.ok(contents).build();
+        }
+        catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
+        catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
+    }
+
+    /**
+     * @return the requested meta-data, sent as JSON.
      */
     @GET
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response getPhoto(@PathParam("id") long id, @Context HttpHeaders headers) {
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getPhotoMetaData(@PathParam("id") long id, @Context HttpHeaders headers) {
         try {
             // Retrieve provided auth info
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
@@ -126,14 +153,12 @@ public class PhotosApi {
             String path = String.format("%s/%s", PHOTOS_PATH, id);
             RESOLVER.verifyAuth(path, sender, apiKey, date);
 
-            // Upload encoded photo to the data store
-            Photo photo = RESOLVER.getPhoto(id);
-            return Response.ok(gson.toJson(photo)).build();
+            // Send the given photo's contents back to the client
+            return Response.ok(RESOLVER.getPhotoContents(id)).build();
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
     }
-
 
     /**
      * Registers an upvote from the authorised user on the provided photoId, if it exists.

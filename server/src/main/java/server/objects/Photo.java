@@ -1,7 +1,5 @@
 package server.objects;
 
-import server.requests.UploadPhotoRequest;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,7 +9,6 @@ import java.util.stream.Collectors;
  */
 public final class Photo {
     // Photo information
-    private final String photoContents;
     private final String authorName;
     private final String photoName;
     private final long photoTime;
@@ -19,9 +16,8 @@ public final class Photo {
 
     private HashMap<String, Boolean> votes;
 
-    public Photo(String photoContents, String authorName, String photoName, long id, long albumId,
+    public Photo(String authorName, String photoName, long id, long albumId,
                  HashMap<String, Boolean> photoRatings, long photoTime) {
-        this.photoContents = photoContents;
         this.authorName = authorName;
         this.photoName = photoName;
         this.photoTime = photoTime;
@@ -29,18 +25,6 @@ public final class Photo {
         this.albumId = albumId;
         this.id = id;
         votes = photoRatings;
-    }
-
-    public Photo(long id, String author, UploadPhotoRequest request) {
-        this(request.getEncodedPhotoContents(),author, request.getPhotoName(), id, request.getAlbumId(),
-                new HashMap<>(), System.nanoTime());
-    }
-
-    /**
-     * @return the base64 encoded contents
-     */
-    public String getPhotoContents() {
-        return photoContents;
     }
 
     /**

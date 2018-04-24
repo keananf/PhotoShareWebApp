@@ -42,7 +42,7 @@ public abstract class Resources {
     public static final String PHOTOS_PATH = "/photos";
     public static final String UPLOAD_PHOTO = "/upload";
     public static final String UPLOAD_PHOTO_PATH = PHOTOS_PATH + UPLOAD_PHOTO;
-    public static final String GET_USER_PHOTOS_PATH = PHOTOS_PATH + USERS_PATH;
+    public static final String GET_USER_PHOTOS_PATH = USERS_PATH + "/%s/" + PHOTOS_PATH;
     public static final String GET_PHOTOS_BY_ALBUM_PATH = PHOTOS_PATH + ALBUMS_PATH;
     public static final String DELETE_PHOTO = "/delete";
     public static final String DELETE_PHOTO_PATH = PHOTOS_PATH + DELETE_PHOTO;

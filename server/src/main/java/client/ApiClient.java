@@ -2,6 +2,7 @@ package client;
 
 import com.google.gson.Gson;
 import server.Auth;
+import server.Resources;
 import server.objects.CommentType;
 import server.requests.*;
 
@@ -225,7 +226,7 @@ public final class ApiClient {
      * @return the response of the request
      */
     public Response getAllPhotos(String name) {
-        String path = String.format("%s/%s", GET_USER_PHOTOS_PATH, name);
+        String path = String.format(Resources.GET_USER_PHOTOS_PATH, name);
         return connector.get(baseTarget, path);
     }
 

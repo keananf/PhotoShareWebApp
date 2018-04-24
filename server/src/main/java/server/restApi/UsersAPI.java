@@ -5,6 +5,7 @@ import server.Resources;
 import server.datastore.exceptions.ExistingException;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.datastore.exceptions.UnauthorisedException;
+import server.objects.Photo;
 import server.objects.User;
 import server.requests.AddUserRequest;
 
@@ -15,6 +16,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
+import static server.Resources.PHOTOS_PATH;
 import static server.Resources.USERS_FOLLOWERS_PATH;
 import static server.Resources.USERS_FOLLOWING_PATH;
 import static server.ServerMain.RESOLVER;
@@ -99,6 +101,34 @@ public final class UsersAPI {
 
             // Serialise the session. Indicate status as accepted and pass the serialised Session
             return Response.noContent().build();
+        }
+        catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
+        catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
+    }
+
+    /**
+     * @param username the provided username in the URL
+     * @return a parsed list of all photos from the requested user in the system
+     */
+    @GET
+    @Path("/{username}/" + PHOTOS_PATH)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response getAllPhotosFromUser(@PathParam("username") String username, @Context HttpHeaders headers) {
+        try {
+            // Retrieve provided auth info
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
+            String date = headers.getHeaderString(HttpHeaders.DATE);
+
+            String path = String.format(Resources.GET_USER_PHOTOS_PATH, username);
+            RESOLVER.verifyAuth(path, sender, apiKey, date);
+
+            // Retrieve list retrieved from data manipulation layer
+            // and convert photos into JSON array
+            List<Photo> photos = RESOLVER.getPhotos(username);
+            return Response.ok(gson.toJson(photos)).build();
+
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}

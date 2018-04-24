@@ -17,12 +17,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
+import static server.Resources.PHOTOS_PATH;
 import static server.ServerMain.RESOLVER;
 
 /**
  * Class describing the behaviour of the api at PHOTOS_PATH
  */
-@Path(Resources.PHOTOS_PATH)
+@Path(PHOTOS_PATH)
 public class PhotosApi {
     private final Gson gson = new Gson();
 
@@ -81,34 +82,6 @@ public class PhotosApi {
     }
 
     /**
-     * @param username the provided username in the URL
-     * @return a parsed list of all photos from the requested user in the system
-     */
-    @GET
-    @Path(Resources.USERS_PATH + "/{username}")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response getAllPhotosFromUser(@PathParam("username") String username, @Context HttpHeaders headers) {
-        try {
-            // Retrieve provided auth info
-            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
-            String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
-
-            String path = String.format("%s/%s", Resources.GET_USER_PHOTOS_PATH, username);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
-
-            // Retrieve list retrieved from data manipulation layer
-            // and convert photos into JSON array
-            List<Photo> photos = RESOLVER.getPhotos(username);
-            return Response.ok(gson.toJson(photos)).build();
-
-        }
-        catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
-        catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
-    }
-
-    /**
      * @param albumId the provided album ID in the URL
      * @return a parsed list of all photos from the requested album in the system
      */
@@ -150,7 +123,7 @@ public class PhotosApi {
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(HttpHeaders.DATE);
 
-            String path = String.format("%s/%s", Resources.PHOTOS_PATH, id);
+            String path = String.format("%s/%s", PHOTOS_PATH, id);
             RESOLVER.verifyAuth(path, sender, apiKey, date);
 
             // Upload encoded photo to the data store

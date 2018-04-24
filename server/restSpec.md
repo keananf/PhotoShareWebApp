@@ -189,40 +189,6 @@ PhotoShare RESTful API specification
       or
     
       * **Code:** 401 Unauthorized <br />
-        
-* `/photos/users/{username}`
-
-    * **Summary:** Retrieves all photos a user has posted, across all albums.
-
-    * **Method:** `GET`
-  
-    * **URL Parameters:** 
-        * username: `a user's unique username (as a string)`
-      
-    * **Success Response:**
-    
-      * **Code:** 200 OK <br />
-        **Content:** 
-        ``` 
-        [
-            {
-                "id": long, 
-                "photoName": string,
-                "authorName": string,
-                "albumId": long,                 
-                "photoContents": (base64) string,
-                "photoTime": long 
-            },
-            ...
-        ]
-     
-    * **Error Response:**
-    
-      * **Code:** 400 Bad Request <br />
-    
-      or
-    
-      * **Code:** 401 Unauthorized <br />
 
 * `/photos/{id}`
 
@@ -626,6 +592,41 @@ PhotoShare RESTful API specification
       or
     
       * **Code:** 401 Unauthorized <br />
+        
+* `/users/{username}/photos`
+
+    * **Summary:** Retrieves all photos a user has posted, across all albums.
+
+    * **Method:** `GET`
+  
+    * **URL Parameters:** 
+        * username: `a user's unique username (as a string)`
+      
+    * **Success Response:**
+    
+      * **Code:** 200 OK <br />
+        **Content:** 
+        ``` 
+        [
+            {
+                "id": long, 
+                "photoName": string,
+                "authorName": string,
+                "albumId": long,                 
+                "photoContents": (base64) string,
+                "photoTime": long 
+            },
+            ...
+        ]
+     
+    * **Error Response:**
+    
+      * **Code:** 400 Bad Request <br />
+    
+      or
+    
+      * **Code:** 401 Unauthorized <br />
+  
   
 * `/users/follow/{username}`
 

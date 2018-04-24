@@ -5,8 +5,19 @@
     window.API.Auth = {
         login(username, password){
             return new Promise((resolve, reject) => {
-                //resolve(null)
+                // Debug
                 resolve(Models.User.fromJson({'username': username}))
+                return;
+
+                http.post(API.endpoints.USERS_LOGIN, {username: username, password: password}).then(res => {
+                    if (!res.error && res.user) {
+                        resolve(Models.User.fromJson(res.user))
+                    } else {
+                        reject(res.error)
+                    }
+                }).catch(err => {
+                    reject(err)
+                })
             })
         },
 

@@ -9,9 +9,11 @@
         </div>
         `,
 
+        props: ['visible'],
+
         data() {
             return {
-                isVisible: false
+                isVisible: !!this.visible
             }
         },
 

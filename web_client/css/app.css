@@ -209,3 +209,14 @@ nav .nav-search .clear-icon {
 .post-comments ul li p {
     margin: 0;
 }
+
+[v-cloak] {
+    display: none;
+}
+
+.box {
+    background: #fff;
+    box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.1);
+    padding-top: 15px;
+    padding-bottom: 15px;
+}

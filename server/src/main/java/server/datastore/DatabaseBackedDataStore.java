@@ -10,10 +10,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static server.datastore.DatabaseResources.*;
@@ -28,6 +25,7 @@ final class DatabaseBackedDataStore implements DataStore {
     private static String uname;
     private static String pw;
     private Connection conn;
+    private int CURRENT_ID = 0;
 
     // Before anything else, read in the username and password for accessing the database
     static {
@@ -342,7 +340,7 @@ final class DatabaseBackedDataStore implements DataStore {
 
                 // Get type
                 boolean reply = rs.getBoolean(4);
-                CommentType type = reply ? CommentType.REPLY : CommentType.PHOTO_COMMENT;
+                EventType type = reply ? EventType.REPLY : EventType.PHOTO_COMMENT;
 
                 // Create comment and retrieve upvotes / downvotes
                 Comment comm = new Comment(id, username, contents, referenceId, type, getCommentVotes(id), timestamp.getTime());
@@ -463,7 +461,7 @@ final class DatabaseBackedDataStore implements DataStore {
 
                 // Get Type
                 boolean reply = rs.getBoolean(4);
-                CommentType type = reply ? CommentType.REPLY : CommentType.PHOTO_COMMENT;
+                EventType type = reply ? EventType.REPLY : EventType.PHOTO_COMMENT;
 
                 // Create comment and retrieve upvotes / downvotes
                 Comment comm = new Comment(id, username, contents, referenceId, type, getCommentVotes(id), timestamp.getTime());
@@ -496,7 +494,7 @@ final class DatabaseBackedDataStore implements DataStore {
                 Timestamp timestamp = rs.getTimestamp(5);
 
                 // Create comment and retrieve upvotes / downvotes
-                Comment comm = new Comment(id, username, contents, referenceId, CommentType.PHOTO_COMMENT,
+                Comment comm = new Comment(id, username, contents, referenceId, EventType.PHOTO_COMMENT,
                         getCommentVotes(id), timestamp.getTime());
                 comments.add(comm);
             }
@@ -527,7 +525,7 @@ final class DatabaseBackedDataStore implements DataStore {
                 Timestamp timestamp = rs.getTimestamp(5);
 
                 // Create comment and retrieve upvotes / downvotes
-                Comment comm = new Comment(id, username, contents, referenceId, CommentType.REPLY,
+                Comment comm = new Comment(id, username, contents, referenceId, EventType.REPLY,
                         getCommentVotes(id), timestamp.getTime());
                 comments.add(comm);
             }
@@ -539,39 +537,6 @@ final class DatabaseBackedDataStore implements DataStore {
         return comments;
     }
 
-    @Override
-    public List<Notification> getNotifications(String user) {
-        // Set up query
-        String query = "SELECT * FROM "+NOTIFICATIONS_TABLE+" WHERE "+PARENTNAME+" = ?";
-        List<Notification> notifications = new ArrayList<>();
-
-        // Get notifications
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
-            // Execute query on database
-            stmt.setString(1, user);
-            ResultSet rs = stmt.executeQuery();
-
-            // Iterate through result set, constructing PHOTO Objects
-            while (rs.next()) {
-                // Get info
-                long commentId = rs.getLong(1);
-                long referenceId = rs.getLong(2);
-                String notifiedUser = rs.getString(3);
-                String commentPostedBy = rs.getString(4);
-
-                // Get Type
-                boolean reply = rs.getBoolean(5);
-                CommentType type = reply ? CommentType.REPLY : CommentType.PHOTO_COMMENT;
-
-                // Create notification
-                notifications.add(new Notification(commentId, referenceId, notifiedUser, commentPostedBy, type));
-            }
-            stmt.close();
-        }
-        catch (SQLException e) { e.printStackTrace(); }
-
-        return notifications;
-    }
 
     @Override
     public void persistAddComment(Comment comment) {
@@ -585,7 +550,7 @@ final class DatabaseBackedDataStore implements DataStore {
             stmt.setLong(1, comment.getId());
             stmt.setString(2, comment.getAuthor());
             stmt.setString(3, comment.getCommentContents());
-            stmt.setBoolean(4, comment.getCommentType() == CommentType.REPLY);
+            stmt.setBoolean(4, comment.getEventType() == EventType.REPLY);
             stmt.setLong(5, comment.getReferenceId());
             stmt.setTimestamp(6, new Timestamp(comment.getCommentTime()));
 
@@ -614,20 +579,23 @@ final class DatabaseBackedDataStore implements DataStore {
         catch (SQLException e) { e.printStackTrace(); }
     }
 
+
     @Override
-    public void persistAddNotification(String parentName, Comment comment) {
+    public void persistAddNotification(String parentName, NotifiableEvent event) {
         // Set up query for inserting a new notification into the table
-        String query = "INSERT INTO "+NOTIFICATIONS_TABLE+"("+COMMENTS_ID+","+REFERENCE_ID+","
-                +PARENTNAME+","+USERNAME+","+COMMENT_TYPE+") values(?, ?, ?, ?, ?)";
+        String query = "INSERT INTO "+NOTIFICATIONS_TABLE+"("+NOTIFICATIONS_ID+","+CONTENT_ID+","
+                +PARENTNAME+","+USERNAME+","+CONTENT_TYPE+") values(?, ?, ?, ?, ?)";
 
         // Persist notification
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
+
+
             // Insert notification info into prepared statement
-            stmt.setLong(1, comment.getId());
-            stmt.setLong(2, comment.getReferenceId());
+            stmt.setLong(1, CURRENT_ID++);
+            stmt.setLong(2, event.getContentID());
             stmt.setString(3, parentName);
-            stmt.setString(4, comment.getAuthor());
-            stmt.setBoolean(5, comment.getCommentType() == CommentType.REPLY);
+            stmt.setString(4, event.getParentName());
+            stmt.setString(5, encodeCommentTypeToString(event.getEventType()));
 
             // Persist data
             stmt.executeUpdate();
@@ -639,7 +607,7 @@ final class DatabaseBackedDataStore implements DataStore {
     @Override
     public void persistRemoveNotification(String user, long id) {
         // Update query overwriting the comment's text
-        String query = "DELETE FROM "+NOTIFICATIONS_TABLE+" WHERE "+PARENTNAME+" = ? AND "+COMMENTS_ID+" = ?";
+        String query = "DELETE FROM "+NOTIFICATIONS_TABLE+" WHERE "+PARENTNAME+" = ? AND "+CONTENT_ID+" = ?";
 
         // Execute query
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -649,6 +617,71 @@ final class DatabaseBackedDataStore implements DataStore {
             stmt.close();
         }
         catch (SQLException e) {e.printStackTrace();}
+    }
+
+    @Override
+    public List<Notification> getNotifications(String user) {
+        // Set up query
+        String query = "SELECT * FROM "+NOTIFICATIONS_TABLE+" WHERE "+PARENTNAME+" = ?";
+        List<Notification> notifications = new ArrayList<>();
+
+
+        // Get notifications
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            // Execute query on database
+            stmt.setString(1, user);
+            ResultSet rs = stmt.executeQuery();
+
+
+            // Iterate through result set, constructing PHOTO Objects
+            while (rs.next()) {
+                // Get info
+
+
+                long commentId = rs.getLong(2);
+                String notifiedUser = rs.getString(3);
+                String commentPostedBy = rs.getString(4);
+
+                // Get Type
+                String stored_type = rs.getString(5);
+                EventType type = decodeCommentTypeFromString(stored_type);
+
+                // Create notification
+                notifications.add(new Notification(commentId, commentPostedBy, notifiedUser, type));
+            }
+            stmt.close();
+        }
+        catch (SQLException e) { e.printStackTrace(); }
+
+        return notifications;
+    }
+
+    private EventType decodeCommentTypeFromString(String commentType){
+
+        switch (commentType){
+            case "follow":
+                return EventType.FOLLOW;
+            case "reply":
+                return EventType.REPLY;
+            case "photo_comment":
+                return EventType.PHOTO_COMMENT;
+            default:
+                return null;
+        }
+    }
+
+    private String encodeCommentTypeToString(EventType commentType){
+
+        switch (commentType){
+            case FOLLOW:
+                return "follow";
+            case REPLY:
+                return "reply";
+            case PHOTO_COMMENT:
+                return "photo_comment";
+            default:
+                return null;
+        }
     }
 
     @Override

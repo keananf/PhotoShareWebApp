@@ -9,8 +9,8 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static server.objects.CommentType.PHOTO_COMMENT;
-import static server.objects.CommentType.REPLY;
+import static server.objects.EventType.PHOTO_COMMENT;
+import static server.objects.EventType.REPLY;
 
 /**
  * Tests demonstrating behaviour of APIs when presented with

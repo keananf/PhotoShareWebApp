@@ -96,7 +96,7 @@ public final class RequestResolver {
      * @throws UnauthorisedException if invalid password presented
      * @throws InvalidResourceRequestException if invalid user presented
      */
-    public User loginUser(String username, String password)
+    public LoginResult loginUser(String username, String password)
             throws UnauthorisedException, InvalidResourceRequestException {
         // Ensure user exists
         User user = getUser(username);
@@ -106,7 +106,7 @@ public final class RequestResolver {
         if(!user.getPassword().equals(Auth.hashAndEncodeBase64(password))) throw new UnauthorisedException();
 
         // Return user information to client
-        return user;
+        return new LoginResult(user.getUsername(), user.getPassword(), user.isAdmin());
     }
 
     /**

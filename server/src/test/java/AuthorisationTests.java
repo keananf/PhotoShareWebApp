@@ -1,10 +1,12 @@
 import org.junit.Test;
 import server.datastore.exceptions.InvalidResourceRequestException;
+import server.objects.LoginResult;
 import server.objects.User;
 
 import javax.ws.rs.core.Response;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static server.objects.CommentType.PHOTO_COMMENT;
 import static server.objects.CommentType.REPLY;
 
@@ -18,9 +20,14 @@ public class AuthorisationTests extends TestUtility {
         // Add sample user
         addUser(username);
 
-        // Attempt to log the user in. Analyse the response and parse for the session info
+        // Attempt to log the user in.
         Response response = apiClient.loginUser(username, pw);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        // Check result
+        LoginResult res = gson.fromJson(response.readEntity(String.class), LoginResult.class);
+        assertEquals(username, res.getUsername());
+        assertTrue(res.isAdmin());
     }
 
     @Test

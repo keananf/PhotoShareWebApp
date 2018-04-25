@@ -5,6 +5,7 @@ import server.Resources;
 import server.datastore.exceptions.ExistingException;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.datastore.exceptions.UnauthorisedException;
+import server.objects.LoginResult;
 import server.objects.Photo;
 import server.objects.User;
 import server.requests.AddOrLoginUserRequest;
@@ -16,9 +17,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-import static server.Resources.PHOTOS_PATH;
-import static server.Resources.USERS_FOLLOWERS_PATH;
-import static server.Resources.USERS_FOLLOWING_PATH;
+import static server.Resources.*;
 import static server.ServerMain.RESOLVER;
 
 /**
@@ -94,7 +93,7 @@ public final class UsersAPI {
 
         try {
             // Process request
-            User user = RESOLVER.loginUser(request.getUsername(), request.getPassword());
+            LoginResult user = RESOLVER.loginUser(request.getUsername(), request.getPassword());
 
             // Serialise the user info.
             return Response.ok(gson.toJson(user)).build();

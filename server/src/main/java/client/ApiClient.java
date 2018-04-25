@@ -46,7 +46,7 @@ public final class ApiClient {
      */
     public Response addUser(String user, String password) {
         // Convert the user into JSON
-        String userJson = gson.toJson(new AddUserRequest(user, Auth.hashAndEncodeBase64(password)));
+        String userJson = gson.toJson(new AddOrLoginUserRequest(user, password));
 
         // POST jsonUser to the resource for adding users.
         return connector.post(baseTarget, ADD_USER_PATH, userJson);
@@ -62,18 +62,18 @@ public final class ApiClient {
      * @return the response of the request.
      */
     public Response loginUser(String user, String password) {
-        // Send the auth information to the log-in API.
-        connector.setUserAndPw(user, Auth.hashAndEncodeBase64(password));
-        Response response = connector.get(baseTarget, LOGIN_USER_PATH);
+
+        // Convert the user into JSON
+        String userJson = gson.toJson(new AddOrLoginUserRequest(user, password));
+
+        // POST to the resource for adding users.
+        Response response = connector.post(baseTarget, LOGIN_USER_PATH, userJson);
 
         // Register user to this client if log-in was successful
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
             this.password = Auth.hashAndEncodeBase64(password);
             this.user = user;
-        }
-        else {
-            // Unset the entered username and password if the request failed
-            connector.setUserAndPw("", "");
+            connector.setUserAndPw(this.user, this.password);
         }
 
         // Return response

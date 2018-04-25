@@ -565,7 +565,7 @@ PhotoShare RESTful API specification
       ```
       {
           "username": string,
-          "password": int
+          "password": string 
       }
       
     * **Success Response:**
@@ -583,6 +583,14 @@ PhotoShare RESTful API specification
     * **Method:** `POST`
   
     * **URL Parameters:** `None`
+    
+    * **Body Parameters**
+    
+      ```
+      {
+          "username": string,
+          "password": string 
+      }
       
     * **Success Response:**
     
@@ -591,6 +599,7 @@ PhotoShare RESTful API specification
       ```
       {
         "username": string,
+        "password": string (base64-encoded of hashed password)
         "admin": boolean
       }
       ```

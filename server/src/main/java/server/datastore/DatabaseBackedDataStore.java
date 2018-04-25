@@ -397,16 +397,16 @@ final class DatabaseBackedDataStore implements DataStore {
     }
 
     @Override
-    public void persistAddUser(User user) {
+    public void persistAddUser(String username, String password, boolean admin) {
         // Set up query for inserting a new user into the table
         String query = "INSERT INTO "+USERS_TABLE+"("+USERNAME+","+PASSWORD+","+USERS_ADMIN+") values(?, ?, ?)";
 
         // Persist the user
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             // Insert user info into prepared statement
-            stmt.setString(1, user.getUsername());
-            stmt.setString(2, user.getPassword());
-            stmt.setBoolean(3, user.isAdmin());
+            stmt.setString(1, username);
+            stmt.setString(2, password);
+            stmt.setBoolean(3, admin);
 
             stmt.executeUpdate();
             stmt.close();

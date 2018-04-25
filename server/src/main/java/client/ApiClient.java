@@ -46,7 +46,7 @@ public final class ApiClient {
      */
     public Response addUser(String user, String password) {
         // Convert the user into JSON
-        String userJson = gson.toJson(new AddOrLoginUserRequest(user, Auth.hashAndEncodeBase64(password)));
+        String userJson = gson.toJson(new AddOrLoginUserRequest(user, password));
 
         // POST jsonUser to the resource for adding users.
         return connector.post(baseTarget, ADD_USER_PATH, userJson);
@@ -64,7 +64,7 @@ public final class ApiClient {
     public Response loginUser(String user, String password) {
 
         // Convert the user into JSON
-        String userJson = gson.toJson(new AddOrLoginUserRequest(user, Auth.hashAndEncodeBase64(password)));
+        String userJson = gson.toJson(new AddOrLoginUserRequest(user, password));
 
         // POST to the resource for adding users.
         Response response = connector.post(baseTarget, LOGIN_USER_PATH, userJson);

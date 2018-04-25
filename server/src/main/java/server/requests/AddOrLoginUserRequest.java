@@ -13,7 +13,7 @@ public class AddOrLoginUserRequest {
     }
 
     /**
-     * @return the pw hashed and encoded as a base64 string
+     * @return the plaintext password
      */
     public String getPassword() {
         return password;

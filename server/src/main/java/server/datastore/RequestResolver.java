@@ -70,7 +70,7 @@ public final class RequestResolver {
      * Adds a new user to the data store
      *
      * @param username the user who sent the request
-     * @param password a sent password
+     * @param password the sent plaintext password
      * @throws ExistingException if the user already exists
      */
     public void addUser(String username, String password) throws ExistingException {
@@ -85,14 +85,14 @@ public final class RequestResolver {
         // If first user to be added, make user admin by default.
         boolean admin = (getUsers().size() == 0);
 
-        // Persist user
-        dataStore.persistAddUser(username, password, admin);
+        // Persist user with hashed and encoded password
+        dataStore.persistAddUser(username, Auth.hashAndEncodeBase64(password), admin);
     }
 
     /**
      * Logs in the provided auth
      * @param username the user who sent the request
-     * @param password the sent hashed password
+     * @param password the sent plaintext password
      * @throws UnauthorisedException if invalid password presented
      * @throws InvalidResourceRequestException if invalid user presented
      */
@@ -103,7 +103,7 @@ public final class RequestResolver {
 
         // Check the stored, hashed password with the hash of the sent password.
         // If they don't match, then the request is unauthorised.
-        if(!user.getPassword().equals(password)) throw new UnauthorisedException();
+        if(!user.getPassword().equals(Auth.hashAndEncodeBase64(password))) throw new UnauthorisedException();
 
         // Return user information to client
         return user;

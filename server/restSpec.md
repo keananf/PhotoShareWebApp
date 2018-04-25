@@ -645,6 +645,38 @@ PhotoShare RESTful API specification
       or
     
       * **Code:** 401 Unauthorized <br />
+      
+* `/users/search?name={username}`
+
+    * **Summary:** Search users on the system
+
+    * **Method:** `GET`
+  
+    * **URL Parameters:**
+      
+      * username: `Search on user's unique username (as a string)`
+      
+    * **Success Response:**
+    
+      * **Code:** 200 OK <br />
+      **Content:**
+      ``` 
+      [
+          {
+              "username": string, 
+              "admin": boolean
+          },
+          ...
+      ]
+      ```
+    * **Error Response:**
+    
+      * **Code:** 400 Bad Request <br />
+    
+      or
+    
+      * **Code:** 401 Unauthorized <br />
+    
         
 * `/users/{username}/photos`
 

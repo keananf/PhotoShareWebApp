@@ -16,9 +16,7 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.*;
 import static server.objects.CommentType.PHOTO_COMMENT;
 import static server.objects.CommentType.REPLY;
-import static org.junit.Assert.*;
-import static server.objects.EventType.PHOTO_COMMENT;
-import static server.objects.EventType.REPLY;
+
 
 /**
  * Tests Server behaviour in response to RESTful API calls
@@ -1251,29 +1249,6 @@ public final class ServerTests extends TestUtility {
         assertEquals(0, comments.length);
     }
 
-    @Test
-    public void getPhotoFollowNotificationTest() throws InvalidResourceRequestException {
-        // Add sample user and register it
-        loginAndSetupNewUser(username);
-
-        // Add user to be a follower of sample
-        String userFollowing = "userFollowing";
-        loginAndSetupNewUser(userFollowing);
-
-        // Send a follow request to sample user
-        Response response = apiClient.followUser(username);
-
-        // Check notifications for user
-        apiClient.loginUser(username, pw);
-        Response notificationsResponse = apiClient.getNotifications();
-        assertEquals(Response.Status.OK.getStatusCode(), notificationsResponse.getStatus());
-
-        // Parse notifications, and assert one was generated for the new comment on the photo
-        Notification[] notifications = gson.fromJson(notificationsResponse.readEntity(String.class),
-                Notification[].class);
-        assertEquals(1, notifications.length);
-
-    }
 
 
     @Test
@@ -1563,57 +1538,7 @@ public final class ServerTests extends TestUtility {
         assertEquals(gson.fromJson(users, User[].class).length, 2);
     }
 
-    @Test
-    public void notificationAddedForFollowTest() {
-        // Add sample user and register it
-        loginAndSetupNewUser(username);
 
-        // Set up users who are following our sample user
-        String userFollowingOne = "user_following_one";
-        loginAndSetupNewUser(userFollowingOne);
-        apiClient.followUser(username);
-
-        // Log back into the sample user
-        apiClient.loginUser(username, pw);
-
-
-        // Get followers, and ensure it was successful
-        Response response = apiClient.getNotifications();
-        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-
-        // Parse JSON
-        String notifications = response.readEntity(String.class);
-
-        assertEquals(gson.fromJson(notifications, Notification[].class).length, 1);
-    }
-
-    @Test
-    public void notificationAddedForTwoFollowTest() {
-        // Add sample user and register it
-        loginAndSetupNewUser(username);
-
-        // Set up users who are following our sample user
-        String userFollowingOne = "user_following_one";
-        loginAndSetupNewUser(userFollowingOne);
-        apiClient.followUser(username);
-
-        String userFollowingTwo = "user_following_two";
-        loginAndSetupNewUser(userFollowingTwo);
-        apiClient.followUser(username);
-
-        // Log back into the sample user
-        apiClient.loginUser(username, pw);
-
-
-        // Get followers, and ensure it was successful
-        Response response = apiClient.getNotifications();
-        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-
-        // Parse JSON
-        String notifications = response.readEntity(String.class);
-
-        assertEquals(gson.fromJson(notifications, Notification[].class).length, 2);
-    }
 
     @Test
     public void emptyUsersNameSearchTest() {

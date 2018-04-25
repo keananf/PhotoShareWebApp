@@ -345,7 +345,7 @@ public final class RequestResolver {
      */
     public Receipt addComment(String user, AddCommentRequest request) throws InvalidResourceRequestException {
         // Check comment type
-        if(request.getEventType().equals(EventType.REPLY)) {
+        if(request.getCommentType().equals(CommentType.REPLY)) {
             // Retrieve the parent comment and check it exists
             // (exception will be thrown, if not).
             getComment(request.getReferenceId());
@@ -398,7 +398,7 @@ public final class RequestResolver {
         String parentName = "";
 
         // Get parent reference based on comment type
-        if(comment.getEventType().equals(EventType.REPLY)) {
+        if(comment.getCommentType().equals(CommentType.REPLY)) {
             parentName = getComment(comment.getReferenceId()).getAuthor();
         }
         else {
@@ -537,11 +537,6 @@ public final class RequestResolver {
         dataStore.persistFollowing(userFrom, userTo);
 
         Random rand = new Random();
-        int  n = rand.nextInt(50) + 1;
-
-        Follow follow = new Follow(userFrom, userTo, n, n + 10);
-
-        dataStore.persistAddNotification(userTo, follow);
 
     }
 

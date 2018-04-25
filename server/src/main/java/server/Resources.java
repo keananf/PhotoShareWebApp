@@ -27,6 +27,7 @@ public abstract class Resources {
     public static final String FOLLOW_USERS_PATH = USERS_PATH + FOLLOW;
     public static final String SEARCH = "/search";
     public static final String NAME_FIELD = "?name";
+    public static final String NAME_PARAM = "name";
     public static final String ADD_USER_PATH = USERS_PATH + ADD_USER;
     public static final String LOGIN_USER_PATH = USERS_PATH + LOGIN_USER;
     public static final String USERS_FOLLOWING_PATH = USERS_PATH + FOLLOWING;

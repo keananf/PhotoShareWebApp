@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 /**
  * Class representing a comment on either a photo / another comment
  */
-public class Comment implements NotifiableEvent{
+public class Comment {
     private final String author;
     private final long commentTime;
     private String commentContents;
@@ -18,11 +18,11 @@ public class Comment implements NotifiableEvent{
     // Indicates if this is a reply or not
     // as well as notes the id of the 'parent' photo or comment
     private final long referenceId;
-    private final EventType eventType;
+    private final CommentType commentType;
 
     private HashMap<String, Boolean> votes;
 
-    public Comment(long id, String author, String commentContents, long referenceId, EventType eventType,
+    public Comment(long id, String author, String commentContents, long referenceId, CommentType commentType,
                    HashMap<String, Boolean> commentVotes, long time) {
         // Comment information
         this.author = author;
@@ -33,12 +33,12 @@ public class Comment implements NotifiableEvent{
 
         // Reference information
         this.referenceId = referenceId;
-        this.eventType = eventType;
+        this.commentType = commentType;
     }
 
     public Comment(long id, String author, AddCommentRequest request) {
         this(id, author, request.getCommentContents(), request.getReferenceId(),
-                request.getEventType(), new HashMap<>(), System.nanoTime());
+                request.getCommentType(), new HashMap<>(), System.nanoTime());
     }
 
     /**
@@ -72,25 +72,18 @@ public class Comment implements NotifiableEvent{
     /**
      * @return the id of the photo / comment this is commenting on / replying to.
      */
-    @Override
     public long getReferenceId() {
 
         return referenceId;
     }
 
-    @Override
-    public long getContentID() {
-        return id;
-    }
-
     /**
      * @return the commentType of comment (photo comment or reply)
      */
-    public EventType getEventType() {
-        return eventType;
+    public CommentType getCommentType() {
+        return commentType;
     }
 
-    @Override
     public String getParentName() {
         return author;
     }

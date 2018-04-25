@@ -14,7 +14,7 @@ public final class Notification {
 
     // The type of comment this is. This indicates to the client whether or not
     // the reference id is in reference to a photo or a comment by the given user.
-    private final EventType eventType;
+    private final CommentType commentType;
 
     // Who posted the comment and who is receiving the notification
     private final String commentAuthor;
@@ -23,18 +23,18 @@ public final class Notification {
     public Notification(Comment comment, String notifiedUser) {
         this.referenceId = comment.getReferenceId();
         this.commentId = comment.getId();
-        this.eventType = comment.getEventType();
+        this.commentType = comment.getCommentType();
         this.commentAuthor = comment.getAuthor();
         this.notifiedUser = notifiedUser;
     }
 
     public Notification(long commentId, long referenceId, String notifiedUser,
-                        String commentAuthor, EventType type) {
+                        String commentAuthor, CommentType type) {
         this.commentId = commentId;
         this.referenceId = referenceId;
         this.notifiedUser = notifiedUser;
         this.commentAuthor = commentAuthor;
-        eventType = type;
+        commentType = type;
     }
 
     /**
@@ -63,8 +63,8 @@ public final class Notification {
      * the reference id is in reference to a photo or a comment by the given user.
      * @return the type of comment
      */
-    public EventType getCommentType() {
-        return eventType;
+    public CommentType getCommentType() {
+        return commentType;
     }
 
     /**

@@ -370,6 +370,11 @@ public final class ApiClient {
         return connector.get(baseTarget, path);
     }
 
+    public Response getUserWithNameBegining(String name) {
+        // Encode request  and POST
+
+        return connector.getWithQuery(baseTarget, USERS_SEARCH_BAR_PATH, NAME_PARAM, name);
+    }
 
     /**
      * Resets the logged-in user

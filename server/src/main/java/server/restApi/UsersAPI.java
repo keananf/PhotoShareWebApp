@@ -264,25 +264,27 @@ public final class UsersAPI {
 
     }
 
-    @POST
-    @Path("search")
-    public Response bar(@QueryParam("name") String value, String json) {
+    @GET
+    @Path(SEARCH)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response bar(@QueryParam(NAME_PARAM) String value, String json, @Context HttpHeaders headers) {
 
-        // Parse message as a Auth object
-        AuthRequest auth = gson.fromJson(json, AuthRequest.class);
+        // Retrieve provided auth info
+        String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+        String sender = authHeader[0], apiKey = authHeader[1];
+        String date = headers.getHeaderString(HttpHeaders.DATE);
 
 
         try {
             // Process request
-            String path = String.format("%s=%s", USERS_SEARCH_BAR_ON_NAME_PATH , value);
-            RESOLVER.verifyAuth(path, auth.getAuth());
+            String path = String.format("%s?%s=%s", USERS_SEARCH_BAR_PATH, NAME_PARAM , value);
+            RESOLVER.verifyAuth(path, sender, apiKey, date);
 
             List<User> users = RESOLVER.getUsersWithName(value);
 
             return Response.ok(gson.toJson(users)).build();
 
         } catch (UnauthorisedException e) {
-            System.out.println("Unauthorised");
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
     }

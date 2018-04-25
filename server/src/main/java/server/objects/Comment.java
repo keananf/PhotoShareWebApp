@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 /**
  * Class representing a comment on either a photo / another comment
  */
-public class Comment {
+public class Comment implements NotifiableEvent{
     private final String author;
     private final long commentTime;
     private String commentContents;
@@ -18,11 +18,11 @@ public class Comment {
     // Indicates if this is a reply or not
     // as well as notes the id of the 'parent' photo or comment
     private final long referenceId;
-    private final CommentType commentType;
+    private final EventType eventType;
 
     private HashMap<String, Boolean> votes;
 
-    public Comment(long id, String author, String commentContents, long referenceId, CommentType commentType,
+    public Comment(long id, String author, String commentContents, long referenceId, EventType eventType,
                    HashMap<String, Boolean> commentVotes, long time) {
         // Comment information
         this.author = author;
@@ -33,12 +33,12 @@ public class Comment {
 
         // Reference information
         this.referenceId = referenceId;
-        this.commentType = commentType;
+        this.eventType = eventType;
     }
 
     public Comment(long id, String author, AddCommentRequest request) {
         this(id, author, request.getCommentContents(), request.getReferenceId(),
-                request.getCommentType(), new HashMap<>(), System.nanoTime());
+                request.getEventType(), new HashMap<>(), System.nanoTime());
     }
 
     /**
@@ -72,15 +72,27 @@ public class Comment {
     /**
      * @return the id of the photo / comment this is commenting on / replying to.
      */
+
     public long getReferenceId() {
+
         return referenceId;
+    }
+
+    @Override
+    public long getContentID() {
+        return id;
     }
 
     /**
      * @return the commentType of comment (photo comment or reply)
      */
-    public CommentType getCommentType() {
-        return commentType;
+    public EventType getEventType() {
+        return eventType;
+    }
+
+    @Override
+    public String getParentName() {
+        return author;
     }
 
     /**

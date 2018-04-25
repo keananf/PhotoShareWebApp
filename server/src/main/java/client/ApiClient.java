@@ -3,7 +3,7 @@ package client;
 import com.google.gson.Gson;
 import server.Auth;
 import server.Resources;
-import server.objects.CommentType;
+import server.objects.EventType;
 import server.requests.*;
 
 import javax.ws.rs.client.Client;
@@ -103,6 +103,7 @@ public final class ApiClient {
      *
      * @param albumName the album's name
      * @param description the album's description
+     * @param user     the author of the album
      * @return the response of the request.
      */
     public Response addAlbum(String albumName, String description) {
@@ -303,7 +304,7 @@ public final class ApiClient {
      * @param commentContent the comment contents
      * @return the response of the request
      */
-    public Response addComment(long id, CommentType type, String commentContent) {
+    public Response addComment(long id, EventType type, String commentContent) {
         // Construct request
         AddCommentRequest request = new AddCommentRequest(commentContent, id, type);
 

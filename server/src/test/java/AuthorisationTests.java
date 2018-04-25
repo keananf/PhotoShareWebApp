@@ -1,3 +1,4 @@
+import server.objects.*;
 import org.junit.Test;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.objects.LoginResult;
@@ -7,8 +8,9 @@ import javax.ws.rs.core.Response;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static server.objects.CommentType.PHOTO_COMMENT;
-import static server.objects.CommentType.REPLY;
+import static server.objects.EventType.PHOTO_COMMENT;
+import static server.objects.EventType.REPLY;
+
 
 /**
  * Tests checking unauthorised use of APIs

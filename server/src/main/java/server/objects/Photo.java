@@ -16,15 +16,17 @@ public final class Photo {
     private final String photoName;
     private final long photoTime;
     private final long id, albumId;
+    private final String description;
 
     private HashMap<String, Boolean> votes;
 
     public Photo(String photoContents, String authorName, String photoName, long id, long albumId,
-                 HashMap<String, Boolean> photoRatings, long photoTime) {
+                 HashMap<String, Boolean> photoRatings, long photoTime, String description) {
         this.photoContents = photoContents;
         this.authorName = authorName;
         this.photoName = photoName;
         this.photoTime = photoTime;
+        this.description = description;
 
         this.albumId = albumId;
         this.id = id;
@@ -33,7 +35,7 @@ public final class Photo {
 
     public Photo(long id, String author, UploadPhotoRequest request) {
         this(request.getEncodedPhotoContents(),author, request.getPhotoName(), id, request.getAlbumId(),
-                new HashMap<>(), System.nanoTime());
+                new HashMap<>(), System.nanoTime(), request.getDescription());
     }
 
     /**
@@ -96,4 +98,9 @@ public final class Photo {
         return votes.entrySet().stream().filter(kv -> !kv.getValue())
                 .map(kv -> kv.getKey()).collect(Collectors.toList());
     }
+
+    /**
+     * @return the description of this photo
+     */
+    public String getDescription() { return description; }
 }

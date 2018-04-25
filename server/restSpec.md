@@ -140,7 +140,8 @@ PhotoShare RESTful API specification
       {
           "photoName": string,
           "albumId": long,
-          "encodedPhotoContents": string
+          "encodedPhotoContents": string,
+          "description": string
       }
       
     * **Success Response:**
@@ -177,7 +178,8 @@ PhotoShare RESTful API specification
                 "authorName": string,
                 "albumId": long,                 
                 "photoContents": (base64) string,
-                "photoTime": long 
+                "photoTime": long,
+                "description": string 
             },
             ...
         ]
@@ -210,7 +212,8 @@ PhotoShare RESTful API specification
             "authorName": string,
             "albumId": long,                 
             "photoContents": (base64) string,
-            "photoTime": long 
+            "photoTime": long,
+            "description": string
         }
      
     * **Error Response:**
@@ -629,7 +632,8 @@ PhotoShare RESTful API specification
                 "authorName": string,
                 "albumId": long,                 
                 "photoContents": (base64) string,
-                "photoTime": long 
+                "photoTime": long,
+                "description": string
             },
             ...
         ]

@@ -151,9 +151,9 @@ interface DataStore {
      * Internally used. Adds a notification on the photo / comment which the given comment
      * commented on
      * @param parentName the name of the user who posted the original photo / comment
-     * @param comment the new comment
+     * @param event the event to be the subject of the notification
      */
-    void persistAddNotification(String parentName, NotifiableEvent comment);
+    void persistAddNotification(String parentName, NotifiableEvent event);
 
     /**
      * Removes the given notification, if it exists

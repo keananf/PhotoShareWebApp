@@ -36,6 +36,6 @@ public class AddCommentRequest {
      * @return whether this is a reply or a comment
      */
     public EventType getEventType() {
-        return commentType;
+        return eventType;
     }
 }

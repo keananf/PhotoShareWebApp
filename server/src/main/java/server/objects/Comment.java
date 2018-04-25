@@ -72,7 +72,7 @@ public class Comment implements NotifiableEvent{
     /**
      * @return the id of the photo / comment this is commenting on / replying to.
      */
-    @Override
+
     public long getReferenceId() {
 
         return referenceId;

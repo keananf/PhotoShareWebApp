@@ -19,11 +19,12 @@ import static server.datastore.DatabaseResources.USER_TO;
  * DataStore implemented in terms of a H2 database
  */
 final class DatabaseBackedDataStore implements DataStore {
-    private static final String db_url = "jdbc:h2:./database0";
+    private static final String db_url = "jdbc:h2:./database";
     private static final String DB_CONFIG = "src/main/resources/db_config.txt";
     private static String uname;
     private static String pw;
     private Connection conn;
+    private int CURRENT_ID = 0;
 
     // Before anything else, read in the username and password for accessing the database
     static {
@@ -497,7 +498,7 @@ final class DatabaseBackedDataStore implements DataStore {
                 Timestamp timestamp = rs.getTimestamp(5);
 
                 // Create comment and retrieve upvotes / downvotes
-                Comment comm = new Comment(id, username, contents, referenceId, CommentType.REPLY,
+                Comment comm = new Comment(id, username, contents, referenceId, EventType.REPLY,
                         getCommentVotes(id), timestamp.getTime());
                 comments.add(comm);
             }
@@ -551,26 +552,23 @@ final class DatabaseBackedDataStore implements DataStore {
         catch (SQLException e) { e.printStackTrace(); }
     }
 
-    int  n = 0;
 
     @Override
     public void persistAddNotification(String parentName, NotifiableEvent event) {
         // Set up query for inserting a new notification into the table
-        String query = "INSERT INTO "+NOTIFICATIONS_TABLE+"("+NOTIFICATIONS_ID+","+CONTENT_ID+","+REFERENCE_ID+","
-                +PARENTNAME+","+USERNAME+","+CONTENT_TYPE+") values(?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO "+NOTIFICATIONS_TABLE+"("+NOTIFICATIONS_ID+","+CONTENT_ID+","
+                +PARENTNAME+","+USERNAME+","+CONTENT_TYPE+") values(?, ?, ?, ?, ?)";
 
         // Persist notification
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
 
 
-
             // Insert notification info into prepared statement
-            stmt.setLong(1, n++);
+            stmt.setLong(1, CURRENT_ID++);
             stmt.setLong(2, event.getContentID());
-            stmt.setLong(3, event.getReferenceId());
-            stmt.setString(4, parentName);
-            stmt.setString(5, event.getParentName());
-            stmt.setString(6, encodeCommentTypeToString(event.getEventType()));
+            stmt.setString(3, parentName);
+            stmt.setString(4, event.getParentName());
+            stmt.setString(5, encodeCommentTypeToString(event.getEventType()));
 
             // Persist data
             stmt.executeUpdate();
@@ -614,16 +612,15 @@ final class DatabaseBackedDataStore implements DataStore {
 
 
                 long commentId = rs.getLong(2);
-                long referenceId = rs.getLong(3);
-                String notifiedUser = rs.getString(4);
-                String commentPostedBy = rs.getString(5);
+                String notifiedUser = rs.getString(3);
+                String commentPostedBy = rs.getString(4);
 
                 // Get Type
-                String stored_type = rs.getString(6);
+                String stored_type = rs.getString(5);
                 EventType type = decodeCommentTypeFromString(stored_type);
 
                 // Create notification
-                notifications.add(new Notification(commentId, referenceId, notifiedUser, commentPostedBy, type));
+                notifications.add(new Notification(commentId, commentPostedBy, notifiedUser, type));
             }
             stmt.close();
         }

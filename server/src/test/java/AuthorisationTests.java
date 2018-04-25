@@ -6,14 +6,11 @@ import server.objects.User;
 
 import javax.ws.rs.core.Response;
 
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static server.objects.EventType.PHOTO_COMMENT;
-import static server.objects.Eveb.REPLY;
-import static server.objects.EventType.PHOTO_COMMENT;
 import static server.objects.EventType.REPLY;
+
 
 /**
  * Tests checking unauthorised use of APIs

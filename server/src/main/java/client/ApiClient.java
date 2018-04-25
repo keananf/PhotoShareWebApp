@@ -304,7 +304,7 @@ public final class ApiClient {
      * @param commentContent the comment contents
      * @return the response of the request
      */
-    public Response addComment(long id, CommentType type, String commentContent) {
+    public Response addComment(long id, EventType type, String commentContent) {
         // Construct request
         AddCommentRequest request = new AddCommentRequest(commentContent, id, type);
 

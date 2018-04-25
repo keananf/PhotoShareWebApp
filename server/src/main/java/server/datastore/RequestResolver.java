@@ -514,6 +514,8 @@ public final class RequestResolver {
     /**
      * Attempts tp a user to follow the person a user has specified
      *
+     * Will send notification to the followed user
+     *
      * @param userFrom - the username of the user from whom the follow request comes
      * @param userTo - the username of the person the user is trying to follow
      * @throws InvalidResourceRequestException
@@ -523,7 +525,7 @@ public final class RequestResolver {
     public void followUser(String userFrom, String userTo) throws InvalidResourceRequestException, ExistingException{
 
         // Check the user to follow exists
-        getUser(userTo);
+        User referenceUser = getUser(userTo);
 
         // Check the user is not already following the userToFollow
 
@@ -535,13 +537,9 @@ public final class RequestResolver {
 
         }
 
+        Follow follow = new Follow(userFrom, userTo, CURRENT_ID++);
+
         dataStore.persistFollowing(userFrom, userTo);
-
-        Random rand = new Random();
-        int  n = rand.nextInt(50000) + 1;
-
-        Follow follow = new Follow(userFrom, userTo, n, n + 10);
-
         dataStore.persistAddNotification(userTo, follow);
 
     }

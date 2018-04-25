@@ -525,7 +525,7 @@ public final class RequestResolver {
     public void followUser(String userFrom, String userTo) throws InvalidResourceRequestException, ExistingException{
 
         // Check the user to follow exists
-        User referenceUser = getUser(userTo);
+        getUser(userTo);
 
         // Check the user is not already following the userToFollow
 

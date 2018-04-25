@@ -2,8 +2,7 @@ package server.objects;
 
 /**
  * Class representing a single user
- * */
-
+ */
 public class User {
     private final String username;
     private boolean admin;

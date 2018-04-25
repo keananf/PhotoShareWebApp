@@ -103,9 +103,11 @@ interface DataStore {
     /**
      * Adds a new user to the data store
      *
-     * @param user the new user to add
+     * @param username the user who sent the request
+     * @param password the hashed, base64-encoded password
+     * @param admin whether or not this user is an admin.
      */
-    void persistAddUser(User user);
+    void persistAddUser(String username, String password, boolean admin);
 
     /**
      * Retrieves all comments a user has made.

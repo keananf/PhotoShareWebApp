@@ -1,7 +1,7 @@
 package client;
 
 import com.google.gson.Gson;
-import server.objects.Auth;
+import server.Auth;
 import server.Resources;
 import server.objects.EventType;
 import server.requests.*;
@@ -46,7 +46,7 @@ public final class ApiClient {
      */
     public Response addUser(String user, String password) {
         // Convert the user into JSON
-        String userJson = gson.toJson(new AddUserRequest(user, Auth.hashAndEncodeBase64(password)));
+        String userJson = gson.toJson(new AddOrLoginUserRequest(user, password));
 
         // POST jsonUser to the resource for adding users.
         return connector.post(baseTarget, ADD_USER_PATH, userJson);
@@ -62,18 +62,18 @@ public final class ApiClient {
      * @return the response of the request.
      */
     public Response loginUser(String user, String password) {
-        // Send the auth information to the log-in API.
-        connector.setUserAndPw(user, Auth.hashAndEncodeBase64(password));
-        Response response = connector.get(baseTarget, LOGIN_USER_PATH);
+
+        // Convert the user into JSON
+        String userJson = gson.toJson(new AddOrLoginUserRequest(user, password));
+
+        // POST to the resource for adding users.
+        Response response = connector.post(baseTarget, LOGIN_USER_PATH, userJson);
 
         // Register user to this client if log-in was successful
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
             this.password = Auth.hashAndEncodeBase64(password);
             this.user = user;
-        }
-        else {
-            // Unset the entered username and password if the request failed
-            connector.setUserAndPw("", "");
+            connector.setUserAndPw(this.user, this.password);
         }
 
         // Return response
@@ -103,6 +103,7 @@ public final class ApiClient {
      *
      * @param albumName the album's name
      * @param description the album's description
+     * @param user     the author of the album
      * @return the response of the request.
      */
     public Response addAlbum(String albumName, String description) {
@@ -121,9 +122,9 @@ public final class ApiClient {
      * @param photoContents the byte[] representing the photo's contents
      * @return the response of the request.
      */
-    public Response uploadPhoto(String photoName, long albumId, byte[] photoContents) {
+    public Response uploadPhoto(String photoName, long albumId, byte[] photoContents, String description) {
         // Construct request
-        UploadPhotoRequest request = new UploadPhotoRequest(photoName, photoContents, albumId);
+        UploadPhotoRequest request = new UploadPhotoRequest(photoName, photoContents, description, albumId);
 
         // Encode request and POST
         return connector.post(baseTarget, UPLOAD_PHOTO_PATH, gson.toJson(request));
@@ -225,7 +226,7 @@ public final class ApiClient {
      * @return the response of the request
      */
     public Response getAllPhotos(String name) {
-        String path = String.format("%s/%s", USERS_PATH, name) + PHOTOS_PATH;
+        String path = String.format(Resources.GET_USER_PHOTOS_PATH, name);
         return connector.get(baseTarget, path);
     }
 
@@ -303,7 +304,7 @@ public final class ApiClient {
      * @param commentContent the comment contents
      * @return the response of the request
      */
-    public Response addComment(long id, EventType type, String commentContent) {
+    public Response addComment(long id, CommentType type, String commentContent) {
         // Construct request
         AddCommentRequest request = new AddCommentRequest(commentContent, id, type);
 
@@ -339,7 +340,7 @@ public final class ApiClient {
      * @return the response of the request
      */
     public Response followUser(String name) {
-        String path = String.format("%s/%s", USERS_FOLLOWING_PATH, name);
+        String path = String.format("%s/%s", FOLLOW_USERS_PATH, name);
         return connector.put(baseTarget, path);
 
     }
@@ -351,7 +352,7 @@ public final class ApiClient {
      * @return the response of the request
      */
     public Response unfollowUser(String name) {
-        String path = String.format("%s/%s", USERS_FOLLOWING_PATH, name);
+        String path = String.format("%s/%s", UNFOLLOW_USERS_PATH, name);
         return connector.delete(baseTarget, path);
     }
 

@@ -10,12 +10,12 @@ public class AddCommentRequest {
 
     private final String commentContents;
     private final long referenceId;
-    private final EventType commentType;
+    private final EventType eventType;
 
-    public AddCommentRequest(String commentContents, long referenceId, EventType commentType) {
+    public AddCommentRequest(String commentContents, long referenceId, EventType eventType) {
         this.commentContents = commentContents;
         this.referenceId = referenceId;
-        this.commentType = commentType;
+        this.eventType = eventType;
     }
 
     /**

@@ -2,18 +2,13 @@ package server.restApi;
 
 import com.google.gson.Gson;
 import server.Resources;
-import server.objects.Album;
-import server.objects.Auth;
-import server.objects.Photo;
-import server.requests.AddUserRequest;
-import server.requests.AuthRequest;
-import server.datastore.exceptions.ExistingException;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.datastore.exceptions.UnauthorisedException;
-import server.objects.User;
-import server.requests.FollowUserRequest;
+import server.objects.Photo;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;

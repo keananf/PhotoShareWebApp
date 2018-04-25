@@ -5,6 +5,8 @@ PhotoShare RESTful API specification
 
 * `/albums/addalbum`
 
+    * **Summary:** Uploads the new album
+
     * **Method:** `POST`
   
     * **URL Parameters:** `None`
@@ -13,13 +15,6 @@ PhotoShare RESTful API specification
     
       ```
       {
-          "auth" : 
-          {
-            "apiKey" : string,
-            "time": long,
-            "user": string,
-            "password": int
-          },
           "albumName": string,
           "description": string, 
       }
@@ -36,37 +31,11 @@ PhotoShare RESTful API specification
       or
     
       * **Code:** 401 Unauthorized <br />
-    
-    * **Sample Call:**
-    
-      ```javascript
-        $.ajax(
-        {
-          url: "/albums/addalbum",
-          dataType: "json",
-          data :
-          {
-              {
-                "auth" : 
-                {
-                  "apiKey" : abc123,
-                  "time": 1524219966,
-                  "user": "sampleUserName",
-                  "password": 1
-                },
-                "albumName": "sampleAlbum",
-                "description": "description"
-            }
-          },
-          type : "POST",
-          success : function(r) 
-          {
-            console.log(r);
-          }
-        })
         
 * `/albums/updatedescription`
 
+    * **Summary:** Updates an album's description
+    
     * **Method:** `POST`
   
     * **URL Parameters:** `None`
@@ -75,13 +44,6 @@ PhotoShare RESTful API specification
     
       ```
       {
-          "auth" : 
-          {
-            "apiKey" : string,
-            "time": long,
-            "user": string,
-            "password": int
-          },
           "albumId": long,
           "description": string, 
       }
@@ -97,54 +59,15 @@ PhotoShare RESTful API specification
       or
     
       * **Code:** 401 Unauthorized <br />
-    
-    * **Sample Call:**
-    
-      ```javascript
-        $.ajax(
-        {
-          url: "/albums/updatedescription",
-          dataType: "json",
-          data :
-          {
-              {
-                "auth" : 
-                {
-                  "apiKey" : abc123,
-                  "time": 1524219966,
-                  "user": "sampleUserName",
-                  "password": 1
-                },
-                "albumId": 1,
-                "description": "new description"
-            }
-          },
-          type : "POST",
-          success : function(r) 
-          {
-            console.log(r);
-          }
-        });
         
 * `/albums/users/{user}`
 
-    * **Method:** `POST`
+    * **Summary:** Retrieves all albums belonging to the user
+
+    * **Method:** `GET`
   
     * **URL Parameters:** 
         * user: `refers to a valid username (as a string)`
-    
-    * **Body Parameters**
-    
-      ``` 
-      {
-          "auth" : 
-          {
-            "apiKey" : string,
-            "time": long,
-            "user": string,
-            "password": int
-          }
-      }
       
     * **Success Response:**
     
@@ -169,52 +92,15 @@ PhotoShare RESTful API specification
       or
     
       * **Code:** 401 Unauthorized <br />
-    
-    * **Sample Call:**
-    
-      ```javascript
-        $.ajax(
-        {
-          url: "/albums/users/sampleUserName",
-          dataType: "json",
-          data :
-          {
-              {
-                "auth" : 
-                {
-                  "apiKey" : abc123,
-                  "time": 1524219966,
-                  "user": "username1",
-                  "password": 1
-                }
-            }
-          },
-          type : "POST",
-          success : function(r) 
-          {
-            console.log(r);
-          }
-        });
         
-* `/albums/ids/{id}`
+* `/albums/{id}`
 
-    * **Method:** `POST`
+    * **Summary:** Retrieves the given album
+
+    * **Method:** `GET`
   
     * **URL Parameters:** 
         * id: `an album's unique id (as a long)`
-    
-    * **Body Parameters**
-    
-      ```
-      {
-          "auth" : 
-          {
-            "apiKey" : string,
-            "time": long,
-            "user": string,
-            "password": int
-          }
-      }
       
     * **Success Response:**
     
@@ -237,36 +123,12 @@ PhotoShare RESTful API specification
     
       * **Code:** 401 Unauthorized <br />
     
-    * **Sample Call:**
-    
-      ```javascript
-        $.ajax(
-        {
-          url: "/albums/ids/123456",
-          dataType: "json",
-          data :
-          {
-              {
-                "auth" : 
-                {
-                  "apiKey" : abc123,
-                  "time": 1524219966,
-                  "user": "username1",
-                  "password": 1
-                }
-            }
-          },
-          type : "POST",
-          success : function(r) 
-          {
-            console.log(r);
-          }
-        });
-
 ## Photo-related APIs
 
 
 * `/photos/upload`
+
+    * **Summary:** Uploads the given photo
 
     * **Method:** `POST`
   
@@ -276,16 +138,10 @@ PhotoShare RESTful API specification
     
       ```
       {
-          "auth" : 
-          {
-            "apiKey" : string,
-            "time": long,
-            "user": string,
-            "password": int
-          },
           "photoName": string,
           "albumId": long,
-          "encodedPhotoContents": string
+          "encodedPhotoContents": string,
+          "description": string
       }
       
     * **Success Response:**
@@ -300,55 +156,15 @@ PhotoShare RESTful API specification
       or
     
       * **Code:** 401 Unauthorized <br />
-    
-    * **Sample Call:**
-    
-      ```javascript
-        $.ajax(
-        {
-          url: "/photos/upload",
-          dataType: "json",
-          data :
-          {
-              {
-                "auth" : 
-                {
-                  "apiKey" : abc123,
-                  "time": 1524219966,
-                  "user": "username1",
-                  "password": 1
-                },
-               "photoName": "photo",
-               "albumId": 0,
-               "encodedPhotoContents": "CBwbGVhc3VyZS4 ... ="
-            }
-          },
-          type : "POST",
-          success : function(r) 
-          {
-            console.log(r);
-          }
-        });
 
 * `/photos/albums/{id}`
 
-    * **Method:** `POST`
+    * **Summary:** Retrieves all photos in the given album
+    
+    * **Method:** `GET`
   
     * **URL Parameters:** 
         * id: `an album's unique id (as a long)`
-    
-    * **Body Parameters**
-    
-      ```
-      {
-          "auth" : 
-          {
-            "apiKey" : string,
-            "time": long,
-            "user": string,
-            "password": int
-          }
-      }
       
     * **Success Response:**
     
@@ -362,7 +178,8 @@ PhotoShare RESTful API specification
                 "authorName": string,
                 "albumId": long,                 
                 "photoContents": (base64) string,
-                "photoTime": long 
+                "photoTime": long,
+                "description": string 
             },
             ...
         ]
@@ -374,124 +191,16 @@ PhotoShare RESTful API specification
       or
     
       * **Code:** 401 Unauthorized <br />
-    
-    * **Sample Call:**
-    
-      ```javascript
-        $.ajax(
-        {
-          url: "/photos/albums/123456",
-          dataType: "json",
-          data :
-          {
-              {
-                "auth" : 
-                {
-                  "apiKey" : abc123,
-                  "time": 1524219966,
-                  "user": "username1",
-                  "password": 1
-                }
-            }
-          },
-          type : "POST",
-          success : function(r) 
-          {
-            console.log(r);
-          }
-        });
-        
-* `/photos/users/{username}`
 
-    * **Method:** `POST`
-  
-    * **URL Parameters:** 
-        * username: `a user's unique username (as a string)`
-    
-    * **Body Parameters**
-    
-      ```
-      {
-          "auth" : 
-          {
-            "apiKey" : string,
-            "time": long,
-            "user": string,
-            "password": int
-          }
-      }
-      
-    * **Success Response:**
-    
-      * **Code:** 200 OK <br />
-        **Content:** 
-        ``` 
-        [
-            {
-                "id": long, 
-                "photoName": string,
-                "authorName": string,
-                "albumId": long,                 
-                "photoContents": (base64) string,
-                "photoTime": long 
-            },
-            ...
-        ]
-     
-    * **Error Response:**
-    
-      * **Code:** 400 Bad Request <br />
-    
-      or
-    
-      * **Code:** 401 Unauthorized <br />
-    
-    * **Sample Call:**
-    
-      ```javascript
-        $.ajax(
-        {
-          url: "/photos/users/123456",
-          dataType: "json",
-          data :
-          {
-              {
-                "auth" : 
-                {
-                  "apiKey" : abc123,
-                  "time": 1524219966,
-                  "user": "username1",
-                  "password": 1
-                }
-            }
-          },
-          type : "POST",
-          success : function(r) 
-          {
-            console.log(r);
-          }
-        });
+* `/photos/{id}`
 
-* `/photos/ids/{id}`
+    * **Summary:** Retrieves the given photo 
 
-    * **Method:** `POST`
+    * **Method:** `GET`
   
     * **URL Parameters:** 
         * id: `a photo's unique id (as a long)`
     
-    * **Body Parameters**
-    
-      ```
-      {
-          "auth" : 
-          {
-            "apiKey" : string,
-            "time": long,
-            "user": string,
-            "password": int
-          }
-      }
-      
     * **Success Response:**
     
       * **Code:** 200 OK <br />
@@ -503,7 +212,8 @@ PhotoShare RESTful API specification
             "authorName": string,
             "albumId": long,                 
             "photoContents": (base64) string,
-            "photoTime": long 
+            "photoTime": long,
+            "description": string
         }
      
     * **Error Response:**
@@ -513,53 +223,15 @@ PhotoShare RESTful API specification
       or
     
       * **Code:** 401 Unauthorized <br />
-    
-    * **Sample Call:**
-    
-      ```javascript
-        $.ajax(
-        {
-          url: "/photos/ids/123456",
-          dataType: "json",
-          data :
-          {
-              {
-                "auth" : 
-                {
-                  "apiKey" : abc123,
-                  "time": 1524219966,
-                  "user": "username1",
-                  "password": 1
-                }
-            }
-          },
-          type : "POST",
-          success : function(r) 
-          {
-            console.log(r);
-          }
-        });
-
-
+  
 * `/photos/upvote/{id}`
 
-    * **Method:** `POST`
+    * **Summary:** Up-votes the given photo
+
+    * **Method:** `PUT`
   
     * **URL Parameters:** 
         * id: `a photo's unique id (as a long)`
-    
-    * **Body Parameters**
-    
-      ```
-      {
-          "auth" : 
-          {
-            "apiKey" : string,
-            "time": long,
-            "user": string,
-            "password": int
-          }
-      }
       
     * **Success Response:**
     
@@ -572,153 +244,55 @@ PhotoShare RESTful API specification
       or
     
       * **Code:** 401 Unauthorized <br />
-    
-    * **Sample Call:**
-    
-      ```javascript
-        $.ajax(
-        {
-          url: "/photos/upvote/123456",
-          dataType: "json",
-          data :
-          {
-              {
-                "auth" : 
-                {
-                  "apiKey" : abc123,
-                  "time": 1524219966,
-                  "user": "username1",
-                  "password": 1
-                }
-            }
-          },
-          type : "POST",
-          success : function(r) 
-          {
-            console.log(r);
-          }
-        });
         
 * `/photos/downvote/{id}`
-           
-               * **Method:** `POST`
-             
-               * **URL Parameters:** 
-                   * id: `a photo's unique id (as a long)`
-               
-               * **Body Parameters**
-               
-                 ```
-                 {
-                     "auth" : 
-                     {
-                       "apiKey" : string,
-                       "time": long,
-                       "user": string,
-                       "password": int
-                     }
-                 }
-                 
-               * **Success Response:**
-               
-                 * **Code:** 204 No Content <br />
-                   
-               * **Error Response:**
-               
-                 * **Code:** 400 Bad Request <br />
-               
-                 or
-               
-                 * **Code:** 401 Unauthorized <br />
-               
-               * **Sample Call:**
-               
-                 ```javascript
-                   $.ajax(
-                   {
-                     url: "/photos/downvote/123456",
-                     dataType: "json",
-                     data :
-                     {
-                         {
-                           "auth" : 
-                           {
-                             "apiKey" : abc123,
-                             "time": 1524219966,
-                             "user": "username1",
-                             "password": 1
-                           }
-                       }
-                     },
-                     type : "POST",
-                     success : function(r) 
-                     {
-                       console.log(r);
-                     }
-                   });
+
+    * **Summary:** Down-votes the given photo
+
+    * **Method:** `PUT`
+  
+    * **URL Parameters:** 
+        * id: `a photo's unique id (as a long)`
+      
+    * **Success Response:**
+    
+      * **Code:** 204 No Content <br />
+        
+    * **Error Response:**
+    
+      * **Code:** 400 Bad Request <br />
+    
+      or
+    
+      * **Code:** 401 Unauthorized <br />
        
 * `/photos/delete/{id}`
-           
-               * **Method:** `POST`
-             
-               * **URL Parameters:** 
-                   * id: `a photo's unique id (as a long)`
-               
-               * **Body Parameters**
-               
-                 ```
-                 {
-                     "auth" : 
-                     {
-                       "apiKey" : string,
-                       "time": long,
-                       "user": string,
-                       "password": int
-                     }
-                 }
-                 
-               * **Success Response:**
-               
-                 * **Code:** 204 No Content <br />
-                   
-               * **Error Response:**
-               
-                 * **Code:** 400 Bad Request <br />
-               
-                 or
-               
-                 * **Code:** 401 Unauthorized <br />
-               
-               * **Sample Call:**
-               
-                 ```javascript
-                   $.ajax(
-                   {
-                     url: "/photos/delete/samplePhotoId",
-                     dataType: "json",
-                     data :
-                     {
-                         {
-                           "auth" : 
-                           {
-                             "apiKey" : abc123,
-                             "time": 1524219966,
-                             "user": "username1",
-                             "password": 1
-                           }
-                       }
-                     },
-                     type : "POST",
-                     success : function(r) 
-                     {
-                       console.log(r);
-                     }
-                   });       
+       
+    * **Summary:** Deletes the given photo, if it belongs to the sender
+
+    * **Method:** `DELETE`
+  
+    * **URL Parameters:** 
+        * id: `a photo's unique id (as a long)`
+      
+    * **Success Response:**
+    
+      * **Code:** 204 No Content <br />
+        
+    * **Error Response:**
+    
+      * **Code:** 400 Bad Request <br />
+    
+      or
+    
+      * **Code:** 401 Unauthorized <br />
 
 ## Comment-related APIs
 
 
 * `/comments/addcomment`
+
+    * **Summary:** Uploads a new comment
 
     * **Method:** `POST`
   
@@ -728,13 +302,6 @@ PhotoShare RESTful API specification
     
       ```
       {
-          "auth" : 
-          {
-            "apiKey" : string,
-            "time": long,
-            "user": string,
-            "password": int
-          },
           "commentContents": string,
           "referenceId": long,
           "commentType": string
@@ -752,38 +319,11 @@ PhotoShare RESTful API specification
       or
     
       * **Code:** 401 Unauthorized <br />
-    
-    * **Sample Call:**
-    
-      ```javascript
-        $.ajax(
-        {
-          url: "/comments/addcomment",
-          dataType: "json",
-          data :
-          {
-              {
-                "auth" : 
-                {
-                  "apiKey" : abc123,
-                  "time": 1524219966,
-                  "user": "username1",
-                  "password": 1
-                },
-               "commentContents": "comment",
-               "referenceId": 100,
-               "commentType": "REPLY"
-            }
-          },
-          type : "POST",
-          success : function(r) 
-          {
-            console.log(r);
-          }
-        });
 
 
 * `/comments/edit/{commentId}`
+
+    * **Summary:** Edits the given comment
 
     * **Method:** `POST`
   
@@ -794,13 +334,6 @@ PhotoShare RESTful API specification
     
       ``` 
       {
-          "auth" : 
-          {
-            "apiKey" : [alphanumeric],
-            "time": long,
-            "user": string,
-            "password": int
-          },
           "commentContents" : string
       }
       
@@ -815,53 +348,15 @@ PhotoShare RESTful API specification
       or
     
       * **Code:** 401 Unauthorized <br />
-    
-    * **Sample Call:**
-    
-      ```javascript
-        $.ajax(
-        {
-          url: "/comments/edit/sampleCommentId",
-          dataType: "json",
-          data :
-          {
-              {
-                "auth" : 
-                {
-                  "apiKey" : abc123,
-                  "time": 1000,
-                  "user": "username1",
-                  "password": 1
-                },
-                "commentContents": "new comment content here"
-            }
-          },
-          type : "POST",
-          success : function(r) 
-          {
-            console.log(r);
-          }
-        });
 
 * `/comments/photos/{id}`
 
-    * **Method:** `POST`
+    * **Summary:** Retrieves all comments on the given photo
+    
+    * **Method:** `GET`
   
     * **URL Parameters:** 
         * id: `a photo's unique id (as a long)`
-    
-    * **Body Parameters**
-    
-      ```
-      {
-          "auth" : 
-          {
-            "apiKey" : string,
-            "time": long,
-            "user": string,
-            "password": int
-          }
-      }
       
     * **Success Response:**
     
@@ -889,52 +384,15 @@ PhotoShare RESTful API specification
       or
     
       * **Code:** 401 Unauthorized <br />
-    
-    * **Sample Call:**
-    
-      ```javascript
-        $.ajax(
-        {
-          url: "/comments/photos/123456",
-          dataType: "json",
-          data :
-          {
-              {
-                "auth" : 
-                {
-                  "apiKey" : abc123,
-                  "time": 1524219966,
-                  "user": "username1",
-                  "password": 1
-                }
-            }
-          },
-          type : "POST",
-          success : function(r) 
-          {
-            console.log(r);
-          }
-        });
-
+  
 * `/comments/replies/{id}`
 
-    * **Method:** `POST`
+    * **Summary:** Retrieves all replies to the given comment
+
+    * **Method:** `GET`
   
     * **URL Parameters:** 
         * id: `a comment's unique id (as a long)`
-    
-    * **Body Parameters**
-    
-      ```
-      {
-          "auth" : 
-          {
-            "apiKey" : string,
-            "time": long,
-            "user": string,
-            "password": int
-          }
-      }
       
     * **Success Response:**
     
@@ -963,52 +421,15 @@ PhotoShare RESTful API specification
       or
     
       * **Code:** 401 Unauthorized <br />
-    
-    * **Sample Call:**
-    
-      ```javascript
-        $.ajax(
-        {
-          url: "/comments/replies/123456",
-          dataType: "json",
-          data :
-          {
-              {
-                "auth" : 
-                {
-                  "apiKey" : abc123,
-                  "time": 1524219966,
-                  "user": "username1",
-                  "password": 1
-                }
-            }
-          },
-          type : "POST",
-          success : function(r) 
-          {
-            console.log(r);
-          }
-        });
 
 * `/comments/upvote/{id}`
 
-    * **Method:** `POST`
+    * **Summary:** Up-votes the given comment
+    
+    * **Method:** `PUT`
   
     * **URL Parameters:** 
         * id: `a comment's unique id (as a long)`
-    
-    * **Body Parameters**
-    
-      ```
-      {
-          "auth" : 
-          {
-            "apiKey" : string,
-            "time": long,
-            "user": string,
-            "password": int
-          }
-      }
       
     * **Success Response:**
     
@@ -1021,53 +442,16 @@ PhotoShare RESTful API specification
       or
     
       * **Code:** 401 Unauthorized <br />
-    
-    * **Sample Call:**
-    
-      ```javascript
-        $.ajax(
-        {
-          url: "/comments/upvote/123456",
-          dataType: "json",
-          data :
-          {
-              {
-                "auth" : 
-                {
-                  "apiKey" : abc123,
-                  "time": 1524219966,
-                  "user": "username1",
-                  "password": 1
-                }
-            }
-          },
-          type : "POST",
-          success : function(r) 
-          {
-            console.log(r);
-          }
-        });
         
 * `/comments/downvote/{id}`
 
-    * **Method:** `POST`
+    * **Summary:** Down-votes the given comment
+
+    * **Method:** `PUT`
   
     * **URL Parameters:** 
         * id: `a comment's unique id (as a long)`
     
-    * **Body Parameters**
-    
-      ```
-      {
-          "auth" : 
-          {
-            "apiKey" : string,
-            "time": long,
-            "user": string,
-            "password": int
-          }
-      }
-      
     * **Success Response:**
     
       * **Code:** 204 No Content <br />
@@ -1079,112 +463,15 @@ PhotoShare RESTful API specification
       or
     
       * **Code:** 401 Unauthorized <br />
-    
-    * **Sample Call:**
-    
-      ```javascript
-        $.ajax(
-        {
-          url: "/comments/downvote/123456",
-          dataType: "json",
-          data :
-          {
-              {
-                "auth" : 
-                {
-                  "apiKey" : abc123,
-                  "time": 1524219966,
-                  "user": "username1",
-                  "password": 1
-                }
-            }
-          },
-          type : "POST",
-          success : function(r) 
-          {
-            console.log(r);
-          }
-        });
- 
- * `/comments/edit/{id}`
- 
-     * **Method:** `POST`
-   
-     * **URL Parameters:** 
-         * id: `refers to a comment's unique ID (as a long)`
-     
-     * **Body Parameters**
-     
-       ``` 
-       {
-           "auth" : 
-           {
-             "apiKey" : [alphanumeric],
-             "time": long,
-             "user": string,
-             "password": int
-           },
-           "commentContents" : string
-       }
-       
-     * **Success Response:**
-     
-       * **Code:** 200 OK <br />
-      
-     * **Error Response:**
-     
-       * **Code:** 400 Bad Request <br />
-     
-       or
-     
-       * **Code:** 401 Unauthorized <br />
-     
-     * **Sample Call:**
-     
-       ```javascript
-         $.ajax(
-         {
-           url: "/comments/edit/sampleCommentId",
-           dataType: "json",
-           data :
-           {
-               {
-                 "auth" : 
-                 {
-                   "apiKey" : abc123,
-                   "time": 1000,
-                   "user": "username1",
-                   "password": 1
-                 },
-                 "commentContents": "new comment content here"
-             }
-           },
-           type : "POST",
-           success : function(r) 
-           {
-             console.log(r);
-           }
-         }); 
          
  * `/comments/delete/{id}`
  
-     * **Method:** `POST`
+    * **Summary:** Deletes the given comment
+ 
+     * **Method:** `DELETE`
    
      * **URL Parameters:** 
          * id: `refers to a comment's unique ID (as a long)`
-     
-     * **Body Parameters**
-     
-       ``` 
-       {
-           "auth" : 
-           {
-             "apiKey" : [alphanumeric],
-             "time": long,
-             "user": string,
-             "password": int
-           }
-       }
        
      * **Success Response:**
      
@@ -1197,53 +484,16 @@ PhotoShare RESTful API specification
        or
      
        * **Code:** 401 Unauthorized <br />
-     
-     * **Sample Call:**
-     
-       ```javascript
-         $.ajax(
-         {
-           url: "/comments/delete/sampleCommentId",
-           dataType: "json",
-           data :
-           {
-               {
-                 "auth" : 
-                 {
-                   "apiKey" : abc123,
-                   "time": 1000,
-                   "user": "username1",
-                   "password": 1
-                 }
-             }
-           },
-           type : "POST",
-           success : function(r) 
-           {
-             console.log(r);
-           }
-         }); 
         
 ## Notification-Related APIs
         
 * `/notifications/`
 
-    * **Method:** `POST`
+    * **Summary:** Retrieves all notifications for the authenticated user
+
+    * **Method:** `GET`
   
     * **URL Parameters:** `None`
-    
-    * **Body Parameters**
-    
-      ```
-      {
-          "auth" : 
-          {
-            "apiKey" : string,
-            "time": long,
-            "user": string,
-            "password": int
-          }
-      }
       
     * **Success Response:**
     
@@ -1269,55 +519,17 @@ PhotoShare RESTful API specification
     
       or
     
-      * **Code:** 401 Unauthorized <br />
-    
-    * **Sample Call:**
-    
-      ```javascript
-        $.ajax(
-        {
-          url: "/notifications",
-          dataType: "json",
-          data :
-          {
-              {
-                "auth" : 
-                {
-                  "apiKey" : abc123,
-                  "time": 1524219966,
-                  "user": "username1",
-                  "password": 1
-                }
-            }
-          },
-          type : "POST",
-          success : function(r) 
-          {
-            console.log(r);
-          }
-        });
-        
+      * **Code:** 401 Unauthorized <br />    
         
 ## User-Related APIs
         
 * `/users/`
 
-    * **Method:** `POST`
+    * **Summary:** Retrieve all users on the system
+
+    * **Method:** `GET`
   
     * **URL Parameters:** `None`
-    
-    * **Body Parameters**
-    
-      ```
-      {
-          "auth" : 
-          {
-            "apiKey" : string,
-            "time": long,
-            "user": string,
-            "password": int
-          }
-      }
       
     * **Success Response:**
     
@@ -1340,34 +552,9 @@ PhotoShare RESTful API specification
     
       * **Code:** 401 Unauthorized <br />
     
-    * **Sample Call:**
-    
-      ```javascript
-        $.ajax(
-        {
-          url: "/users",
-          dataType: "json",
-          data :
-          {
-              {
-                "auth" : 
-                {
-                  "apiKey" : abc123,
-                  "time": 1524219966,
-                  "user": "username1",
-                  "password": 1
-                }
-            }
-          },
-          type : "POST",
-          success : function(r) 
-          {
-            console.log(r);
-          }
-        });
-        
-
 * `/users/adduser`
+
+    * **Summary:** Adds a new user.
 
     * **Method:** `POST`
   
@@ -1378,7 +565,7 @@ PhotoShare RESTful API specification
       ```
       {
           "username": string,
-          "password": int
+          "password": string 
       }
       
     * **Success Response:**
@@ -1388,87 +575,10 @@ PhotoShare RESTful API specification
     * **Error Response:**
     
       * **Code:** 409 Conflict <br />
-    
-    * **Sample Call:**
-    
-      ```javascript
-        $.ajax(
-        {
-          url: "/users/adduser",
-          dataType: "json",
-          data :
-          {
-            {
-               "username": "username1",
-               "password": 100
-            }
-          },
-          type : "POST",
-          success : function(r) 
-          {
-            console.log(r);
-          }
-        });
-
 
 * `/users/login`
 
-    * **Method:** `POST`
-  
-    * **URL Parameters:** `None`
-    
-    * **Body Parameters**
-    
-      ```
-      {
-          "auth" : 
-          {
-            "apiKey" : string,
-            "time": long,
-            "user": string,
-            "password": int
-          }
-      }
-      
-    * **Success Response:**
-    
-      * **Code:** 204 No Content <br />
-      
-    * **Error Response:**
-    
-      * **Code:** 400 Bad Request <br />
-    
-      or
-    
-      * **Code:** 401 Unauthorized <br />
-    
-    * **Sample Call:**
-    
-      ```javascript
-        $.ajax(
-        {
-          url: "/users/login",
-          dataType: "json",
-          data :
-          {
-              {
-                "auth" : 
-                {
-                  "apiKey" : abc123,
-                  "time": 1524219966,
-                  "user": "username1",
-                  "password": 1
-                }
-            }
-          },
-          type : "POST",
-          success : function(r) 
-          {
-            console.log(r);
-          }
-        });
-
-* `/users/follow`
+    * **Summary:** Verifies the provided credentials
 
     * **Method:** `POST`
   
@@ -1478,146 +588,22 @@ PhotoShare RESTful API specification
     
       ```
       {
-          "auth" : 
-          {
-            "apiKey" : string,
-            "time": long,
-            "user": string,
-            "password": int
-          },
-          "userFrom": string,
-          "userTo": string
+          "username": string,
+          "password": string 
       }
       
     * **Success Response:**
     
-      * **Code:** 200 No Content <br />
-      
-    * **Error Response:**
-    
-      * **Code:** 400 Bad Request <br />
-    
-      or
-    
-      * **Code:** 401 Unauthorized <br />
-    
-    * **Sample Call:**
-    
-      ```javascript
-        $.ajax(
-        {
-          url: "/users/follow",
-          dataType: "json",
-          data :
-          {
-              {
-                "auth" : 
-                {
-                  "apiKey" : abc123,
-                  "time": 1524219966,
-                  "user": "username1",
-                  "password": 1
-                },
-               "userFrom": "username1",
-               "userTo": "username2"
-            }
-          },
-          type : "POST",
-          success : function(r) 
-          {
-            console.log(r);
-          }
-        });
-
-
-* `/users/unfollow`
-
-    * **Method:** `POST`
-  
-    * **URL Parameters:** `None`
-    
-    * **Body Parameters**
-    
+      * **Code:** 200 OK <br />
+      * **Content:** 
       ```
       {
-          "auth" : 
-          {
-            "apiKey" : string,
-            "time": long,
-            "user": string,
-            "password": int
-          },
-          "userFrom": string,
-          "userTo": string
+        "username": string,
+        "password": string (base64-encoded of hashed password)
+        "admin": boolean
       }
-      
-    * **Success Response:**
-    
-      * **Code:** 200 No Content <br />
-      
-    * **Error Response:**
-    
-      * **Code:** 400 Bad Request <br />
-    
-      or
-    
-      * **Code:** 401 Unauthorized <br />
-    
-    * **Sample Call:**
-    
-      ```javascript
-        $.ajax(
-        {
-          url: "/users/unfollow",
-          dataType: "json",
-          data :
-          {
-              {
-                "auth" : 
-                {
-                  "apiKey" : abc123,
-                  "time": 1524219966,
-                  "user": "username1",
-                  "password": 1
-                },
-               "userFrom": "username1",
-               "userTo": "username2"
-            }
-          },
-          type : "POST",
-          success : function(r) 
-          {
-            console.log(r);
-          }
-        });
-
-## Admin APIs
-        
-* `/admin/removecomment/{id}`
-
-    * **Method:** `POST`
-  
-    * **URL Parameters:** 
-        
-        id: `a comment's unique id (as a long)`
-    
-    * **Body Parameters**
-    
       ```
-      {
-          "auth" : 
-          {
-            "apiKey" : string,
-            "time": long,
-            "user": string,
-            "password": int
-          }
-      }
       
-    * **Success Response:**
-    
-      * **Code:** 204 No Content <br />
-        
     * **Error Response:**
     
       * **Code:** 400 Bad Request <br />
@@ -1625,115 +611,33 @@ PhotoShare RESTful API specification
       or
     
       * **Code:** 401 Unauthorized <br />
-    
-    * **Sample Call:**
-    
-      ```javascript
-        $.ajax(
-        {
-          url: "/admin/removecomment/sampleCommentId",
-          dataType: "json",
-          data :
-          {
-              {
-                "auth" : 
-                {
-                  "apiKey" : abc123,
-                  "time": 1524219966,
-                  "user": "username1",
-                  "password": 1
-                }
-            }
-          },
-          type : "POST",
-          success : function(r) 
-          {
-            console.log(r);
-          }
-        });
         
-* `/admin/removephoto/{id}`
+* `/users/{username}/photos`
 
-    * **Method:** `POST`
+    * **Summary:** Retrieves all photos a user has posted, across all albums.
+
+    * **Method:** `GET`
   
     * **URL Parameters:** 
-        
-        id: `a photo's unique id (as a long)`
-    
-    * **Body Parameters**
-    
-      ```
-      {
-          "auth" : 
-          {
-            "apiKey" : string,
-            "time": long,
-            "user": string,
-            "password": int
-          }
-      }
+        * username: `a user's unique username (as a string)`
       
     * **Success Response:**
     
-      * **Code:** 204 No Content <br />
-        
-    * **Error Response:**
-    
-      * **Code:** 400 Bad Request <br />
-    
-      or
-    
-      * **Code:** 401 Unauthorized <br />
-    
-    * **Sample Call:**
-    
-      ```javascript
-        $.ajax(
-        {
-          url: "/admin/removephoto/samplePhotoId",
-          dataType: "json",
-          data :
-          {
-              {
-                "auth" : 
-                {
-                  "apiKey" : abc123,
-                  "time": 1524219966,
-                  "user": "username1",
-                  "password": 1
-                }
-            }
-          },
-          type : "POST",
-          success : function(r) 
-          {
-            console.log(r);
-          }
-        });
-        
-* `/admin/removephoto/{photoId}`
-
-    * **Method:** `POST`
-  
-    * **URL Parameters:** 
-        * photoId: `refers to a photo ID (as a long)`
-    
-    * **Body Parameters**
-    
-      ``` 
-      {
-          "auth" : 
-          {
-            "apiKey" : [alphanumeric],
-            "time": long,
-            "user": string,
-            "password": int
-          }
-      }
-      
-    * **Success Response:**
-    
-      * **Code:** 204 <br />
+      * **Code:** 200 OK <br />
+        **Content:** 
+        ``` 
+        [
+            {
+                "id": long, 
+                "photoName": string,
+                "authorName": string,
+                "albumId": long,                 
+                "photoContents": (base64) string,
+                "photoTime": long,
+                "description": string
+            },
+            ...
+        ]
      
     * **Error Response:**
     
@@ -1742,29 +646,131 @@ PhotoShare RESTful API specification
       or
     
       * **Code:** 401 Unauthorized <br />
+  
+  
+* `/users/follow/{username}`
+
+    * **Summary:** Follows the given user
+
+    * **Method:** `PUT`
+  
+    * **URL Parameters:** 
+         * username: `refers to a user's unique name (as a string)`
     
-    * **Sample Call:**
+    * **Body Parameters**
     
-      ```javascript
-        $.ajax(
-        {
-          url: "/admin/removephoto/samplePhotoId",
-          dataType: "json",
-          data :
-          {
-              {
-                "auth" : 
-                {
-                  "apiKey" : abc123,
-                  "time": 1000,
-                  "user": "username1",
-                  "password": 1
-                }
-            }
-          },
-          type : "POST",
-          success : function(r) 
-          {
-            console.log(r);
-          }
-        });
+      ```
+      {
+          "userFrom": string,
+          "userTo": string
+      }
+      
+    * **Success Response:**
+    
+      * **Code:** 200 No Content <br />
+      
+    * **Error Response:**
+    
+      * **Code:** 400 Bad Request <br />
+    
+      or
+    
+      * **Code:** 401 Unauthorized <br />
+    
+* `/users/unfollow/{username}`
+
+    * **Summary:** Unfollows the given user
+
+    * **Method:** `DELETE`
+  
+    * **URL Parameters:** 
+         * username: `refers to a user's unique name (as a string)`
+    
+    * **Body Parameters**
+    
+      ```
+      {
+          "userFrom": string,
+          "userTo": string
+      }
+      
+    * **Success Response:**
+    
+      * **Code:** 200 No Content <br />
+      
+    * **Error Response:**
+    
+      * **Code:** 400 Bad Request <br />
+    
+      or
+    
+      * **Code:** 401 Unauthorized <br />
+
+## NewsFeed APIs
+* `/newsfeed/{username}`
+
+    * **Summary:** Retrieves all the photos posted by users the given user is following
+
+    * **Method:** `POST`
+  
+    * **URL Parameters:** 
+    
+        username: `the unique user name (as a string)`
+      
+    * **Success Response:**
+    
+      * **Code:** 204 No Content <br />
+      
+    * **Error Response:**
+    
+      * **Code:** 400 Bad Request <br />
+    
+      or
+    
+      * **Code:** 401 Unauthorized <br />
+
+## Admin APIs
+        
+* `/admin/removecomment/{id}`
+
+    * **Summary:** Deletes the given comment
+
+    * **Method:** `DELETE`
+  
+    * **URL Parameters:** 
+        
+        id: `a comment's unique id (as a long)`
+ 
+    * **Success Response:**
+    
+      * **Code:** 204 No Content <br />
+        
+    * **Error Response:**
+    
+      * **Code:** 400 Bad Request <br />
+    
+      or
+    
+      * **Code:** 401 Unauthorized <br />
+        
+* `/admin/removephoto/{id}`
+
+    * **Summary:** Deletes the given photo
+
+    * **Method:** `DELETE`
+  
+    * **URL Parameters:** 
+        
+        id: `a photo's unique id (as a long)`
+      
+    * **Success Response:**
+    
+      * **Code:** 204 No Content <br />
+        
+    * **Error Response:**
+    
+      * **Code:** 400 Bad Request <br />
+    
+      or
+    
+      * **Code:** 401 Unauthorized <br />

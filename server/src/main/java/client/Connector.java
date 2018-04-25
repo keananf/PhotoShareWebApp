@@ -1,6 +1,6 @@
 package client;
 
-import server.objects.Auth;
+import server.Auth;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;

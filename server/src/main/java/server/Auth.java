@@ -1,6 +1,4 @@
-package server.objects;
-
-import server.Resources;
+package server;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

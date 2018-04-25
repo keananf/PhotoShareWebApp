@@ -1,12 +1,17 @@
 import server.objects.*;
 import org.junit.Test;
 import server.datastore.exceptions.InvalidResourceRequestException;
+import server.objects.LoginResult;
+import server.objects.User;
 
 import javax.ws.rs.core.Response;
 
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static server.objects.EventType.PHOTO_COMMENT;
+import static server.objects.Eveb.REPLY;
 import static server.objects.EventType.PHOTO_COMMENT;
 import static server.objects.EventType.REPLY;
 
@@ -20,9 +25,14 @@ public class AuthorisationTests extends TestUtility {
         // Add sample user
         addUser(username);
 
-        // Attempt to log the user in. Analyse the response and parse for the session info
+        // Attempt to log the user in.
         Response response = apiClient.loginUser(username, pw);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        // Check result
+        LoginResult res = gson.fromJson(response.readEntity(String.class), LoginResult.class);
+        assertEquals(username, res.getUsername());
+        assertTrue(res.isAdmin());
     }
 
     @Test
@@ -46,7 +56,7 @@ public class AuthorisationTests extends TestUtility {
 
     @Test
     public void unauthorisedGetUserTest() {
-        // Call the getUser API from the client without having registered a user
+        // Call the getUsername API from the client without having registered a user
         Response response = apiClient.getUsers();
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
@@ -58,7 +68,7 @@ public class AuthorisationTests extends TestUtility {
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, 0, contents);
+        Response response = apiClient.uploadPhoto(photoName, 0, contents, "some photo");
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 

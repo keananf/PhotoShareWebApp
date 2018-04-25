@@ -2,15 +2,16 @@ package server.objects;
 
 /**
  * Class representing a single user
- */
+ * */
+
 public class User {
     private final String username;
     private boolean admin;
 
     // 'Transient' modifier ensures this won't be exposed during serialisation
-    private transient final int password;
+    private transient final String password;
 
-    public User(String username, int password) {
+    public User(String username, String password) {
         this.username = username;
         this.password = password;
     }
@@ -23,9 +24,9 @@ public class User {
     }
 
     /**
-     * @return the user's password
+     * @return the user's password, hashed and then encoded as a base64 string
      */
-    public int getPassword() {
+    public String getPassword() {
         return password;
     }
 

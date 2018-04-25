@@ -22,7 +22,7 @@ public class AuthorisationTests extends TestUtility {
 
         // Attempt to log the user in. Analyse the response and parse for the session info
         Response response = apiClient.loginUser(username, pw);
-        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
     }
 
     @Test
@@ -94,7 +94,7 @@ public class AuthorisationTests extends TestUtility {
     @Test
     public void unauthorisedAddAlbumTest() {
         // Assert unauthorised
-        Response response = apiClient.addAlbum(albumName, description, username);
+        Response response = apiClient.addAlbum(albumName, description);
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 
@@ -220,7 +220,7 @@ public class AuthorisationTests extends TestUtility {
     @Test
     public void unauthorisedGetAllUserCommentsTest() {
         // Create user but don't add it to the client or server.
-        User user = new User(username, 0);
+        User user = new User(username, "");
 
         // Assert unauthorised
         Response response = apiClient.getAllComments(user.getUsername());
@@ -254,10 +254,8 @@ public class AuthorisationTests extends TestUtility {
 
     @Test
     public void unauthorisedUnfollowTest() {
-
         // Assert unauthorised request
-        String random_username = "Edwin";
-        Response response = apiClient.unfollowUser(random_username);
+        Response response = apiClient.unfollowUser(username);
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 

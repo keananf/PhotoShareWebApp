@@ -68,10 +68,10 @@ public abstract class TestUtility {
 
         // login as user
         Response response = apiClient.loginUser(name, pw);
-        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         // Add new album, and retrieve the returned id
-        response = apiClient.addAlbum(albumName, description, name);
+        response = apiClient.addAlbum(albumName, description);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         albumId = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
     }

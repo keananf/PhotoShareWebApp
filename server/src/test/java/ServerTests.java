@@ -45,7 +45,7 @@ public final class ServerTests extends TestUtility {
         loginAndSetupNewUser(username);
 
         // Add new album, and retrieve the returned id
-        Response response = apiClient.addAlbum(albumName, description, username);
+        Response response = apiClient.addAlbum(albumName, description);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long albumId = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -77,7 +77,7 @@ public final class ServerTests extends TestUtility {
         loginAndSetupNewUser(username);
 
         // Add a new album, with the same name and description as the default album.
-        Response response = apiClient.addAlbum(albumName, description, username);
+        Response response = apiClient.addAlbum(albumName, description);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         // Check server has record of both albums
@@ -156,6 +156,9 @@ public final class ServerTests extends TestUtility {
         // Parse JSON and check photo contents and who posted it
         String photosStr = photosResponse.readEntity(String.class);
         Photo[] photos = gson.fromJson(photosStr, Photo[].class);
+
+        System.out.println(photosStr);
+
         for(Photo photo : photos) {
             assertEquals(photo.getAuthorName(), username);
             assertEquals(photo.getPhotoName(), photoName);
@@ -179,7 +182,7 @@ public final class ServerTests extends TestUtility {
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         // Create second album, in preparation to upload a photo to it.
-        response = apiClient.addAlbum(albumName, description, username);
+        response = apiClient.addAlbum(albumName, description);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long albumId2 = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -1054,7 +1057,6 @@ public final class ServerTests extends TestUtility {
                 Notification[].class);
         assertEquals(2, notifications.length);
 
-
         // Ensure the user posted both
         assertEquals(username, notifications[0].getCommentAuthor());
         assertEquals(username, notifications[1].getCommentAuthor());
@@ -1239,31 +1241,6 @@ public final class ServerTests extends TestUtility {
     }
 
     @Test
-    public void getPhotoFollowNotificationTest() throws InvalidResourceRequestException {
-        // Add sample user and register it
-        loginAndSetupNewUser(username);
-
-        // Add user to be a follower of sample
-        String userFollowing = "userFollowing";
-        loginAndSetupNewUser(userFollowing);
-
-        // Send a follow request to sample user
-        Response response = apiClient.followUser(username);
-
-        // Check notifications for user
-        apiClient.loginUser(username, pw);
-        Response notificationsResponse = apiClient.getNotifications();
-        assertEquals(Response.Status.OK.getStatusCode(), notificationsResponse.getStatus());
-
-        // Parse notifications, and assert one was generated for the new comment on the photo
-        Notification[] notifications = gson.fromJson(notificationsResponse.readEntity(String.class),
-                Notification[].class);
-        assertEquals(1, notifications.length);
-
-    }
-
-
-    @Test
     public void emptyNewsFeedTest() throws InvalidResourceRequestException {
 
         // Set up user who is being followed
@@ -1382,7 +1359,7 @@ public final class ServerTests extends TestUtility {
         loginAndSetupNewUser(userBeingFollowedTwo);
 
         // Add new album, and retrieve the returned id
-        Response response = apiClient.addAlbum(albumName, description, userBeingFollowedTwo);
+        Response response = apiClient.addAlbum(albumName, description);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long albumIdTwo = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -1549,7 +1526,6 @@ public final class ServerTests extends TestUtility {
 
         assertEquals(gson.fromJson(users, User[].class).length, 2);
     }
-
     @Test
     public void notificationAddedForFollowTest() {
         // Add sample user and register it
@@ -1598,6 +1574,7 @@ public final class ServerTests extends TestUtility {
 
         // Parse JSON
         String notifications = response.readEntity(String.class);
+        System.out.println(notifications);
 
         assertEquals(gson.fromJson(notifications, Notification[].class).length, 2);
     }

@@ -1,11 +1,14 @@
 package server.datastore;
 
+import server.Auth;
 import server.datastore.exceptions.*;
 import server.objects.*;
 import server.requests.AddCommentRequest;
 import server.requests.EditCommentRequest;
 import server.requests.UploadPhotoRequest;
-
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -25,52 +28,86 @@ public final class RequestResolver {
     /**
      * Verify the auth info sent by the client. Try to generate shared secret.
      * @param endPoint the api being accessed.
-     * @param auth the provided auth info with a request
+     * @param username the user who sent the request
+     * @param apiKey the apiKey the user provided with the login request
+     * @param date the timestamp of the sent request
      * @throws UnauthorisedException if bad provided info
      */
-    public void verifyAuth(String endPoint, Auth auth) throws UnauthorisedException {
-        // Retrieve user from server
-        Auth serverAuth;
+    public void verifyAuth(String endPoint, String username, String apiKey, String date) throws UnauthorisedException {
+        // Check user exists on server
         try {
-            User user = getUser(auth.getUser());
-            serverAuth = new Auth(endPoint, user.getUsername(), user.getPassword());
+            User user = getUser(username);
+
+            // Check timestamp isn't too old, provided not debug mode
+            Date d = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse(date);
+            long time = System.currentTimeMillis(), dateTime = d.getTime();
+            if(!DEBUG && time - dateTime > TIMEOUT) throw new UnauthorisedException();
+
+            // Compare generated secret API key
+            String key = Auth.getApiKey(endPoint, username, user.getPassword(), dateTime).split(":")[1];
+            if(!key.equals(apiKey)) throw new UnauthorisedException();
         }
-        catch (InvalidResourceRequestException ignored) {throw new UnauthorisedException();}
-
-        // Check timestamp isn't too old
-        long time = System.nanoTime();
-        if(!DEBUG && time - auth.getTime() > TIMEOUT) throw new UnauthorisedException();
-
-        // Compare generated secret API key
-        String key = serverAuth.getApiKey(endPoint, auth.getTime());
-        if(!key.equals(auth.getApiKey())) throw new UnauthorisedException();
+        catch (InvalidResourceRequestException | ParseException ignored) {throw new UnauthorisedException();}
     }
 
     /**
      * Verify the admin auth info sent by the client. Try to generate shared secret.
      * @param endPoint the api being accessed.
-     * @param auth the provided auth info with a request
+     * @param user the user who sent the request
+     * @param apiKey the apiKey the user provided with the login request
+     * @param date the timestamp of the sent request
      * @throws UnauthorisedException if bad provided info
      */
-    public void verifyAdminAuth(String endPoint, Auth auth) throws UnauthorisedException,
+    public void verifyAdminAuth(String endPoint, String user, String apiKey, String date) throws UnauthorisedException,
             InvalidResourceRequestException {
         // Ensure valid user and client
-        verifyAuth(endPoint, auth);
+        verifyAuth(endPoint, user, apiKey, date);
 
         // Ensure user is an admin
-        if(!getUser(auth.getUser()).isAdmin()) throw new UnauthorisedException();
+        if(!getUser(user).isAdmin()) throw new UnauthorisedException();
+    }
+
+    /**
+     * Adds a new user to the data store
+     *
+     * @param username the user who sent the request
+     * @param password the sent plaintext password
+     * @throws ExistingException if the user already exists
+     */
+    public void addUser(String username, String password) throws ExistingException {
+        // Ensure this user doesn't exist
+        try {
+            // If exception is NOT thrown, then user exists
+            getUser(username);
+            throw new ExistingException(username);
+        }
+        catch (InvalidResourceRequestException e) {}
+
+        // If first user to be added, make user admin by default.
+        boolean admin = (getUsers().size() == 0);
+
+        // Persist user with hashed and encoded password
+        dataStore.persistAddUser(username, Auth.hashAndEncodeBase64(password), admin);
     }
 
     /**
      * Logs in the provided auth
-     * @param endPoint the api being accessed.
-     * @param auth the auth info corresponding to the user to login
+     * @param username the user who sent the request
+     * @param password the sent plaintext password
      * @throws UnauthorisedException if invalid password presented
      * @throws InvalidResourceRequestException if invalid user presented
      */
-    public void loginUser(String endPoint, Auth auth) throws UnauthorisedException, InvalidResourceRequestException {
-        // Verify auth information
-        verifyAuth(endPoint, auth);
+    public LoginResult loginUser(String username, String password)
+            throws UnauthorisedException, InvalidResourceRequestException {
+        // Ensure user exists
+        User user = getUser(username);
+
+        // Check the stored, hashed password with the hash of the sent password.
+        // If they don't match, then the request is unauthorised.
+        if(!user.getPassword().equals(Auth.hashAndEncodeBase64(password))) throw new UnauthorisedException();
+
+        // Return user information to client
+        return new LoginResult(user.getUsername(), user.getPassword(), user.isAdmin());
     }
 
     /**
@@ -213,29 +250,6 @@ public final class RequestResolver {
      */
     private User getUser(String username) throws InvalidResourceRequestException {
         return dataStore.getUser(username);
-    }
-
-    /**
-     * Adds a new user to the data store
-     *
-     * @param user the new user to add
-     * @throws ExistingException if the user already exists
-     */
-    public void addUser(User user) throws ExistingException {
-        // Ensure this user doesn't exist
-        try {
-            // If exception is NOT thrown, then user exists
-            getUser(user.getUsername());
-            throw new ExistingException(user.getUsername());
-        }
-        catch (InvalidResourceRequestException e) {}
-
-        // If first user to be added, make user admin by default. Admins can appoint other
-        // admins from there.
-        if(getUsers().size() == 0) user.setAdmin(true);
-
-        // Persist user
-        dataStore.persistAddUser(user);
     }
 
     /**

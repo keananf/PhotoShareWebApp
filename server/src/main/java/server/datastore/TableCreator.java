@@ -36,8 +36,8 @@ class TableCreator {
      */
     private void createUsersTable() {
         // Construct create users table query
-        String query = "CREATE TABLE IF NOT EXISTS "+USERS_TABLE+" ("+USERNAME+" varchar(25) NOT NULL, " +
-                PASSWORD+" int NOT NULL," +
+        String query = "CREATE TABLE IF NOT EXISTS "+USERS_TABLE+" ("+USERNAME+" varchar(50) NOT NULL, " +
+                PASSWORD+" varchar(50) NOT NULL," +
                 USERS_ADMIN+" boolean NOT NULL," +
                 "PRIMARY KEY("+USERNAME+"))";
 
@@ -83,6 +83,7 @@ class TableCreator {
                 ALBUMS_ID+" BIGINT NOT NULL," +
                 PHOTOS_CONTENTS+" BLOB NOT NULL," +
                 PHOTOS_TIME+" TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                PHOTOS_DESCRIPTION+" varchar(255) NOT NULL," +
                 "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+")," +
                 "FOREIGN KEY("+ALBUMS_ID+") references "+ALBUMS_TABLE+"("+ALBUMS_ID+") ON DELETE CASCADE)";
 

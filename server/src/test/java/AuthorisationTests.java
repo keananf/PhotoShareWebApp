@@ -1,14 +1,14 @@
-import server.objects.*;
 import org.junit.Test;
 import server.datastore.exceptions.InvalidResourceRequestException;
+import server.objects.LoginResult;
+import server.objects.User;
 
 import javax.ws.rs.core.Response;
 
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
-import static server.objects.EventType.PHOTO_COMMENT;
-import static server.objects.EventType.REPLY;
+import static org.junit.Assert.assertTrue;
+import static server.objects.CommentType.PHOTO_COMMENT;
+import static server.objects.CommentType.REPLY;
 
 /**
  * Tests checking unauthorised use of APIs
@@ -20,9 +20,14 @@ public class AuthorisationTests extends TestUtility {
         // Add sample user
         addUser(username);
 
-        // Attempt to log the user in. Analyse the response and parse for the session info
+        // Attempt to log the user in.
         Response response = apiClient.loginUser(username, pw);
-        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        // Check result
+        LoginResult res = gson.fromJson(response.readEntity(String.class), LoginResult.class);
+        assertEquals(username, res.getUsername());
+        assertTrue(res.isAdmin());
     }
 
     @Test
@@ -46,7 +51,7 @@ public class AuthorisationTests extends TestUtility {
 
     @Test
     public void unauthorisedGetUserTest() {
-        // Call the getUser API from the client without having registered a user
+        // Call the getUsername API from the client without having registered a user
         Response response = apiClient.getUsers();
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
@@ -58,7 +63,7 @@ public class AuthorisationTests extends TestUtility {
         byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, 0, contents);
+        Response response = apiClient.uploadPhoto(photoName, 0, contents, "some photo");
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 
@@ -94,7 +99,7 @@ public class AuthorisationTests extends TestUtility {
     @Test
     public void unauthorisedAddAlbumTest() {
         // Assert unauthorised
-        Response response = apiClient.addAlbum(albumName, description, username);
+        Response response = apiClient.addAlbum(albumName, description);
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 
@@ -220,7 +225,7 @@ public class AuthorisationTests extends TestUtility {
     @Test
     public void unauthorisedGetAllUserCommentsTest() {
         // Create user but don't add it to the client or server.
-        User user = new User(username, 0);
+        User user = new User(username, "");
 
         // Assert unauthorised
         Response response = apiClient.getAllComments(user.getUsername());
@@ -254,10 +259,8 @@ public class AuthorisationTests extends TestUtility {
 
     @Test
     public void unauthorisedUnfollowTest() {
-
         // Assert unauthorised request
-        String random_username = "Edwin";
-        Response response = apiClient.unfollowUser(random_username);
+        Response response = apiClient.unfollowUser(username);
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 
@@ -293,13 +296,6 @@ public class AuthorisationTests extends TestUtility {
         //Assert unauthorised
         long randomId = -100;
         Response response = apiClient.editComment(randomId, "some comment content");
-        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
-    }
-
-    @Test
-    public void unauthorisedSearchForUsersTest(){
-        //Assert unauthorised
-        Response response = apiClient.getUserWithNameBegining("user");
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 

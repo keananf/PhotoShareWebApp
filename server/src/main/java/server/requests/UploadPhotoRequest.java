@@ -1,22 +1,21 @@
 package server.requests;
 
-import server.objects.Auth;
-
 import java.util.Base64;
 
 /**
  * Request wrapper for uploading a photo
  */
-public final class UploadPhotoRequest extends AuthRequest {
+public final class UploadPhotoRequest {
 
     private final String encodedPhotoContents;
     private final String photoName;
     private final long albumId;
+    public final String description;
 
-    public UploadPhotoRequest(Auth auth, String photoName, byte[] photoContents, long albumId) {
-        super(auth);
+    public UploadPhotoRequest(String photoName, byte[] photoContents, String description, long albumId) {
         this.photoName = photoName;
         this.albumId = albumId;
+        this.description = description;
 
         // Encode photo contents into base 64, so it can be serialised into json.
         encodedPhotoContents = encodeContents(photoContents);
@@ -62,4 +61,9 @@ public final class UploadPhotoRequest extends AuthRequest {
     public long getAlbumId() {
         return albumId;
     }
+
+    /**
+     * @return the text description of the photo as provided by the user
+     */
+    public String getDescription() { return description; }
 }

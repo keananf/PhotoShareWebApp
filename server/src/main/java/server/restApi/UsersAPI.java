@@ -7,7 +7,7 @@ import server.datastore.exceptions.InvalidResourceRequestException;
 import server.datastore.exceptions.UnauthorisedException;
 import server.objects.Photo;
 import server.objects.User;
-import server.requests.AddUserRequest;
+import server.requests.AddOrLoginUserRequest;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -63,12 +63,12 @@ public final class UsersAPI {
     @Path(Resources.ADD_USER)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addUser(String message) {
-        // Parse message as a User object
-        AddUserRequest request = gson.fromJson(message, AddUserRequest.class);
+        // Parse message as a AddOrLoginUserRequest
+        AddOrLoginUserRequest request = gson.fromJson(message, AddOrLoginUserRequest.class);
 
         // Attempt to persist request in data store
         try {
-            RESOLVER.addUser(new User(request.getUser(), request.getPassword()));
+            RESOLVER.addUser(request.getUsername(), request.getPassword());
         }
         catch (ExistingException e) {
             // User already exists. Return bad response code
@@ -82,24 +82,21 @@ public final class UsersAPI {
     /**
      * Attempts to parse the message and log in the user
      *
+     * @param message the serialised request info
      * @return a response object containing the result of the request
      */
-    @GET
+    @POST
     @Path(Resources.LOGIN_USER)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response loginUser(@Context HttpHeaders headers) {
-        // Retrieve auth headers
-        String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
-        String sender = authHeader[0], apiKey = authHeader[1];
-        String date = headers.getHeaderString(HttpHeaders.DATE);
+    public Response loginUser(String message) {
+        // Parse message as a AddOrLoginUserRequest object
+        AddOrLoginUserRequest request = gson.fromJson(message, AddOrLoginUserRequest.class);
 
-        // Attempt to record new session in the data store,
-        // and void any previous session.
         try {
             // Process request
-            User user = RESOLVER.loginUser(Resources.LOGIN_USER_PATH, sender, apiKey, date);
+            User user = RESOLVER.loginUser(request.getUsername(), request.getPassword());
 
-            // Serialise the session. Indicate status as accepted and pass the serialised Session
+            // Serialise the user info.
             return Response.ok(gson.toJson(user)).build();
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }

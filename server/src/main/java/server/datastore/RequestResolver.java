@@ -67,21 +67,46 @@ public final class RequestResolver {
     }
 
     /**
+     * Adds a new user to the data store
+     *
+     * @param username the user who sent the request
+     * @param password a sent password
+     * @throws ExistingException if the user already exists
+     */
+    public void addUser(String username, String password) throws ExistingException {
+        // Ensure this user doesn't exist
+        try {
+            // If exception is NOT thrown, then user exists
+            getUser(username);
+            throw new ExistingException(username);
+        }
+        catch (InvalidResourceRequestException e) {}
+
+        // If first user to be added, make user admin by default.
+        boolean admin = (getUsers().size() == 0);
+
+        // Persist user
+        dataStore.persistAddUser(username, password, admin);
+    }
+
+    /**
      * Logs in the provided auth
-     * @param endPoint the api being accessed.
-     * @param user the user who sent the request
-     * @param apiKey the apiKey the user provided with the login request
-     * @param date the timestamp of the sent request
+     * @param username the user who sent the request
+     * @param password the sent hashed password
      * @throws UnauthorisedException if invalid password presented
      * @throws InvalidResourceRequestException if invalid user presented
      */
-    public User loginUser(String endPoint, String user, String apiKey, String date)
+    public User loginUser(String username, String password)
             throws UnauthorisedException, InvalidResourceRequestException {
-        // Verify auth information
-        verifyAuth(endPoint, user, apiKey, date);
+        // Ensure user exists
+        User user = getUser(username);
+
+        // Check the stored, hashed password with the hash of the sent password.
+        // If they don't match, then the request is unauthorised.
+        if(!user.getPassword().equals(password)) throw new UnauthorisedException();
 
         // Return user information to client
-        return getUser(user);
+        return user;
     }
 
     /**
@@ -224,29 +249,6 @@ public final class RequestResolver {
      */
     private User getUser(String username) throws InvalidResourceRequestException {
         return dataStore.getUser(username);
-    }
-
-    /**
-     * Adds a new user to the data store
-     *
-     * @param user the new user to add
-     * @throws ExistingException if the user already exists
-     */
-    public void addUser(User user) throws ExistingException {
-        // Ensure this user doesn't exist
-        try {
-            // If exception is NOT thrown, then user exists
-            getUser(user.getUsername());
-            throw new ExistingException(user.getUsername());
-        }
-        catch (InvalidResourceRequestException e) {}
-
-        // If first user to be added, make user admin by default. Admins can appoint other
-        // admins from there.
-        if(getUsers().size() == 0) user.setAdmin(true);
-
-        // Persist user
-        dataStore.persistAddUser(user);
     }
 
     /**

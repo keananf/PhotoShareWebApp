@@ -44,7 +44,7 @@ public class AuthorisationTests extends TestUtility {
 
     @Test
     public void unauthorisedGetUserTest() {
-        // Call the getUser API from the client without having registered a user
+        // Call the getUsername API from the client without having registered a user
         Response response = apiClient.getUsers();
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }

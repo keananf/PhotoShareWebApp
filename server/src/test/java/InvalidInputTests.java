@@ -18,9 +18,9 @@ public class InvalidInputTests extends TestUtility {
 
     @Test
     public void loginUnknownUsernameTest() throws InvalidResourceRequestException {
-        // Attempt to log the user in. Analyse the response and parse for the session info
+        // Attempt to log the user in.
         Response response = apiClient.loginUser(username, pw);
-        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
 
         // Check the server has no user
         assertEquals(0, resolver.getUsers().size());

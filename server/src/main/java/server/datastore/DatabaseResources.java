@@ -33,6 +33,7 @@ abstract class DatabaseResources {
     static final String PHOTOS_CONTENTS = "photoContents";
     static final String PHOTOS_EXT = "photoExt";
     static final String PHOTOS_TIME = "photoTime";
+    static final String PHOTOS_DESCRIPTION = "photoDescription";
 
     // Comment table attributes
     static final String REFERENCE_ID = "referenceId";

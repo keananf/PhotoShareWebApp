@@ -56,8 +56,8 @@ final class DatabaseBackedDataStore implements DataStore {
     @Override
     public void persistUploadPhoto(long id, String author, UploadPhotoRequest request) {
         // Set up query for inserting a new photo into the table
-        String query = "INSERT INTO "+PHOTOS_TABLE+"("+PHOTOS_ID+","+PHOTOS_NAME+","+PHOTOS_EXT+","
-                +USERNAME+","+ALBUMS_ID+","+PHOTOS_CONTENTS+","+PHOTOS_TIME+") values(?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO "+PHOTOS_TABLE+"("+PHOTOS_ID+","+PHOTOS_NAME+","+PHOTOS_EXT+","+USERNAME+","
+            +ALBUMS_ID+","+PHOTOS_CONTENTS+","+PHOTOS_TIME+","+PHOTOS_DESCRIPTION+") "+"values(?, ?, ?, ?, ?, ?, ?, ?)";
 
         // Persist photo
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -70,6 +70,7 @@ final class DatabaseBackedDataStore implements DataStore {
             stmt.setBlob(6, new ByteArrayInputStream(request.getEncodedPhotoContents()
                     .getBytes(StandardCharsets.UTF_8)));
             stmt.setTimestamp(7, new Timestamp(System.nanoTime()));
+            stmt.setString(8, request.getDescription());
 
             // Persist data
             stmt.executeUpdate();
@@ -98,8 +99,10 @@ final class DatabaseBackedDataStore implements DataStore {
                 String username = rs.getString(4);
                 long albumId = rs.getLong(5);
                 Timestamp timestamp = rs.getTimestamp(7);
+                String description = rs.getString(8);
 
-                photos.add(new Photo(username, photoName, ext, id, albumId, getPhotoRatings(id), timestamp.getTime()));
+                photos.add(new Photo(username, photoName, ext, description, id, albumId,
+                        getPhotoRatings(id), timestamp.getTime()));
             }
             stmt.close();
         }
@@ -128,8 +131,10 @@ final class DatabaseBackedDataStore implements DataStore {
                 String ext = rs.getString(3);
                 String username = rs.getString(4);
                 Timestamp timestamp = rs.getTimestamp(7);
+                String description = rs.getString(8);
 
-                photos.add(new Photo(username, photoName, ext, id, albumId, getPhotoRatings(id), timestamp.getTime()));
+                photos.add(new Photo(username, photoName, ext, description, id, albumId,
+                        getPhotoRatings(id), timestamp.getTime()));
             }
             stmt.close();
         }
@@ -158,8 +163,9 @@ final class DatabaseBackedDataStore implements DataStore {
                 String username = rs.getString(4);
                 long albumId = rs.getLong(5);
                 Timestamp timestamp = rs.getTimestamp(7);
+                String description = rs.getString(8);
 
-                photos.add(new Photo(username, photoName, ext, id, albumId,
+                photos.add(new Photo(username, photoName, ext, description, id, albumId,
                         getPhotoRatings(id), timestamp.getTime()));
             }
             stmt.close();

@@ -11,11 +11,13 @@ public final class UploadPhotoRequest {
     private final String photoName;
     private final String ext;
     private final long albumId;
+    public final String description;
 
-    public UploadPhotoRequest(String photoName, String ext, byte[] photoContents, long albumId) {
+    public UploadPhotoRequest(String photoName, String ext, String description, byte[] photoContents, long albumId) {
         this.photoName = photoName;
         this.ext = ext;
         this.albumId = albumId;
+        this.description = description;
 
         // Encode photo contents into base 64, so it can be serialised into json.
         encodedPhotoContents = encodeContents(photoContents);
@@ -68,4 +70,9 @@ public final class UploadPhotoRequest {
     public long getAlbumId() {
         return albumId;
     }
+
+    /**
+     * @return the text description of the photo as provided by the user
+     */
+    public String getDescription() { return description; }
 }

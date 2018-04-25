@@ -84,6 +84,7 @@ class TableCreator {
                 ALBUMS_ID+" BIGINT NOT NULL," +
                 PHOTOS_CONTENTS+" BLOB NOT NULL," +
                 PHOTOS_TIME+" TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                PHOTOS_DESCRIPTION+" varchar(255) NOT NULL," +
                 "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+")," +
                 "FOREIGN KEY("+ALBUMS_ID+") references "+ALBUMS_TABLE+"("+ALBUMS_ID+") ON DELETE CASCADE)";
 

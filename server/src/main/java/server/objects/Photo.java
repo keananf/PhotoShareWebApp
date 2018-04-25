@@ -14,15 +14,17 @@ public final class Photo {
     private final String photoName;
     private final long photoTime;
     private final long id, albumId;
+    private final String description;
 
     private HashMap<String, Boolean> votes;
 
-    public Photo(String authorName, String photoName, String ext, long id, long albumId,
+    public Photo(String authorName, String photoName, String ext, String description, long id, long albumId,
                  HashMap<String, Boolean> photoRatings, long photoTime) {
         this.authorName = authorName;
         this.photoName = photoName;
         this.photoTime = photoTime;
         this.ext = ext;
+        this.description = description;
 
         this.albumId = albumId;
         this.id = id;
@@ -89,4 +91,9 @@ public final class Photo {
         return votes.entrySet().stream().filter(kv -> !kv.getValue())
                 .map(kv -> kv.getKey()).collect(Collectors.toList());
     }
+
+    /**
+     * @return the description of this photo
+     */
+    public String getDescription() { return description; }
 }

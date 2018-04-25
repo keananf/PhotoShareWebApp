@@ -85,7 +85,23 @@ public class InvalidInputTests extends TestUtility {
 
         // Try to get an unknown photo from the server. Will fail
         long randomId = -1000000;
-        Response photosResponse = apiClient.getPhotoContents(randomId, ext);
+        Response photosResponse = apiClient.getPhotoContentsJPG(randomId, ext);
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), photosResponse.getStatus());
+    }
+
+
+    @Test
+    public void getPhotoBadExtTest() {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Upload 'photo' (byte[])
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
+
+        // Try to get photo from the server, with wrong indPNGicated ext (the file is a JPG). Will fail
+        Response photosResponse = apiClient.getPhotoContentsPNG(id, ext);
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), photosResponse.getStatus());
     }
 

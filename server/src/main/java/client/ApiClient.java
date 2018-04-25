@@ -150,9 +150,22 @@ public final class ApiClient {
      * @param ext the file extension
      * @return the response of the request.
      */
-    public Response getPhotoContents(long id, String ext) {
+    public Response getPhotoContentsPNG(long id, String ext) {
         // Encode path and GET the requested photo
-        String path = String.format("%s/%s.%s", PHOTO_CONTENTS_PATH, id, ext);
+        String path = String.format("%s/%s.%s", PHOTO_CONTENTS_PNG_PATH, id, ext);
+        return connector.get(baseTarget, path);
+    }
+
+    /**
+     * Retrieves the photo contents from the given photo
+     *
+     * @param id the id of the photo
+     * @param ext the file extension
+     * @return the response of the request.
+     */
+    public Response getPhotoContentsJPG(long id, String ext) {
+        // Encode path and GET the requested photo
+        String path = String.format("%s/%s.%s", PHOTO_CONTENTS_JPG_PATH, id, ext);
         return connector.get(baseTarget, path);
     }
 

@@ -26,7 +26,6 @@ public final class RequestResolver {
     static {
         allowedExtensions.add("jpg");
         allowedExtensions.add("png");
-        allowedExtensions.add("gif");
     }
 
     /**

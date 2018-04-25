@@ -14,9 +14,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-import static server.Resources.PHOTOS_PATH;
-import static server.Resources.PHOTO_CONTENTS;
-import static server.Resources.PHOTO_CONTENTS_PATH;
+import static server.Resources.*;
 import static server.ServerMain.RESOLVER;
 
 /**
@@ -112,14 +110,15 @@ public class PhotosApi {
      * @return the requested photo contents, sent as raw data
      */
     @GET
-    @Path(PHOTO_CONTENTS + "/{id}")
+    @Path(PHOTO_CONTENTS + PNG + "/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response getPhotoContents(@PathParam("id") String idAndExt, @Context HttpHeaders headers) {
+    @Produces("image/png")
+    public Response getPhotoContentsPNG(@PathParam("id") String idAndExt, @Context HttpHeaders headers) {
         // Parse parameter in form id.ext into an id and file extension
         String[] components = idAndExt.split("\\.");
         long id = Long.parseLong(components[0]);
         String ext = components[1];
+        if(!ext.toLowerCase().equals("png")) return Response.status(Response.Status.BAD_REQUEST).build();
 
         try {
             // Retrieve provided auth info
@@ -127,7 +126,40 @@ public class PhotosApi {
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(HttpHeaders.DATE);
 
-            String path = String.format("%s/%s", PHOTO_CONTENTS_PATH, idAndExt);
+            String path = String.format("%s/%s", PHOTO_CONTENTS_PNG_PATH, idAndExt);
+            RESOLVER.verifyAuth(path, sender, apiKey, date);
+
+            // Send the given photo's contents back to the client, while ensuring it is
+            // decoded from base64 to its raw representation
+            byte[] contents = UploadPhotoRequest.decodeContents(RESOLVER.getPhotoContents(id, ext));
+            return Response.ok(contents).build();
+        }
+        catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
+        catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
+    }
+
+
+    /**
+     * @return the requested photo contents, sent as raw data
+     */
+    @GET
+    @Path(PHOTO_CONTENTS + JPG + "/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces("image/jpg")
+    public Response getPhotoContentsJPG(@PathParam("id") String idAndExt, @Context HttpHeaders headers) {
+        // Parse parameter in form id.ext into an id and file extension
+        String[] components = idAndExt.split("\\.");
+        long id = Long.parseLong(components[0]);
+        String ext = components[1];
+        if(!ext.toLowerCase().equals("jpg")) return Response.status(Response.Status.BAD_REQUEST).build();
+
+        try {
+            // Retrieve provided auth info
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
+            String date = headers.getHeaderString(HttpHeaders.DATE);
+
+            String path = String.format("%s/%s", PHOTO_CONTENTS_JPG_PATH, idAndExt);
             RESOLVER.verifyAuth(path, sender, apiKey, date);
 
             // Send the given photo's contents back to the client, while ensuring it is

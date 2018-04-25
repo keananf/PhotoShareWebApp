@@ -218,7 +218,7 @@ public final class ServerTests extends TestUtility {
         assertEquals(photo.getPhotoName(), photoName);
 
         // Make separate request for photo contents
-        byte[] receivedContents = apiClient.getPhotoContents(id, ext).readEntity(byte[].class);
+        byte[] receivedContents = apiClient.getPhotoContentsJPG(id, ext).readEntity(byte[].class);
         assertArrayEquals(contents, receivedContents);
     }
 

@@ -225,22 +225,46 @@ PhotoShare RESTful API specification
     
       * **Code:** 401 Unauthorized <br />
 
-* `/photos/content/{id.ext}`
+* `/photos/content/jpg/{id}.jpg`
 
-    * **Summary:** Retrieves the content for the given photo 
+    * **Summary:** Retrieves the content for the given JPG photo 
 
     * **Method:** `GET`
   
     * **URL Parameters:** 
         * id: `a photo's unique id (as a long)`
-        * ext: `the photo's file extension`
     
     * **Success Response:**
     
       * **Code:** 200 OK <br />
         **Content:** 
         ``` 
-        The photo, encoded as a raw base64 string.
+        The raw photo.
+     
+    * **Error Response:**
+    
+      * **Code:** 400 Bad Request <br />
+    
+      or
+    
+      * **Code:** 401 Unauthorized <br />
+
+
+* `/photos/content/png/{id}.png`
+
+    * **Summary:** Retrieves the content for the given PNG photo 
+
+    * **Method:** `GET`
+  
+    * **URL Parameters:** 
+        * id: `a photo's unique id (as a long)`
+    
+    * **Success Response:**
+    
+      * **Code:** 200 OK <br />
+        **Content:** 
+        ``` 
+        The raw photo
      
     * **Error Response:**
     

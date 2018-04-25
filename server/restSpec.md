@@ -225,7 +225,7 @@ PhotoShare RESTful API specification
     
       * **Code:** 401 Unauthorized <br />
 
-* `/photos/{id}/content`
+* `/photos/content/{id.ext}`
 
     * **Summary:** Retrieves the content for the given photo 
 
@@ -233,6 +233,7 @@ PhotoShare RESTful API specification
   
     * **URL Parameters:** 
         * id: `a photo's unique id (as a long)`
+        * ext: `the photo's file extension`
     
     * **Success Response:**
     

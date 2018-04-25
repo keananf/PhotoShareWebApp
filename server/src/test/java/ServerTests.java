@@ -1,7 +1,6 @@
 import org.junit.Test;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.objects.*;
-import server.requests.UploadPhotoRequest;
 
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
@@ -219,9 +218,8 @@ public final class ServerTests extends TestUtility {
         assertEquals(photo.getPhotoName(), photoName);
 
         // Make separate request for photo contents
-        String receivedContents = apiClient.getPhotoContents(id).readEntity(String.class);
-        byte[] decodedContents = UploadPhotoRequest.decodeContents(receivedContents);
-        assertArrayEquals(contents, decodedContents);
+        byte[] receivedContents = apiClient.getPhotoContents(id, ext).readEntity(byte[].class);
+        assertArrayEquals(contents, receivedContents);
     }
 
     @Test
@@ -463,7 +461,7 @@ public final class ServerTests extends TestUtility {
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), removeResponse.getStatus());
 
         // Check photo was removed, InvalidResourceRequestException should be thrown
-        resolver.getPhotoContents(id);
+        resolver.getPhotoContents(id, ext);
     }
 
     @Test (expected = InvalidResourceRequestException.class)
@@ -483,7 +481,7 @@ public final class ServerTests extends TestUtility {
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), removeResponse.getStatus());
 
         // Check photo was removed, InvalidResourceRequestException should be thrown
-        resolver.getPhotoContents(id);
+        resolver.getPhotoContents(id, ext);
     }
 
     @Test

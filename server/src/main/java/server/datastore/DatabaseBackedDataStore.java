@@ -180,7 +180,7 @@ final class DatabaseBackedDataStore implements DataStore {
     }
 
     @Override
-    public String getPhotoContents(long id) throws InvalidResourceRequestException {
+    public String getPhotoContents(long id, String ext) throws InvalidResourceRequestException {
         // Set up query to retrieve the requested photo in the photos table
         String query = "SELECT * FROM "+PHOTOS_TABLE+" WHERE "+PHOTOS_ID+" = ?";
         List<String> photoContents = new ArrayList<>();
@@ -192,6 +192,10 @@ final class DatabaseBackedDataStore implements DataStore {
 
             // Iterate through result set, constructing PHOTO Objects
             while(rs.next()) {
+                // Check provided file extension is correct
+                String foundExt = rs.getString(3);
+                if(!ext.equals(foundExt)) throw new InvalidResourceRequestException(id);
+
                 // Retrieve base 64 encoded contents
                 Blob photo = rs.getBlob(6);
                 Scanner s = new Scanner(photo.getBinaryStream(), Resources.CHARSET_AS_STRING).useDelimiter("\\A");

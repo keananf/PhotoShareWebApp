@@ -112,21 +112,27 @@ public class PhotosApi {
      * @return the requested photo contents, sent as raw data
      */
     @GET
-    @Path("/{id}" + PHOTO_CONTENTS)
+    @Path(PHOTO_CONTENTS + "/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    public Response getPhotoContents(@PathParam("id") long id, @Context HttpHeaders headers) {
+    public Response getPhotoContents(@PathParam("id") String idAndExt, @Context HttpHeaders headers) {
+        // Parse parameter in form id.ext into an id and file extension
+        String[] components = idAndExt.split("\\.");
+        long id = Long.parseLong(components[0]);
+        String ext = components[1];
+
         try {
             // Retrieve provided auth info
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(HttpHeaders.DATE);
 
-            String path = String.format(PHOTO_CONTENTS_PATH, id);
+            String path = String.format("%s/%s", PHOTO_CONTENTS_PATH, idAndExt);
             RESOLVER.verifyAuth(path, sender, apiKey, date);
 
-            // Send the given photo's contents back to the client
-            String contents = RESOLVER.getPhotoContents(id);
+            // Send the given photo's contents back to the client, while ensuring it is
+            // decoded from base64 to its raw representation
+            byte[] contents = UploadPhotoRequest.decodeContents(RESOLVER.getPhotoContents(id, ext));
             return Response.ok(contents).build();
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
@@ -150,8 +156,8 @@ public class PhotosApi {
             String path = String.format("%s/%s", PHOTOS_PATH, id);
             RESOLVER.verifyAuth(path, sender, apiKey, date);
 
-            // Send the given photo's contents back to the client
-            return Response.ok(RESOLVER.getPhotoContents(id)).build();
+            // Send the given photo's meta data back to the client
+            return Response.ok(RESOLVER.getPhotoMetaData(id)).build();
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}

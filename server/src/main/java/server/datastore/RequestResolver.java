@@ -173,11 +173,12 @@ public final class RequestResolver {
     /**
      * Retrieves the photo contents for given photo
      * @param id the id of the photo
+     * @param ext the provided file extension
      * @return the encoded photo contents
      * @throws InvalidResourceRequestException if the photo doesn't exist
      */
-    public String getPhotoContents(long id) throws InvalidResourceRequestException {
-        return dataStore.getPhotoContents(id);
+    public String getPhotoContents(long id, String ext) throws InvalidResourceRequestException {
+        return dataStore.getPhotoContents(id, ext);
     }
 
     /**

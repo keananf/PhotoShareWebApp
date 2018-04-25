@@ -85,7 +85,7 @@ public class InvalidInputTests extends TestUtility {
 
         // Try to get an unknown photo from the server. Will fail
         long randomId = -1000000;
-        Response photosResponse = apiClient.getPhotoContents(randomId);
+        Response photosResponse = apiClient.getPhotoContents(randomId, ext);
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), photosResponse.getStatus());
     }
 

@@ -47,10 +47,11 @@ interface DataStore {
     /**
      * Retrieves the photo contents of given photo
      * @param id the id of the photo
+     * @param ext the provided file extension
      * @return the photo contents
      * @throws InvalidResourceRequestException if the photo doesn't exist
      */
-    String getPhotoContents(long id) throws InvalidResourceRequestException;
+    String getPhotoContents(long id, String ext) throws InvalidResourceRequestException;
 
     /**
      * Adds the given album

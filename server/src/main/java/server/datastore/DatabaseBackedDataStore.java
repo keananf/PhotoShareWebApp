@@ -56,7 +56,8 @@ final class DatabaseBackedDataStore implements DataStore {
     public void persistUploadPhoto(Photo newPhoto) {
         // Set up query for inserting a new photo into the table
         String query = "INSERT INTO "+PHOTOS_TABLE+"("+PHOTOS_ID+","+PHOTOS_NAME+","
-                +USERNAME+","+ALBUMS_ID+","+PHOTOS_CONTENTS+","+PHOTOS_TIME+") values(?, ?, ?, ?, ?, ?)";
+                +USERNAME+","+ALBUMS_ID+","+PHOTOS_CONTENTS+","+PHOTOS_TIME+","+PHOTOS_DESCRIPTION+")" +
+                " values(?, ?, ?, ?, ?, ?, ?)";
 
         // Persist photo
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -67,6 +68,7 @@ final class DatabaseBackedDataStore implements DataStore {
             stmt.setLong(4, newPhoto.getAlbumId());
             stmt.setBlob(5, new ByteArrayInputStream(newPhoto.getPhotoContents().getBytes(StandardCharsets.UTF_8)));
             stmt.setTimestamp(6, new Timestamp(newPhoto.getPhotoTime()));
+            stmt.setString(7, newPhoto.getDescription());
 
             // Persist data
             stmt.executeUpdate();
@@ -95,12 +97,13 @@ final class DatabaseBackedDataStore implements DataStore {
                 long albumId = rs.getLong(4);
                 Blob photoContents = rs.getBlob(5);
                 Timestamp timestamp = rs.getTimestamp(6);
+                String description = rs.getString(7);
 
                 // Retrieve base 64 encoded contents
                 Scanner s = new Scanner(photoContents.getBinaryStream(), Resources.CHARSET_AS_STRING).useDelimiter("\\A");
                 String encodedPhotoContents = s.hasNext() ? s.next() : "";
                 photos.add(new Photo(encodedPhotoContents, username, photoName, id, albumId,
-                        getPhotoRatings(id), timestamp.getTime()));
+                        getPhotoRatings(id), timestamp.getTime(), description));
             }
             stmt.close();
         }
@@ -129,12 +132,13 @@ final class DatabaseBackedDataStore implements DataStore {
                 String username = rs.getString(3);
                 Blob photoContents = rs.getBlob(5);
                 Timestamp timestamp = rs.getTimestamp(6);
+                String description = rs.getString(7);
 
                 // Retrieve base 64 encoded contents
                 Scanner s = new Scanner(photoContents.getBinaryStream(), Resources.CHARSET_AS_STRING).useDelimiter("\\A");
                 String encodedPhotoContents = s.hasNext() ? s.next() : "";
                 photos.add(new Photo(encodedPhotoContents, username, photoName, id, albumId,
-                        getPhotoRatings(id), timestamp.getTime()));
+                        getPhotoRatings(id), timestamp.getTime(), description));
             }
             stmt.close();
         }
@@ -163,12 +167,13 @@ final class DatabaseBackedDataStore implements DataStore {
                 long albumId = rs.getLong(4);
                 Blob photoContents = rs.getBlob(5);
                 Timestamp timestamp = rs.getTimestamp(6);
+                String description = rs.getString(7);
 
                 // Retrieve base 64 encoded contents
                 Scanner s = new Scanner(photoContents.getBinaryStream(), Resources.CHARSET_AS_STRING).useDelimiter("\\A");
                 String encodedPhotoContents = s.hasNext() ? s.next() : "";
                 photos.add(new Photo(encodedPhotoContents, username, photoName, id, albumId,
-                        getPhotoRatings(id), timestamp.getTime()));
+                        getPhotoRatings(id), timestamp.getTime(), description));
             }
             stmt.close();
         }

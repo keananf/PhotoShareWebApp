@@ -178,14 +178,9 @@ PhotoShare RESTful API specification
                 "photoName": string,
                 "extension": string,
                 "authorName": string,
-                "albumId": long,                 
-<<<<<<< HEAD
+                "albumId": long,
                 "photoTime": long 
-=======
-                "photoContents": (base64) string,
-                "photoTime": long,
-                "description": string 
->>>>>>> 3c6489dd6a98d15212d298a39a6086f6c6d7ab7e
+                "description": string
             },
             ...
         ]
@@ -217,15 +212,9 @@ PhotoShare RESTful API specification
             "photoName": string,
             "extension": string,
             "authorName": string,
-<<<<<<< HEAD
             "albumId": long,
-            "photoTime": long 
-=======
-            "albumId": long,                 
-            "photoContents": (base64) string,
             "photoTime": long,
             "description": string
->>>>>>> 3c6489dd6a98d15212d298a39a6086f6c6d7ab7e
         }
      
     * **Error Response:**
@@ -659,14 +648,9 @@ PhotoShare RESTful API specification
                 "photoName": string,
                 "extension": string,
                 "authorName": string,
-                "albumId": long,                 
-<<<<<<< HEAD
+                "albumId": long,
                 "photoTime": long 
-=======
-                "photoContents": (base64) string,
-                "photoTime": long,
                 "description": string
->>>>>>> 3c6489dd6a98d15212d298a39a6086f6c6d7ab7e
             },
             ...
         ]

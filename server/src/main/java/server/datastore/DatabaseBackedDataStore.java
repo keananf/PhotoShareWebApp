@@ -3,6 +3,7 @@ package server.datastore;
 import server.Resources;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.objects.*;
+import server.requests.UploadPhotoRequest;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -51,22 +52,23 @@ final class DatabaseBackedDataStore implements DataStore {
     }
 
     @Override
-    public void persistUploadPhoto(Photo newPhoto) {
+    public void persistUploadPhoto(long id, String author, UploadPhotoRequest request) {
         // Set up query for inserting a new photo into the table
-        String query = "INSERT INTO "+PHOTOS_TABLE+"("+PHOTOS_ID+","+PHOTOS_NAME+","
-                +USERNAME+","+ALBUMS_ID+","+PHOTOS_CONTENTS+","+PHOTOS_TIME+","+PHOTOS_DESCRIPTION+")" +
-                " values(?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO "+PHOTOS_TABLE+"("+PHOTOS_ID+","+PHOTOS_NAME+","+PHOTOS_EXT+","+USERNAME+","
+            +ALBUMS_ID+","+PHOTOS_CONTENTS+","+PHOTOS_TIME+","+PHOTOS_DESCRIPTION+") "+"values(?, ?, ?, ?, ?, ?, ?, ?)";
 
         // Persist photo
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             // Insert user info into prepared statement
-            stmt.setLong(1, newPhoto.getId());
-            stmt.setString(2, newPhoto.getPhotoName());
-            stmt.setString(3, newPhoto.getAuthorName());
-            stmt.setLong(4, newPhoto.getAlbumId());
-            stmt.setBlob(5, new ByteArrayInputStream(newPhoto.getPhotoContents().getBytes(StandardCharsets.UTF_8)));
-            stmt.setTimestamp(6, new Timestamp(newPhoto.getPhotoTime()));
-            stmt.setString(7, newPhoto.getDescription());
+            stmt.setLong(1, id);
+            stmt.setString(2, request.getPhotoName());
+            stmt.setString(3, request.getExt());
+            stmt.setString(4, author);
+            stmt.setLong(5, request.getAlbumId());
+            stmt.setBlob(6, new ByteArrayInputStream(request.getEncodedPhotoContents()
+                    .getBytes(StandardCharsets.UTF_8)));
+            stmt.setTimestamp(7, new Timestamp(System.nanoTime()));
+            stmt.setString(8, request.getDescription());
 
             // Persist data
             stmt.executeUpdate();
@@ -91,17 +93,14 @@ final class DatabaseBackedDataStore implements DataStore {
                 // Create photos
                 long id = rs.getLong(1);
                 String photoName = rs.getString(2);
-                String username = rs.getString(3);
-                long albumId = rs.getLong(4);
-                Blob photoContents = rs.getBlob(5);
-                Timestamp timestamp = rs.getTimestamp(6);
-                String description = rs.getString(7);
+                String ext = rs.getString(3);
+                String username = rs.getString(4);
+                long albumId = rs.getLong(5);
+                Timestamp timestamp = rs.getTimestamp(7);
+                String description = rs.getString(8);
 
-                // Retrieve base 64 encoded contents
-                Scanner s = new Scanner(photoContents.getBinaryStream(), Resources.CHARSET_AS_STRING).useDelimiter("\\A");
-                String encodedPhotoContents = s.hasNext() ? s.next() : "";
-                photos.add(new Photo(encodedPhotoContents, username, photoName, id, albumId,
-                        getPhotoRatings(id), timestamp.getTime(), description));
+                photos.add(new Photo(username, photoName, ext, description, id, albumId,
+                        getPhotoRatings(id), timestamp.getTime()));
             }
             stmt.close();
         }
@@ -127,16 +126,13 @@ final class DatabaseBackedDataStore implements DataStore {
                 // Create photos
                 long id = rs.getLong(1);
                 String photoName = rs.getString(2);
-                String username = rs.getString(3);
-                Blob photoContents = rs.getBlob(5);
-                Timestamp timestamp = rs.getTimestamp(6);
-                String description = rs.getString(7);
+                String ext = rs.getString(3);
+                String username = rs.getString(4);
+                Timestamp timestamp = rs.getTimestamp(7);
+                String description = rs.getString(8);
 
-                // Retrieve base 64 encoded contents
-                Scanner s = new Scanner(photoContents.getBinaryStream(), Resources.CHARSET_AS_STRING).useDelimiter("\\A");
-                String encodedPhotoContents = s.hasNext() ? s.next() : "";
-                photos.add(new Photo(encodedPhotoContents, username, photoName, id, albumId,
-                        getPhotoRatings(id), timestamp.getTime(), description));
+                photos.add(new Photo(username, photoName, ext, description, id, albumId,
+                        getPhotoRatings(id), timestamp.getTime()));
             }
             stmt.close();
         }
@@ -147,7 +143,7 @@ final class DatabaseBackedDataStore implements DataStore {
     }
 
     @Override
-    public Photo getPhoto(long id) throws InvalidResourceRequestException {
+    public Photo getPhotoMetaData(long id) throws InvalidResourceRequestException {
         // Set up query to retrieve the requested photo in the photos table
         String query = "SELECT * FROM "+PHOTOS_TABLE+" WHERE "+PHOTOS_ID+" = ?";
         List<Photo> photos = new ArrayList<>();
@@ -161,17 +157,14 @@ final class DatabaseBackedDataStore implements DataStore {
             while(rs.next()) {
                 // Create photos
                 String photoName = rs.getString(2);
-                String username = rs.getString(3);
-                long albumId = rs.getLong(4);
-                Blob photoContents = rs.getBlob(5);
-                Timestamp timestamp = rs.getTimestamp(6);
-                String description = rs.getString(7);
+                String ext = rs.getString(3);
+                String username = rs.getString(4);
+                long albumId = rs.getLong(5);
+                Timestamp timestamp = rs.getTimestamp(7);
+                String description = rs.getString(8);
 
-                // Retrieve base 64 encoded contents
-                Scanner s = new Scanner(photoContents.getBinaryStream(), Resources.CHARSET_AS_STRING).useDelimiter("\\A");
-                String encodedPhotoContents = s.hasNext() ? s.next() : "";
-                photos.add(new Photo(encodedPhotoContents, username, photoName, id, albumId,
-                        getPhotoRatings(id), timestamp.getTime(), description));
+                photos.add(new Photo(username, photoName, ext, description, id, albumId,
+                        getPhotoRatings(id), timestamp.getTime()));
             }
             stmt.close();
         }
@@ -180,8 +173,42 @@ final class DatabaseBackedDataStore implements DataStore {
         // If no photos found, throw exception
         if(photos.size() == 0) throw new InvalidResourceRequestException(id);
 
-        // Return found photo
+        // Return found photo contents
         return photos.get(0);
+    }
+
+    @Override
+    public String getPhotoContents(long id, String ext) throws InvalidResourceRequestException {
+        // Set up query to retrieve the requested photo in the photos table
+        String query = "SELECT * FROM "+PHOTOS_TABLE+" WHERE "+PHOTOS_ID+" = ?";
+        List<String> photoContents = new ArrayList<>();
+
+        // Execute query on database
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setLong(1, id);
+            ResultSet rs = stmt.executeQuery();
+
+            // Iterate through result set, constructing PHOTO Objects
+            while(rs.next()) {
+                // Check provided file extension is correct
+                String foundExt = rs.getString(3);
+                if(!ext.equals(foundExt)) throw new InvalidResourceRequestException(id);
+
+                // Retrieve base 64 encoded contents
+                Blob photo = rs.getBlob(6);
+                Scanner s = new Scanner(photo.getBinaryStream(), Resources.CHARSET_AS_STRING).useDelimiter("\\A");
+                String encodedPhotoContents = s.hasNext() ? s.next() : "";
+                photoContents.add(encodedPhotoContents);
+            }
+            stmt.close();
+        }
+        catch (SQLException e) { throw new InvalidResourceRequestException(id); }
+
+        // If no photos found, throw exception
+        if(photoContents.size() == 0) throw new InvalidResourceRequestException(id);
+
+        // Return found photo contents
+        return photoContents.get(0);
     }
 
     @Override

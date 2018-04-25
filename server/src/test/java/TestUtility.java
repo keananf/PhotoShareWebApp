@@ -20,9 +20,11 @@ public abstract class TestUtility {
     String username = "John";
     String pw = "1";
 
-    // Default album information
+    // Create sample data
     long albumId = 0;
-    String albumName = "albumName", description = "Descriptions";
+    String photoName = "username", comment = "comment", ext = "jpg";
+    byte[] contents = new byte[] {1, 2, 3, 4, 5};
+    String albumName = "albumName", description = "description";
 
     // Server
     private static final ServerMain server;

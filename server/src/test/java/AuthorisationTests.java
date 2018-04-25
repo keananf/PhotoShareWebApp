@@ -47,7 +47,7 @@ public class AuthorisationTests extends TestUtility {
     @Test
     public void unauthorisedGetPhotoTest() {
         // Assert unauthorised
-        Response response = apiClient.getPhoto(100);
+        Response response = apiClient.getPhotoContentsJPG(100, ext);
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 
@@ -60,12 +60,8 @@ public class AuthorisationTests extends TestUtility {
 
     @Test
     public void unauthorisedUploadPhotoTest() {
-        // Create sample data
-        String photoName = "username";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
-        // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, 0, contents, "some photo");
+        // Upload 'photo'
+        Response response = apiClient.uploadPhoto(photoName, ext, description, 0, contents);
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 

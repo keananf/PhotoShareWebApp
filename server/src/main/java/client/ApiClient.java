@@ -118,13 +118,15 @@ public final class ApiClient {
      * Encoded and uploads the given file
      *
      * @param photoName     the name of the photo
+     * @param ext the photo's extension
+     * @param description the photo's description
      * @param albumId the id of the album this photo is to be uploaded to
      * @param photoContents the byte[] representing the photo's contents
      * @return the response of the request.
      */
-    public Response uploadPhoto(String photoName, long albumId, byte[] photoContents, String description) {
+    public Response uploadPhoto(String photoName, String ext, String description, long albumId, byte[] photoContents) {
         // Construct request
-        UploadPhotoRequest request = new UploadPhotoRequest(photoName, photoContents, description, albumId);
+        UploadPhotoRequest request = new UploadPhotoRequest(photoName, ext, description, photoContents, albumId);
 
         // Encode request and POST
         return connector.post(baseTarget, UPLOAD_PHOTO_PATH, gson.toJson(request));
@@ -143,12 +145,38 @@ public final class ApiClient {
     }
 
     /**
-     * Encoded and uploads the given file
+     * Retrieves the photo contents from the given photo
+     *
+     * @param id the id of the photo
+     * @param ext the file extension
+     * @return the response of the request.
+     */
+    public Response getPhotoContentsPNG(long id, String ext) {
+        // Encode path and GET the requested photo
+        String path = String.format("%s/%s.%s", PHOTO_CONTENTS_PNG_PATH, id, ext);
+        return connector.get(baseTarget, path);
+    }
+
+    /**
+     * Retrieves the photo contents from the given photo
+     *
+     * @param id the id of the photo
+     * @param ext the file extension
+     * @return the response of the request.
+     */
+    public Response getPhotoContentsJPG(long id, String ext) {
+        // Encode path and GET the requested photo
+        String path = String.format("%s/%s.%s", PHOTO_CONTENTS_JPG_PATH, id, ext);
+        return connector.get(baseTarget, path);
+    }
+
+    /**
+     * Retrieves the photo meta-data for the given photo
      *
      * @param id the id of the photo
      * @return the response of the request.
      */
-    public Response getPhoto(long id) {
+    public Response getPhotoMetaData(long id) {
         // Encode path and GET the requested photo
         String path = String.format("%s/%s", PHOTOS_PATH, id);
         return connector.get(baseTarget, path);

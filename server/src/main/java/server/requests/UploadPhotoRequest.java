@@ -9,11 +9,13 @@ public final class UploadPhotoRequest {
 
     private final String encodedPhotoContents;
     private final String photoName;
+    private final String ext;
     private final long albumId;
     public final String description;
 
-    public UploadPhotoRequest(String photoName, byte[] photoContents, String description, long albumId) {
+    public UploadPhotoRequest(String photoName, String ext, String description, byte[] photoContents, long albumId) {
         this.photoName = photoName;
+        this.ext = ext;
         this.albumId = albumId;
         this.description = description;
 
@@ -53,6 +55,13 @@ public final class UploadPhotoRequest {
      */
     public String getPhotoName() {
         return photoName;
+    }
+
+    /**
+     * @return the photo's extension
+     */
+    public String getExt() {
+        return ext;
     }
 
     /**

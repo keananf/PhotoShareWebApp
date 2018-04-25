@@ -1,7 +1,9 @@
 import org.junit.Test;
+
+import server.Resources;
+import server.requests.*;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.objects.*;
-import server.requests.UploadPhotoRequest;
 
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
@@ -9,8 +11,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
-import static server.objects.CommentType.PHOTO_COMMENT;
-import static server.objects.CommentType.REPLY;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static server.objects.EventType.PHOTO_COMMENT;
+import static server.objects.EventType.REPLY;
 
 /**
  * Tests Server behaviour in response to RESTful API calls
@@ -1528,5 +1533,57 @@ public final class ServerTests extends TestUtility {
         String users = response.readEntity(String.class);
 
         assertEquals(gson.fromJson(users, User[].class).length, 2);
+    }
+    @Test
+    public void notificationAddedForFollowTest() {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Set up users who are following our sample user
+        String userFollowingOne = "user_following_one";
+        loginAndSetupNewUser(userFollowingOne);
+        apiClient.followUser(username);
+
+        // Log back into the sample user
+        apiClient.loginUser(username, pw);
+
+
+        // Get followers, and ensure it was successful
+        Response response = apiClient.getNotifications();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        // Parse JSON
+        String notifications = response.readEntity(String.class);
+
+        assertEquals(gson.fromJson(notifications, Notification[].class).length, 1);
+    }
+
+    @Test
+    public void notificationAddedForTwoFollowTest() {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Set up users who are following our sample user
+        String userFollowingOne = "user_following_one";
+        loginAndSetupNewUser(userFollowingOne);
+        apiClient.followUser(username);
+
+        String userFollowingTwo = "user_following_two";
+        loginAndSetupNewUser(userFollowingTwo);
+        apiClient.followUser(username);
+
+        // Log back into the sample user
+        apiClient.loginUser(username, pw);
+
+
+        // Get followers, and ensure it was successful
+        Response response = apiClient.getNotifications();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        // Parse JSON
+        String notifications = response.readEntity(String.class);
+        System.out.println(notifications);
+
+        assertEquals(gson.fromJson(notifications, Notification[].class).length, 2);
     }
 }

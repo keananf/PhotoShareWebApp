@@ -1,6 +1,7 @@
 package server.requests;
 
-import server.objects.CommentType;
+import server.objects.EventType;
+import server.objects.EventType;
 
 /**
  * Request wrapper for add comment common
@@ -9,12 +10,12 @@ public class AddCommentRequest {
 
     private final String commentContents;
     private final long referenceId;
-    private final CommentType commentType;
+    private final EventType eventType;
 
-    public AddCommentRequest(String commentContents, long referenceId, CommentType commentType) {
+    public AddCommentRequest(String commentContents, long referenceId, EventType eventType) {
         this.commentContents = commentContents;
         this.referenceId = referenceId;
-        this.commentType = commentType;
+        this.eventType = eventType;
     }
 
     /**
@@ -34,7 +35,7 @@ public class AddCommentRequest {
     /**
      * @return whether this is a reply or a comment
      */
-    public CommentType getCommentType() {
+    public EventType getEventType() {
         return commentType;
     }
 }

@@ -1,12 +1,14 @@
 (function () {
 
     class Post {
-        constructor(id, filename, username, date) {
+        constructor(id, title, username, date, extension) {
             this.id = id
-            this.filename = filename
+            this.title = title
             this.username = username
             this.date = date
+            this.extension = extension
 
+            this.albumId = null
             this._comments = null
             this.commentsCount = 0
             this.likesCount = 0
@@ -18,7 +20,12 @@
                 data = JSON.parse(data)
             }
 
-            let post = new Post(data.id, data.filename, data.username, data.date)
+            let post = new Post(
+                data.id,
+                data.photoName,
+                data.authorName,
+                data.photoTime / 1000, // Transforms milliseconds to seconds
+                data.ext)
 
             if (data.comments) {
                 post.comments = data.comments
@@ -36,18 +43,24 @@
                 post.likesCount = data.likesCount
             }
 
+            if (data.albumId) {
+                post.albumId = data.albumId
+            }
+
             return post
         }
 
         toJson() {
-            return JSON.stringify({
+            return {
                 id: this.id,
-                filename: this.filename,
-                username: this.username,
-                date: this.date,
+                photoName: this.title,
+                authorName: this.username,
+                photoTime: this.date * 1000, // Transform seconds to millisconds
+                albumId: this.albumId,
+                ext: this.extension,
                 comments: this._comments,
                 likes: this._likes,
-            })
+            }
         }
 
         getComments() {
@@ -101,6 +114,14 @@
 
         get route() {
             return '/post/' + this.id
+        }
+
+        get filename() {
+            return '/photos/content/' + this.extension + '/' + this.id + '.' + this.extension
+        }
+
+        get friendlyDate(){
+            return moment(this.date).fromNow()
         }
     }
 

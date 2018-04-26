@@ -45,6 +45,20 @@
                     )
                 }, 1000)
             })
+        },
+
+        getUsersFollowers(username){
+            // @todo
+            return new Promise((resolve, reject) => {
+                resolve([])
+            })
+        },
+
+        getUsersFollowing(username){
+            // @todo
+            return new Promise((resolve, reject) => {
+                resolve([])
+            })
         }
 
     }

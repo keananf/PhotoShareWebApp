@@ -9,7 +9,7 @@
                             {{ post.username }}
                         </router-link>
                     </span>
-                    <span class="date">{{ post.date }}</span>
+                    <span class="date">{{ post.friendlyDate }}</span>
                 </header>
                 <div class="post-image">
                     <router-link :to="route">
@@ -43,7 +43,7 @@
         computed: {
             route() {
                 return this.post.route
-            }
+            },
         }
 
     }

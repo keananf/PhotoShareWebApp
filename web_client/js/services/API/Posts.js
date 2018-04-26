@@ -19,14 +19,15 @@
         getPostsByUser(username) {
             // @todo
             return new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    resolve([
-                        new Models.Post('id1', 'https://newevolutiondesigns.com/images/freebies/abstract-background-preview-1.jpg', 'username1', '8 minutes ago'),
-                        new Models.Post('id2', 'https://newevolutiondesigns.com/images/freebies/abstract-background-preview-1.jpg', 'username2', '16 minutes ago'),
-                        new Models.Post('id3', 'https://newevolutiondesigns.com/images/freebies/abstract-background-preview-1.jpg', 'username2', '26 minutes ago'),
-                    ])
-                }, 1000) // Simulate API Call
+                http.get(API.endpoints.POSTS_GET_BY_USER.replace(':username', username)).then(res => {
+                    console.log(res)
+                    let posts = []
+                    for (let i in res) {
+                        posts.push(Models.Post.fromJson(res[i]))
+                    }
 
+                    resolve(posts)
+                }).catch(err => reject(err))
             })
         },
 

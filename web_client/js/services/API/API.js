@@ -11,6 +11,8 @@
             POSTS_GET: 'photos/:id',
             POSTS_FEED: 'newsfeeds/:username',
 
+            POSTS_GET_BY_USER: 'users/:username/photos',
+
             COMMENTS_GET_FOR_POST: 'comments/photos/:id'
         }
     }

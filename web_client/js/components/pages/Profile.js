@@ -37,7 +37,7 @@
 
             <div class="user-posts">
 
-                <post v-for="post in posts" :data="post" :key="post.id"></post>
+                <post v-for="post in posts" :data="post.toJson()" :key="post.id"></post>
 
             </div>
         </div>
@@ -87,7 +87,6 @@
                 loader.show()
 
                 API.Users.getUserData(this.$route.params.username).then(user => {
-                    // @todo if user is null show 404?
                     this.user = user
                     loader.hide()
                     this.userDataLoaded = true

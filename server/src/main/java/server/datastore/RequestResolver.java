@@ -121,11 +121,11 @@ public final class RequestResolver {
      */
 
     public Receipt uploadPhoto(String user, UploadPhotoRequest request)
-            throws InvalidResourceRequestException, DoesNotOwnAlbumException, InvalidPhotoFormatException, InvalidFileTypeException {
+            throws InvalidResourceRequestException, DoesNotOwnAlbumException, InvalidFileFormatException {
         // Ensure user is known
         getUser(user);
 
-        if(!isValidPhotoFormat(request.getEncodedPhotoContents())) throw new InvalidPhotoFormatException();
+        if(!isValidPhotoFormat(request.getEncodedPhotoContents())) throw new InvalidFileFormatException();
 
         // Ensure albumId is known, and that it belongs to the user
         Album album = getAlbum(request.getAlbumId());
@@ -135,7 +135,7 @@ public final class RequestResolver {
 
         // Ensure photo extension is permitted
         if(!allowedExtensions.contains(request.getExt().toLowerCase())) {
-            throw new InvalidFileTypeException(request.getExt().toLowerCase());
+            throw new InvalidFileFormatException(request.getExt().toLowerCase());
         }
 
         // Create photo and persist it

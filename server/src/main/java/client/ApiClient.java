@@ -237,6 +237,13 @@ public final class ApiClient {
         return connector.post(baseTarget, UPDATE_ALBUM_DESCRIPTION_PATH, gson.toJson(request));
     }
 
+    /**
+     * Sends an update photo description request to the server
+     *
+     * @param id the id of the photo
+     * @param description the new description
+     * @return the response of the request
+     */
     public Response updatePhotoDescription(long id, String description) {
         // Construct request
         UpdateDescriptionRequest request = new UpdateDescriptionRequest(id, description);

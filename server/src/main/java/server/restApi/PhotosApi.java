@@ -200,10 +200,10 @@ public class PhotosApi {
      * @return the requested photo, serialised in JSON
      */
     @POST
-    @Path("/{id}")
+    @Path(Resources.UPDATE_PHOTO_DESCRIPTION)
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response editPhotoDescription(@PathParam("id") long id, String message, @Context HttpHeaders headers) {
+    public Response editPhotoDescription(String message, @Context HttpHeaders headers) {
         try {
 
             UpdateDescriptionRequest request = gson.fromJson(message, UpdateDescriptionRequest.class);
@@ -212,9 +212,7 @@ public class PhotosApi {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(HttpHeaders.DATE);
-
-            String path = String.format("%s/%s", PHOTOS_PATH, id);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            RESOLVER.verifyAuth(Resources.UPDATE_PHOTO_DESCRIPTION_PATH, sender, apiKey, date);
 
             // Update description of relevant photo to the data store
             RESOLVER.updatePhotoDescription(sender, request.getId(), request.getDescription());

@@ -175,6 +175,15 @@ public class InvalidInputTests extends TestUtility {
     }
 
     @Test
+    public void updatePhotoDescriptionBadIdTest() {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        long photoId = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
+    }
+
+    @Test
     public void addPhotoToAlbumUnauthorisedTest() throws InvalidResourceRequestException {
         // Create sample data
         String username2 = username + "2";

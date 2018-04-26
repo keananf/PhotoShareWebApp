@@ -71,6 +71,27 @@ public final class ServerTests extends TestUtility {
     }
 
     @Test
+    public void updatePhotoDescriptionTest() throws InvalidResourceRequestException {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Upload a photo and record its ID
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        long photoId = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
+
+        // Update photo's description
+        String newDescription = "new " + description;
+        response = apiClient.updatePhotoDescription(photoId, newDescription);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+
+        // Check server has record of photo's new description
+        Photo photo = resolver.getPhotoMetaData(photoId);
+        assertEquals(photoName, photo.getPhotoName());
+        assertEquals(newDescription, photo.getDescription());
+    }
+
+    @Test
     public void getAllAlbumsTest() throws InvalidResourceRequestException {
         // Add sample user and register it
         loginAndSetupNewUser(username);

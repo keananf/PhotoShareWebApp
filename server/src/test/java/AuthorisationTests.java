@@ -150,6 +150,32 @@ public class AuthorisationTests extends TestUtility {
     }
 
     @Test
+    public void unauthorisedUpdatePhotoDescriptionTest() {
+        // Set up data
+        String newDescription = "new description";
+        long id = 1000;
+
+        // Update photo's description. Will fail because no user is logged in.
+        Response response = apiClient.updatePhotoDescription(id, newDescription);
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void unauthorisedUpdatePhotoDescriptionTest2() {
+        // Login and make a note of the user's photo
+        loginAndSetupNewUser(username);
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        long photoId = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
+
+        // Login as a new user, and attempt to update the first user's photo's description
+        // Assert bad request because it is not the owner calling this
+        loginAndSetupNewUser(username + "2");
+        response = apiClient.updatePhotoDescription(photoId, "new description");
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+    }
+
+    @Test
     public void unauthorisedAddCommentToPhotoTest() {
         // Assert unauthorised
         Response response = apiClient.addComment(100, PHOTO_COMMENT, username);

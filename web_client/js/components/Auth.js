@@ -31,6 +31,14 @@
         computed: {
             isLoggedIn(){
                 return !!this.currentUser
+            },
+
+            user(){
+                return this.currentUser
+            },
+
+            username(){
+                return this.currentUser.username
             }
         }
     }

@@ -8,6 +8,7 @@
 
             POSTS_CREATE: 'photos/upload',
             POSTS_GET: 'photos/:id',
+            POSTS_FEED: 'newsfeeds/:username',
 
             COMMENTS_GET_FOR_POST: 'comments/photos/:id'
         }

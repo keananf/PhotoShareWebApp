@@ -1,4 +1,3 @@
-import server.objects.*;
 import org.junit.Test;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.objects.Album;

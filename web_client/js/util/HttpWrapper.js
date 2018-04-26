@@ -15,14 +15,14 @@
             if (HW.auth !== undefined && HW.auth !== null) {
                 // Make the token/digest
                 let timestamp = moment().format('YYYY/MM/DD HH:mm:ss')
-                console.log(timestamp)
                 let endPoint = '/' + url
                 let token = timestamp + endPoint + HW.auth.username + ':' + HW.auth.passwordHash
                 token = sha256(token)
                 token = btoa(token)
 
                 HW.setAdditionalHeaders({
-                    'Authorization': HW.auth.username + ':' + token
+                    'Authorization': HW.auth.username + ':' + token,
+                    'X-Date': timestamp
                 })
             } else {
                 HW.unsetAuthParameters()
@@ -45,6 +45,7 @@
                 let headers = HW.getAdditionalHeaders()
                 if (headers !== undefined && headers !== null) {
                     for (let k in headers) {
+                        console.log("Setting", k, "to", headers[k])
                         options.headers[k] = headers[k]
                     }
                 }

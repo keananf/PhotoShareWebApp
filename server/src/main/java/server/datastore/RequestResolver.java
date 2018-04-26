@@ -30,13 +30,13 @@ public final class RequestResolver {
 
     /**
      * Verify the auth info sent by the client. Try to generate shared secret.
-     * @param endPoint the api being accessed.
+     *
      * @param username the user who sent the request
      * @param apiKey the apiKey the user provided with the login request
      * @param date the timestamp of the sent request
      * @throws UnauthorisedException if bad provided info
      */
-    public void verifyAuth(String endPoint, String username, String apiKey, String date) throws UnauthorisedException {
+    public void verifyAuth(String username, String apiKey, String date) throws UnauthorisedException {
         // Check user exists on server
         try {
             User user = getUser(username);
@@ -47,7 +47,7 @@ public final class RequestResolver {
             if(!DEBUG && time - dateTime > TIMEOUT) throw new UnauthorisedException();
 
             // Compare generated secret API key
-            String key = Auth.getApiKey(endPoint, username, user.getPassword(), date).split(":")[1];
+            String key = Auth.getApiKey(username, user.getPassword(), date).split(":")[1];
             if(!key.equals(apiKey)) throw new UnauthorisedException();
         }
         catch (InvalidResourceRequestException | ParseException ignored) {throw new UnauthorisedException();}
@@ -55,16 +55,16 @@ public final class RequestResolver {
 
     /**
      * Verify the admin auth info sent by the client. Try to generate shared secret.
-     * @param endPoint the api being accessed.
+     *
      * @param user the user who sent the request
      * @param apiKey the apiKey the user provided with the login request
      * @param date the timestamp of the sent request
      * @throws UnauthorisedException if bad provided info
      */
-    public void verifyAdminAuth(String endPoint, String user, String apiKey, String date) throws UnauthorisedException,
+    public void verifyAdminAuth(String user, String apiKey, String date) throws UnauthorisedException,
             InvalidResourceRequestException {
         // Ensure valid user and client
-        verifyAuth(endPoint, user, apiKey, date);
+        verifyAuth(user, apiKey, date);
 
         // Ensure user is an admin
         if(!getUser(user).isAdmin()) throw new UnauthorisedException();

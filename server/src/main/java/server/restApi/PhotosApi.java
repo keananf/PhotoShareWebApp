@@ -42,8 +42,7 @@ public class PhotosApi {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(Resources.DATE_HEADER);
-
-            RESOLVER.verifyAuth(Resources.UPLOAD_PHOTO_PATH, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Upload encoded photo to the data store
             Receipt receipt = RESOLVER.uploadPhoto(sender, request);
@@ -64,9 +63,7 @@ public class PhotosApi {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(Resources.DATE_HEADER);
-
-            String path = String.format("%s/%s", Resources.DELETE_PHOTO_PATH, photoId);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Upload comment to the data store
             RESOLVER.removePhoto(sender, photoId);
@@ -91,9 +88,7 @@ public class PhotosApi {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(Resources.DATE_HEADER);
-
-            String path = String.format("%s/%s", Resources.GET_PHOTOS_BY_ALBUM_PATH, albumId);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Retrieve list retrieved from data manipulation layer
             // and convert photos into JSON array
@@ -123,9 +118,7 @@ public class PhotosApi {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(Resources.DATE_HEADER);
-
-            String path = String.format("%s/%s", PHOTO_CONTENTS_PNG_PATH, idAndExt);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Send the given photo's contents back to the client, while ensuring it is
             // decoded from base64 to its raw representation
@@ -156,9 +149,7 @@ public class PhotosApi {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(Resources.DATE_HEADER);
-
-            String path = String.format("%s/%s", PHOTO_CONTENTS_JPG_PATH, idAndExt);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Send the given photo's contents back to the client, while ensuring it is
             // decoded from base64 to its raw representation
@@ -182,9 +173,7 @@ public class PhotosApi {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(Resources.DATE_HEADER);
-
-            String path = String.format("%s/%s", PHOTOS_PATH, id);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Send the given photo's meta data back to the client
             return Response.ok(RESOLVER.getPhotoMetaData(id)).build();
@@ -209,9 +198,7 @@ public class PhotosApi {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(Resources.DATE_HEADER);
-
-            String path = String.format("%s/%s", Resources.PHOTO_UPVOTE_PATH, photoId);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Register upvote with server
             RESOLVER.ratePhoto(photoId, sender, true);
@@ -237,9 +224,7 @@ public class PhotosApi {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(Resources.DATE_HEADER);
-
-            String path = String.format("%s/%s", Resources.PHOTO_DOWNVOTE_PATH, photoId);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Register downvote with server
             RESOLVER.ratePhoto(photoId, sender, false);

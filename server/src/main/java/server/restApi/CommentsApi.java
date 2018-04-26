@@ -42,7 +42,7 @@ public class CommentsApi {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(Resources.DATE_HEADER);
-            RESOLVER.verifyAuth(Resources.ADD_COMMENT_PATH, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Upload comment to the data store
             Receipt receipt = RESOLVER.addComment(sender, request);
@@ -69,8 +69,7 @@ public class CommentsApi {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(Resources.DATE_HEADER);
-            String path = String.format("%s/%s", Resources.DELETE_COMMENT_PATH, commentId);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Upload comment to the data store
             RESOLVER.removeComment(sender, commentId);
@@ -99,8 +98,7 @@ public class CommentsApi {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(Resources.DATE_HEADER);
-            String path = String.format("%s/%s", Resources.EDIT_COMMENT_PATH, commentId);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Update comment in the data store
             Receipt receipt = RESOLVER.editComment(sender, commentId, request);
@@ -125,8 +123,7 @@ public class CommentsApi {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(Resources.DATE_HEADER);
-            String path = String.format("%s/%s", Resources.COMMENTS_PATH, user);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Retrieve list retrieved from data manipulation layer
             // and convert comments into JSON array
@@ -151,8 +148,7 @@ public class CommentsApi {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(Resources.DATE_HEADER);
-            String path = String.format("%s/%s", Resources.GET_ALL_PHOTO_COMMENTS_PATH, photoId);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Retrieve list retrieved from data manipulation layer
             // and convert comments into JSON array
@@ -177,8 +173,7 @@ public class CommentsApi {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(Resources.DATE_HEADER);
-            String path = String.format("%s/%s", Resources.GET_ALL_REPLIES_PATH, commentId);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Retrieve list retrieved from data manipulation layer
             // and convert comments into JSON array
@@ -205,8 +200,7 @@ public class CommentsApi {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(Resources.DATE_HEADER);
-            String path = String.format("%s/%s", Resources.COMMENT_UPVOTE_PATH, commentId);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Register upvote with server
             RESOLVER.voteOnComment(commentId, sender, true);
@@ -233,8 +227,7 @@ public class CommentsApi {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(Resources.DATE_HEADER);
-            String path = String.format("%s/%s", Resources.COMMENT_DOWNVOTE_PATH, commentId);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Register downvote with server
             RESOLVER.voteOnComment(commentId, sender, false);

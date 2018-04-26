@@ -33,16 +33,15 @@ class Connector {
         WebTarget pathTarget = baseTarget.path(path);
 
         // Get result and return
-        return headers(pathTarget.request(), path).get();
+        return headers(pathTarget.request()).get();
     }
 
     /**
      * Add the date and authorisation headers
      * @param request the request
-     * @param path the endpoint
      * @return the request with the headers added
      */
-    private Invocation.Builder headers(Invocation.Builder request, String path) {
+    private Invocation.Builder headers(Invocation.Builder request) {
         try {
             // The date format that the server expects
             SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -53,7 +52,7 @@ class Connector {
 
             // Add header for encoded date and the apiKey
             return request.header(Resources.DATE_HEADER, dateStr)
-                    .header(AUTHORIZATION, Auth.getApiKey(path, user, password, dateStr));
+                    .header(AUTHORIZATION, Auth.getApiKey(user, password, dateStr));
         }
         catch(ParseException e) {
             e.printStackTrace();
@@ -72,7 +71,7 @@ class Connector {
         WebTarget pathTarget = baseTarget.path(path);
 
         // Get result and return
-        return headers(pathTarget.request(), path).delete();
+        return headers(pathTarget.request()).delete();
     }
 
     /**
@@ -86,7 +85,7 @@ class Connector {
         WebTarget pathTarget = baseTarget.path(path);
 
         // Post the message to the research and check the status.
-        Response result = headers(pathTarget.request(), path).put(Entity.entity("{}", MediaType.APPLICATION_JSON));
+        Response result = headers(pathTarget.request()).put(Entity.entity("{}", MediaType.APPLICATION_JSON));
         return result;
     }
 
@@ -102,7 +101,7 @@ class Connector {
         WebTarget pathTarget = baseTarget.path(path);
 
         // Post the message to the research and check the status.
-        Response result = headers(pathTarget.request(), path).post(Entity.entity(message, MediaType.APPLICATION_JSON));
+        Response result = headers(pathTarget.request()).post(Entity.entity(message, MediaType.APPLICATION_JSON));
         return result;
     }
 
@@ -112,7 +111,7 @@ class Connector {
      * @param baseTarget the web target for the base url
      * @param path       the path to GET from
      */
-    protected Response getWithQuery(WebTarget baseTarget, String path, String queryKey, String queryValue) {
+    Response getWithQuery(WebTarget baseTarget, String path, String queryKey, String queryValue) {
 
         // Get API resource
         WebTarget pathTarget = baseTarget.path(path);
@@ -123,7 +122,7 @@ class Connector {
         String fullpath = String.format("%s?%s", path, query);
 
         // Get result and return
-        return headers(search.request(), fullpath).get();
+        return headers(search.request()).get();
     }
 
     void setUserAndPw(String user, String password) {

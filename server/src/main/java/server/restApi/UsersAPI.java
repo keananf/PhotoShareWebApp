@@ -39,8 +39,7 @@ public final class UsersAPI {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(Resources.DATE_HEADER);
-
-            RESOLVER.verifyAuth(Resources.USERS_PATH, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
         }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build(); }
 
@@ -115,8 +114,7 @@ public final class UsersAPI {
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(Resources.DATE_HEADER);
 
-            String path = String.format(Resources.GET_USER_PHOTOS_PATH, username);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Retrieve list retrieved from data manipulation layer
             // and convert photos into JSON array
@@ -143,7 +141,7 @@ public final class UsersAPI {
 
         try {
             // Process Request
-            RESOLVER.verifyAuth(Resources.FOLLOW_USERS_PATH + "/" + userTo, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
             RESOLVER.followUser(sender, userTo);
 
         } catch (InvalidResourceRequestException ie) {
@@ -177,7 +175,7 @@ public final class UsersAPI {
 
         try {
             // Process Request
-            RESOLVER.verifyAuth(Resources.UNFOLLOW_USERS_PATH + "/" + userTo, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
             RESOLVER.unfollowUser(sender, userTo);
 
         } catch (UnauthorisedException e) {
@@ -207,8 +205,7 @@ public final class UsersAPI {
 
         try {
             // Process request
-            String path = String.format("%s/%s", USERS_FOLLOWING_PATH , username);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
             RESOLVER.getFollowers(username);
 
             List<User> following = RESOLVER.getFollowing(username);
@@ -237,8 +234,7 @@ public final class UsersAPI {
 
         try {
             // Process request
-            String path = String.format("%s/%s", USERS_FOLLOWERS_PATH , username);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
             RESOLVER.getFollowers(username);
 
             List<User> following = RESOLVER.getFollowers(username);
@@ -265,8 +261,7 @@ public final class UsersAPI {
 
         try {
             // Process request
-            String path = String.format("%s?%s=%s", USERS_SEARCH_BAR_PATH, NAME_PARAM , value);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             List<User> users = RESOLVER.getUsersWithName(value);
 

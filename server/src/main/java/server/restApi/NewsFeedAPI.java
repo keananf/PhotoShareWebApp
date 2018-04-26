@@ -40,8 +40,7 @@ public final class NewsFeedAPI {
             String[] authHeaderComponents = authHeader.split(":");
             String sender = authHeaderComponents[0], apiKey = authHeaderComponents[1];
             String date = headers.getHeaderString(Resources.DATE_HEADER);
-            String path = String.format("%s/%s", Resources.NEWS_FEED_PATH , username);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Processing Request
             List<Photo> photos = RESOLVER.getNewsFeed(username);

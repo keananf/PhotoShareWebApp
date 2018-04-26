@@ -38,8 +38,7 @@ public class AdminApi {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(Resources.DATE_HEADER);
-            String path = String.format("%s/%s", Resources.ADMIN_REMOVE_COMMENT_PATH, commentId);
-            RESOLVER.verifyAdminAuth(path, sender, apiKey, date);
+            RESOLVER.verifyAdminAuth(sender, apiKey, date);
 
             // Delete comment from the data store
             RESOLVER.removeCommentAdmin(commentId);
@@ -64,8 +63,7 @@ public class AdminApi {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(Resources.DATE_HEADER);
-            String path = String.format("%s/%s", Resources.ADMIN_REMOVE_PHOTO_PATH, photoId);
-            RESOLVER.verifyAdminAuth(path, sender, apiKey, date);
+            RESOLVER.verifyAdminAuth(sender, apiKey, date);
 
             // Delete photo from data store
             RESOLVER.removePhotoAdmin(photoId);

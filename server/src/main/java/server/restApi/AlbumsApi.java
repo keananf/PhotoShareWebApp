@@ -44,7 +44,7 @@ public class AlbumsApi {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(Resources.DATE_HEADER);
-            RESOLVER.verifyAuth(Resources.ADD_ALBUM_PATH, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Upload new album to the data store
             Receipt receipt = RESOLVER.addAlbum(sender, request.getAlbumName(), request.getDescription());
@@ -73,7 +73,7 @@ public class AlbumsApi {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(Resources.DATE_HEADER);
-            RESOLVER.verifyAuth(Resources.UPDATE_ALBUM_DESCRIPTION_PATH, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Upload new description to data store
             RESOLVER.updateAlbumDescription(sender, request.getAlbumId(), request.getDescription());
@@ -99,8 +99,7 @@ public class AlbumsApi {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(Resources.DATE_HEADER);
-            String path = String.format("%s/%s", Resources.GET_USER_ALBUMS_PATH, user);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Retrieve list retrieved from data manipulation layer
             // and convert albums into JSON array
@@ -125,9 +124,7 @@ public class AlbumsApi {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
             String date = headers.getHeaderString(Resources.DATE_HEADER);
-
-            String path = String.format("%s/%s", Resources.GET_ALBUM_BY_ID_PATH, id);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Upload encoded album to the data store
             Album album = RESOLVER.getAlbum(id);

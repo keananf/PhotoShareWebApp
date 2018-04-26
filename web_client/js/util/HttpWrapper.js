@@ -22,8 +22,10 @@
                 token = btoa(token)
 
                 HW.setAdditionalHeaders({
-                    'Authentication': HW.auth.username + ':' + token
+                    'Authorization': HW.auth.username + ':' + token
                 })
+            } else {
+                HW.unsetAuthParameters()
             }
 
             return new Promise(function (resolve, reject) {

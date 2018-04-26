@@ -48,13 +48,12 @@ class Connector {
             SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
             // Get current time. and convert it into the correct format while rounding to the nearest second.
-            long time = System.currentTimeMillis();
-            Date d = format.parse(format.format(new Date(time)));
-            time = d.getTime();
+            Date d = format.parse(format.format(new Date(System.currentTimeMillis())));
+            String dateStr = format.format(d);
 
             // Add header for encoded date and the apiKey
-            return request.header(Resources.DATE_HEADER, format.format(d))
-                    .header(AUTHORIZATION, Auth.getApiKey(path, user, password, time));
+            return request.header(Resources.DATE_HEADER, dateStr)
+                    .header(AUTHORIZATION, Auth.getApiKey(path, user, password, dateStr));
         }
         catch(ParseException e) {
             e.printStackTrace();

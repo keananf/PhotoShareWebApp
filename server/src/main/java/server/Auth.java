@@ -18,9 +18,9 @@ public abstract class Auth {
      * @param systemTime the provided time when a request was launched
      * @return the encoded authentication information.
      */
-    public static String getApiKey(String endPoint, String user, String base64HashedPassword, long systemTime) {
+    public static String getApiKey(String endPoint, String user, String base64HashedPassword, String systemTime) {
         // Compose raw info used to make api key
-        String key = String.format("%d%s%s:%s", systemTime, endPoint, user, base64HashedPassword);
+        String key = String.format("%s%s%s:%s", systemTime, endPoint, user, base64HashedPassword);
 
         // Hash and encode the overall key, and append the username before it.
         return String.format("%s:%s", user, hashAndEncodeBase64(key));

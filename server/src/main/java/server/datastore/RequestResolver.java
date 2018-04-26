@@ -90,7 +90,7 @@ public final class RequestResolver {
         boolean admin = (getUsers().size() == 0);
 
         // Persist user with hashed and encoded password
-        dataStore.persistAddUser(username, Auth.hashAndEncodeBase64(password), admin);
+        dataStore.persistAddUser(username, Auth.hashAndEncodeHex(password), admin);
     }
 
     /**
@@ -107,7 +107,7 @@ public final class RequestResolver {
 
         // Check the stored, hashed password with the hash of the sent password.
         // If they don't match, then the request is unauthorised.
-        if(!user.getPassword().equals(Auth.hashAndEncodeBase64(password))) throw new UnauthorisedException();
+        if(!user.getPassword().equals(Auth.hashAndEncodeHex(password))) throw new UnauthorisedException();
 
         // Return user information to client
         return new LoginResult(user.getUsername(), user.getPassword(), user.isAdmin());

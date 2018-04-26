@@ -71,7 +71,7 @@ public final class ApiClient {
 
         // Register user to this client if log-in was successful
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-            this.password = Auth.hashAndEncodeBase64(password);
+            this.password = Auth.hashAndEncodeHex(password);
             this.user = user;
             connector.setUserAndPw(this.user, this.password);
         }

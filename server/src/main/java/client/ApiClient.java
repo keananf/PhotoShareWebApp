@@ -3,7 +3,7 @@ package client;
 import com.google.gson.Gson;
 import server.Auth;
 import server.Resources;
-import server.objects.CommentType;
+import server.objects.EventType;
 import server.requests.*;
 
 import javax.ws.rs.client.Client;
@@ -46,7 +46,7 @@ public final class ApiClient {
      */
     public Response addUser(String user, String password) {
         // Convert the user into JSON
-        String userJson = gson.toJson(new AddUserRequest(user, Auth.hashAndEncodeBase64(password)));
+        String userJson = gson.toJson(new AddOrLoginUserRequest(user, password));
 
         // POST jsonUser to the resource for adding users.
         return connector.post(baseTarget, ADD_USER_PATH, userJson);
@@ -62,18 +62,18 @@ public final class ApiClient {
      * @return the response of the request.
      */
     public Response loginUser(String user, String password) {
-        // Send the auth information to the log-in API.
-        connector.setUserAndPw(user, Auth.hashAndEncodeBase64(password));
-        Response response = connector.get(baseTarget, LOGIN_USER_PATH);
+
+        // Convert the user into JSON
+        String userJson = gson.toJson(new AddOrLoginUserRequest(user, password));
+
+        // POST to the resource for adding users.
+        Response response = connector.post(baseTarget, LOGIN_USER_PATH, userJson);
 
         // Register user to this client if log-in was successful
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
             this.password = Auth.hashAndEncodeBase64(password);
             this.user = user;
-        }
-        else {
-            // Unset the entered username and password if the request failed
-            connector.setUserAndPw("", "");
+            connector.setUserAndPw(this.user, this.password);
         }
 
         // Return response
@@ -103,6 +103,7 @@ public final class ApiClient {
      *
      * @param albumName the album's name
      * @param description the album's description
+     * @param user     the author of the album
      * @return the response of the request.
      */
     public Response addAlbum(String albumName, String description) {
@@ -117,13 +118,15 @@ public final class ApiClient {
      * Encoded and uploads the given file
      *
      * @param photoName     the name of the photo
+     * @param ext the photo's extension
+     * @param description the photo's description
      * @param albumId the id of the album this photo is to be uploaded to
      * @param photoContents the byte[] representing the photo's contents
      * @return the response of the request.
      */
-    public Response uploadPhoto(String photoName, long albumId, byte[] photoContents) {
+    public Response uploadPhoto(String photoName, String ext, String description, long albumId, byte[] photoContents) {
         // Construct request
-        UploadPhotoRequest request = new UploadPhotoRequest(photoName, photoContents, albumId);
+        UploadPhotoRequest request = new UploadPhotoRequest(photoName, ext, description, photoContents, albumId);
 
         // Encode request and POST
         return connector.post(baseTarget, UPLOAD_PHOTO_PATH, gson.toJson(request));
@@ -142,12 +145,38 @@ public final class ApiClient {
     }
 
     /**
-     * Encoded and uploads the given file
+     * Retrieves the photo contents from the given photo
+     *
+     * @param id the id of the photo
+     * @param ext the file extension
+     * @return the response of the request.
+     */
+    public Response getPhotoContentsPNG(long id, String ext) {
+        // Encode path and GET the requested photo
+        String path = String.format("%s/%s.%s", PHOTO_CONTENTS_PNG_PATH, id, ext);
+        return connector.get(baseTarget, path);
+    }
+
+    /**
+     * Retrieves the photo contents from the given photo
+     *
+     * @param id the id of the photo
+     * @param ext the file extension
+     * @return the response of the request.
+     */
+    public Response getPhotoContentsJPG(long id, String ext) {
+        // Encode path and GET the requested photo
+        String path = String.format("%s/%s.%s", PHOTO_CONTENTS_JPG_PATH, id, ext);
+        return connector.get(baseTarget, path);
+    }
+
+    /**
+     * Retrieves the photo meta-data for the given photo
      *
      * @param id the id of the photo
      * @return the response of the request.
      */
-    public Response getPhoto(long id) {
+    public Response getPhotoMetaData(long id) {
         // Encode path and GET the requested photo
         String path = String.format("%s/%s", PHOTOS_PATH, id);
         return connector.get(baseTarget, path);
@@ -303,7 +332,7 @@ public final class ApiClient {
      * @param commentContent the comment contents
      * @return the response of the request
      */
-    public Response addComment(long id, CommentType type, String commentContent) {
+    public Response addComment(long id, EventType type, String commentContent) {
         // Construct request
         AddCommentRequest request = new AddCommentRequest(commentContent, id, type);
 

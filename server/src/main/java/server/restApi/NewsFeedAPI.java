@@ -15,6 +15,21 @@ import java.util.List;
 
 import static server.ServerMain.RESOLVER;
 
+import com.google.gson.Gson;
+import server.Resources;
+import server.datastore.exceptions.InvalidResourceRequestException;
+import server.datastore.exceptions.UnauthorisedException;
+import server.objects.Photo;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.util.List;
+
+import static server.ServerMain.RESOLVER;
+
 /**
  * Class describing the behaviour of the api at NEWS_FEED_PATH
  *

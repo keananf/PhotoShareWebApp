@@ -33,7 +33,6 @@ public final class UsersAPI {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     public Response getUsers(@Context HttpHeaders headers) {
         try {
             // Retrieve auth headers
@@ -109,7 +108,6 @@ public final class UsersAPI {
     @GET
     @Path("/{username}" + PHOTOS_PATH)
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     public Response getAllPhotosFromUser(@PathParam("username") String username, @Context HttpHeaders headers) {
         try {
             // Retrieve provided auth info
@@ -164,10 +162,8 @@ public final class UsersAPI {
     }
 
     /**
-     *
      * Attempts to unfollow user
      *
-     * @param json the serialised FollowUserRequest passed as the request body.
      * @return a parsed list of all photos from the requested user in the system
      */
 
@@ -192,21 +188,17 @@ public final class UsersAPI {
 
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-
-
         return Response.noContent().build();
     }
 
     /**
      * Gets a list of persons (Users) the user is currently following
      * @param username
-     * @param json
      * @return
      */
     @GET
     @Path(Resources.FOLLOWING + "/{username}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     public Response getFollowing(@PathParam("username") String username, @Context HttpHeaders headers) {
         // Retrieve provided auth info
         String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
@@ -227,8 +219,6 @@ public final class UsersAPI {
         } catch (UnauthorisedException e) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
-
-
     }
 
     /**
@@ -240,7 +230,6 @@ public final class UsersAPI {
     @GET
     @Path(Resources.FOLLOWERS + "/{username}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     public Response getFollowers(@PathParam("username") String username, @Context HttpHeaders headers) {
         // Retrieve provided auth info
         String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");

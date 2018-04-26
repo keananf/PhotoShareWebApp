@@ -661,6 +661,13 @@ public final class RequestResolver {
         return newsFeed;
     }
 
+    /**
+     * Search for users whose name contains query
+     *
+     * @param name search query on the user's name
+     * @return the given users, who have names like the query
+     */
+
     public List<User> getUsersWithName(String name){
         return dataStore.getUserWithNameBegining(name);
     }

@@ -1,10 +1,8 @@
 import org.junit.Test;
 
-import server.Resources;
-import server.requests.*;
+
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.objects.*;
-import server.requests.UploadPhotoRequest;
 
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
@@ -15,8 +13,7 @@ import static org.junit.Assert.*;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static server.objects.EventType.PHOTO_COMMENT;
-import static server.objects.EventType.REPLY;
+import static server.objects.EventType.*;
 
 /**
  * Tests Server behaviour in response to RESTful API calls
@@ -126,7 +123,6 @@ public final class ServerTests extends TestUtility {
         assertEquals(2, photos.size());
         assertNotEquals(id, id2);
         for(Photo p : photos) {
-            assertArrayEquals(contents, UploadPhotoRequest.decodeContents(p.getPhotoContents()));
             assertEquals(photoName, p.getPhotoName());
             assertEquals(description, p.getDescription());
         }
@@ -150,7 +146,6 @@ public final class ServerTests extends TestUtility {
         for(Photo photo : photos) {
             assertEquals(photo.getAuthorName(), username);
             assertEquals(photo.getPhotoName(), photoName);
-            assertArrayEquals(contents, UploadPhotoRequest.decodeContents(photo.getPhotoContents()));
             assertEquals(photo.getDescription(), description);
         }
     }
@@ -267,8 +262,8 @@ public final class ServerTests extends TestUtility {
         // Send same upvote request again. Ensure it worked, but that nothing changed on the server
         voteResponse = apiClient.ratePhoto(id, true);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
-        assertEquals(1, resolver.getPhoto(id).getUpvotes().size());
-        assertEquals(0, resolver.getPhoto(id).getDownvotes().size());
+        assertEquals(1, resolver.getPhotoMetaData(id).getUpvotes().size());
+        assertEquals(0, resolver.getPhotoMetaData(id).getDownvotes().size());
     }
 
     @Test
@@ -1472,7 +1467,7 @@ public final class ServerTests extends TestUtility {
         loginAndSetupNewUser(username);
 
         // Set up users who are following our sample user
-        String sampleSearchedUser = "user_following_one";
+        String sampleSearchedUser = "user_one";
         loginAndSetupNewUser(sampleSearchedUser);
 
         // Log back into the sample user
@@ -1480,7 +1475,7 @@ public final class ServerTests extends TestUtility {
 
 
         // Get followers, and ensure it was successful
-        String searchTerm = sampleSearchedUser.substring(0, 5);
+        String searchTerm = sampleSearchedUser.substring(0, 4);
         Response response = apiClient.getUserWithNameBegining(searchTerm);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
@@ -1503,7 +1498,7 @@ public final class ServerTests extends TestUtility {
         String sampleSearchedUserOne = "user_one";
         loginAndSetupNewUser(sampleSearchedUserOne);
 
-        String sampleSearchedUserTwo = "user_following_two";
+        String sampleSearchedUserTwo = "user_two";
         loginAndSetupNewUser(sampleSearchedUserTwo);
 
         // Log back into the sample user

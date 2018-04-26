@@ -618,7 +618,7 @@ PhotoShare RESTful API specification
       ```
       {
           "username": string,
-          "password": int
+          "password": string
       }
       
     * **Success Response:**

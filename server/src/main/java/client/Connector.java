@@ -1,6 +1,5 @@
 package client;
 
-import com.sun.xml.internal.xsom.impl.scd.SimpleCharStream;
 import server.Auth;
 
 import javax.ws.rs.client.Entity;

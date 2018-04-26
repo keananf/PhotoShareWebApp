@@ -52,6 +52,13 @@ const app = new Vue({
             if (!this.$refs['auth']) return {}
             return this.$refs['auth']
         }
+    },
+
+    created(){
+        // Redirect to login page if user is not logged in and requiring a non-login route
+        if (!this.auth().isLoggedIn && this.$route.fullPath !== "/login" && this.$route.fullPath !== "/register") {
+            router.push('/login')
+        }
     }
 
 }).$mount('#photoshare-app')

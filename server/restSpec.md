@@ -791,11 +791,11 @@ PhotoShare RESTful API specification
       * **Code:** 401 Unauthorized <br />
 
 ## NewsFeed APIs
-* `/newsfeed/{username}`
+* `/newsfeeds/{username}`
 
     * **Summary:** Retrieves all the photos posted by users the given user is following
 
-    * **Method:** `POST`
+    * **Method:** `GET`
   
     * **URL Parameters:** 
     

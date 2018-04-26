@@ -5,7 +5,7 @@ import server.Resources;
 import server.datastore.exceptions.*;
 import server.objects.Photo;
 import server.objects.Receipt;
-import server.requests.UpdatePhotoDescriptionRequest;
+import server.requests.UpdateDescriptionRequest;
 import server.requests.UploadPhotoRequest;
 
 import javax.ws.rs.*;
@@ -206,7 +206,7 @@ public class PhotosApi {
     public Response editPhotoDescription(@PathParam("id") long id, String message, @Context HttpHeaders headers) {
         try {
 
-            UpdatePhotoDescriptionRequest request = gson.fromJson(message, UpdatePhotoDescriptionRequest.class);
+            UpdateDescriptionRequest request = gson.fromJson(message, UpdateDescriptionRequest.class);
 
             // Retrieve provided auth info
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
@@ -217,7 +217,7 @@ public class PhotosApi {
             RESOLVER.verifyAuth(path, sender, apiKey, date);
 
             // Update description of relevant photo to the data store
-            RESOLVER.updatePhotoDescription(sender, request.getPhotoId(), request.getDescription());
+            RESOLVER.updatePhotoDescription(sender, request.getId(), request.getDescription());
             return Response.noContent().build();
         }
         catch(InvalidResourceRequestException | DoesNotOwnPhotoException e) {

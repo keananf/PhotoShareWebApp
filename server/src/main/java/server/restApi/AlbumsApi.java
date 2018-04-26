@@ -8,7 +8,7 @@ import server.datastore.exceptions.UnauthorisedException;
 import server.objects.Album;
 import server.objects.Receipt;
 import server.requests.AddAlbumRequest;
-import server.requests.UpdateAlbumDescriptionRequest;
+import server.requests.UpdateDescriptionRequest;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -67,7 +67,7 @@ public class AlbumsApi {
     public Response updateAlbumDescription(String message, @Context HttpHeaders headers) {
         // Retrieve request wrapper
         try {
-            UpdateAlbumDescriptionRequest request = gson.fromJson(message, UpdateAlbumDescriptionRequest.class);
+            UpdateDescriptionRequest request = gson.fromJson(message, UpdateDescriptionRequest.class);
 
             // Retrieve provided auth info
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
@@ -76,7 +76,7 @@ public class AlbumsApi {
             RESOLVER.verifyAuth(Resources.UPDATE_ALBUM_DESCRIPTION_PATH, sender, apiKey, date);
 
             // Upload new description to data store
-            RESOLVER.updateAlbumDescription(sender, request.getAlbumId(), request.getDescription());
+            RESOLVER.updateAlbumDescription(sender, request.getId(), request.getDescription());
             return Response.noContent().build();
         }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}

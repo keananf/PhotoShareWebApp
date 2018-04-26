@@ -231,7 +231,7 @@ public final class ApiClient {
      */
     public Response updateAlbumDescription(long id, String description) {
         // Construct request
-        UpdateAlbumDescriptionRequest request = new UpdateAlbumDescriptionRequest(id, description);
+        UpdateDescriptionRequest request = new UpdateDescriptionRequest(id, description);
 
         // Encode request and POST
         return connector.post(baseTarget, UPDATE_ALBUM_DESCRIPTION_PATH, gson.toJson(request));
@@ -239,7 +239,7 @@ public final class ApiClient {
 
     public Response updatePhotoDescription(long id, String description) {
         // Construct request
-        UpdatePhotoDescriptionRequest request = new UpdatePhotoDescriptionRequest(id, description);
+        UpdateDescriptionRequest request = new UpdateDescriptionRequest(id, description);
 
         //Encode request and POST
         return connector.post(baseTarget, UPDATE_PHOTO_DESCRIPTION_PATH, gson.toJson(request));

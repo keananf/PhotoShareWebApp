@@ -119,7 +119,6 @@ public class CommentsApi {
     @GET
     @Path("{username}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     public Response getAllUserComments(@PathParam("username") String user, @Context HttpHeaders headers) {
         try {
             // Retrieve provided auth info
@@ -146,7 +145,6 @@ public class CommentsApi {
     @GET
     @Path(Resources.PHOTOS_PATH + "/{photoId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     public Response getTopLevelPhotoComments(@PathParam("photoId") long photoId, @Context HttpHeaders headers) {
         // Retrieve provided auth info
         try {
@@ -173,7 +171,6 @@ public class CommentsApi {
     @GET
     @Path(Resources.REPLY_PATH + "/{commentId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     public Response getTopLevelReplies(@PathParam("commentId") long commentId, @Context HttpHeaders headers) {
         // Retrieve provided auth info
         try {

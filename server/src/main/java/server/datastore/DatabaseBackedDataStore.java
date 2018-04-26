@@ -972,4 +972,35 @@ final class DatabaseBackedDataStore implements DataStore {
         }
         catch (SQLException e) {e.printStackTrace();}
     }
+
+    @Override
+    public List<User> getUserWithNameBegining(String name) {
+        // Set up query
+        String query = "SELECT * FROM "+USERS_TABLE+" WHERE  "+USERNAME+" LIKE ?";
+        List<User> users = new ArrayList<>();
+
+        // Execute query on database
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, "%" + name + "%");
+            ResultSet rs = stmt.executeQuery();
+
+            // Iterate through result set, constructing User Objects
+            while(rs.next()) {
+                // Create users
+                String userName = rs.getString(1);
+                String password = rs.getString(2);
+                boolean admin = rs.getBoolean(3);
+
+                // Add users to collection to return
+                User user = new User(userName, password);
+                user.setAdmin(admin);
+                users.add(user);
+            }
+            stmt.close();
+        }
+        catch (SQLException e) {e.printStackTrace();}
+
+        // Return found user
+        return users;
+    }
 }

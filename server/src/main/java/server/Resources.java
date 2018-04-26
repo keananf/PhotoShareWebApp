@@ -1,5 +1,6 @@
 package server;
 
+import javax.ws.rs.DELETE;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
@@ -24,11 +25,13 @@ public abstract class Resources {
     public static final String UNFOLLOW = "/unfollow";
     public static final String UNFOLLOW_USERS_PATH = USERS_PATH + UNFOLLOW;
     public static final String FOLLOW_USERS_PATH = USERS_PATH + FOLLOW;
+    public static final String SEARCH = "/search";
+    public static final String NAME_PARAM = "name";
     public static final String ADD_USER_PATH = USERS_PATH + ADD_USER;
     public static final String LOGIN_USER_PATH = USERS_PATH + LOGIN_USER;
     public static final String USERS_FOLLOWING_PATH = USERS_PATH + FOLLOWING;
     public static final String USERS_FOLLOWERS_PATH = USERS_PATH + FOLLOWERS;
-
+    public static final String USERS_SEARCH_BAR_PATH = USERS_PATH + SEARCH;
 
     // Resources regarding albums
     public static final String ALBUMS_PATH = "/albums";

@@ -1,12 +1,16 @@
+import server.objects.*;
 import org.junit.Test;
 import server.datastore.exceptions.InvalidResourceRequestException;
+import server.objects.LoginResult;
 import server.objects.User;
 
 import javax.ws.rs.core.Response;
 
 import static org.junit.Assert.assertEquals;
-import static server.objects.CommentType.PHOTO_COMMENT;
-import static server.objects.CommentType.REPLY;
+import static org.junit.Assert.assertTrue;
+import static server.objects.EventType.PHOTO_COMMENT;
+import static server.objects.EventType.REPLY;
+
 
 /**
  * Tests checking unauthorised use of APIs
@@ -18,9 +22,14 @@ public class AuthorisationTests extends TestUtility {
         // Add sample user
         addUser(username);
 
-        // Attempt to log the user in. Analyse the response and parse for the session info
+        // Attempt to log the user in.
         Response response = apiClient.loginUser(username, pw);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        // Check result
+        LoginResult res = gson.fromJson(response.readEntity(String.class), LoginResult.class);
+        assertEquals(username, res.getUsername());
+        assertTrue(res.isAdmin());
     }
 
     @Test
@@ -38,25 +47,21 @@ public class AuthorisationTests extends TestUtility {
     @Test
     public void unauthorisedGetPhotoTest() {
         // Assert unauthorised
-        Response response = apiClient.getPhoto(100);
+        Response response = apiClient.getPhotoContentsJPG(100, ext);
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 
     @Test
     public void unauthorisedGetUserTest() {
-        // Call the getUser API from the client without having registered a user
+        // Call the getUsername API from the client without having registered a user
         Response response = apiClient.getUsers();
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 
     @Test
     public void unauthorisedUploadPhotoTest() {
-        // Create sample data
-        String photoName = "username";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
-        // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, 0, contents, "some photo");
+        // Upload 'photo'
+        Response response = apiClient.uploadPhoto(photoName, ext, description, 0, contents);
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 
@@ -290,6 +295,15 @@ public class AuthorisationTests extends TestUtility {
         long randomId = -100;
         Response response = apiClient.editComment(randomId, "some comment content");
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void unauthorisedGetUsersWithNameBeginingTest() {
+
+        // Check Status codes
+        Response response = apiClient.getUserWithNameBegining("bob");
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
+
     }
 
 }

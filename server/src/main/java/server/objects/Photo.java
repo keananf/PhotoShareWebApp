@@ -1,6 +1,5 @@
 package server.objects;
 
-import server.requests.UploadPhotoRequest;
 
 import java.util.HashMap;
 import java.util.List;
@@ -11,8 +10,8 @@ import java.util.stream.Collectors;
  */
 public final class Photo {
     // Photo information
-    private final String photoContents;
     private final String authorName;
+    private final String ext;
     private final String photoName;
     private final long photoTime;
     private final long id, albumId;
@@ -20,29 +19,17 @@ public final class Photo {
 
     private HashMap<String, Boolean> votes;
 
-    public Photo(String photoContents, String authorName, String photoName, long id, long albumId,
-                 HashMap<String, Boolean> photoRatings, long photoTime, String description) {
-        this.photoContents = photoContents;
+    public Photo(String authorName, String photoName, String ext, String description, long id, long albumId,
+                 HashMap<String, Boolean> photoRatings, long photoTime) {
         this.authorName = authorName;
         this.photoName = photoName;
         this.photoTime = photoTime;
+        this.ext = ext;
         this.description = description;
 
         this.albumId = albumId;
         this.id = id;
         votes = photoRatings;
-    }
-
-    public Photo(long id, String author, UploadPhotoRequest request) {
-        this(request.getEncodedPhotoContents(),author, request.getPhotoName(), id, request.getAlbumId(),
-                new HashMap<>(), System.nanoTime(), request.getDescription());
-    }
-
-    /**
-     * @return the base64 encoded contents
-     */
-    public String getPhotoContents() {
-        return photoContents;
     }
 
     /**
@@ -57,6 +44,13 @@ public final class Photo {
      */
     public long getPhotoTime() {
         return photoTime;
+    }
+
+    /**
+     * @return the photo's extension
+     */
+    public String getExt() {
+        return ext;
     }
 
     /**

@@ -1,5 +1,6 @@
 package server;
 
+import javax.ws.rs.DELETE;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
@@ -24,11 +25,13 @@ public abstract class Resources {
     public static final String UNFOLLOW = "/unfollow";
     public static final String UNFOLLOW_USERS_PATH = USERS_PATH + UNFOLLOW;
     public static final String FOLLOW_USERS_PATH = USERS_PATH + FOLLOW;
+    public static final String SEARCH = "/search";
+    public static final String NAME_PARAM = "name";
     public static final String ADD_USER_PATH = USERS_PATH + ADD_USER;
     public static final String LOGIN_USER_PATH = USERS_PATH + LOGIN_USER;
     public static final String USERS_FOLLOWING_PATH = USERS_PATH + FOLLOWING;
     public static final String USERS_FOLLOWERS_PATH = USERS_PATH + FOLLOWERS;
-
+    public static final String USERS_SEARCH_BAR_PATH = USERS_PATH + SEARCH;
 
     // Resources regarding albums
     public static final String ALBUMS_PATH = "/albums";
@@ -41,9 +44,14 @@ public abstract class Resources {
 
     // Resources regarding photos
     public static final String PHOTOS_PATH = "/photos";
+    public static final String PHOTO_CONTENTS = "/contents";
+    public static final String PNG = "/png";
+    public static final String JPG = "/jpg";
+    public static final String PHOTO_CONTENTS_PNG_PATH = PHOTOS_PATH + PHOTO_CONTENTS + PNG;
+    public static final String PHOTO_CONTENTS_JPG_PATH = PHOTOS_PATH + PHOTO_CONTENTS + JPG;
     public static final String UPLOAD_PHOTO = "/upload";
     public static final String UPLOAD_PHOTO_PATH = PHOTOS_PATH + UPLOAD_PHOTO;
-    public static final String GET_USER_PHOTOS_PATH = USERS_PATH + "/%s/" + PHOTOS_PATH;
+    public static final String GET_USER_PHOTOS_PATH = USERS_PATH + "/%s" + PHOTOS_PATH;
     public static final String GET_PHOTOS_BY_ALBUM_PATH = PHOTOS_PATH + ALBUMS_PATH;
     public static final String DELETE_PHOTO = "/delete";
     public static final String DELETE_PHOTO_PATH = PHOTOS_PATH + DELETE_PHOTO;

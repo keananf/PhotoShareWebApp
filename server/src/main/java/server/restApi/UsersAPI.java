@@ -5,9 +5,10 @@ import server.Resources;
 import server.datastore.exceptions.ExistingException;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.datastore.exceptions.UnauthorisedException;
+import server.objects.LoginResult;
 import server.objects.Photo;
 import server.objects.User;
-import server.requests.AddUserRequest;
+import server.requests.AddOrLoginUserRequest;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -16,9 +17,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-import static server.Resources.PHOTOS_PATH;
-import static server.Resources.USERS_FOLLOWERS_PATH;
-import static server.Resources.USERS_FOLLOWING_PATH;
+import static server.Resources.*;
 import static server.ServerMain.RESOLVER;
 
 /**
@@ -34,7 +33,6 @@ public final class UsersAPI {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     public Response getUsers(@Context HttpHeaders headers) {
         try {
             // Retrieve auth headers
@@ -63,12 +61,12 @@ public final class UsersAPI {
     @Path(Resources.ADD_USER)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addUser(String message) {
-        // Parse message as a User object
-        AddUserRequest request = gson.fromJson(message, AddUserRequest.class);
+        // Parse message as a AddOrLoginUserRequest
+        AddOrLoginUserRequest request = gson.fromJson(message, AddOrLoginUserRequest.class);
 
         // Attempt to persist request in data store
         try {
-            RESOLVER.addUser(new User(request.getUser(), request.getPassword()));
+            RESOLVER.addUser(request.getUsername(), request.getPassword());
         }
         catch (ExistingException e) {
             // User already exists. Return bad response code
@@ -82,24 +80,21 @@ public final class UsersAPI {
     /**
      * Attempts to parse the message and log in the user
      *
+     * @param message the serialised request info
      * @return a response object containing the result of the request
      */
-    @GET
+    @POST
     @Path(Resources.LOGIN_USER)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response loginUser(@Context HttpHeaders headers) {
-        // Retrieve auth headers
-        String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
-        String sender = authHeader[0], apiKey = authHeader[1];
-        String date = headers.getHeaderString(HttpHeaders.DATE);
+    public Response loginUser(String message) {
+        // Parse message as a AddOrLoginUserRequest object
+        AddOrLoginUserRequest request = gson.fromJson(message, AddOrLoginUserRequest.class);
 
-        // Attempt to record new session in the data store,
-        // and void any previous session.
         try {
             // Process request
-            User user = RESOLVER.loginUser(Resources.LOGIN_USER_PATH, sender, apiKey, date);
+            LoginResult user = RESOLVER.loginUser(request.getUsername(), request.getPassword());
 
-            // Serialise the session. Indicate status as accepted and pass the serialised Session
+            // Serialise the user info.
             return Response.ok(gson.toJson(user)).build();
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
@@ -111,9 +106,8 @@ public final class UsersAPI {
      * @return a parsed list of all photos from the requested user in the system
      */
     @GET
-    @Path("/{username}/" + PHOTOS_PATH)
+    @Path("/{username}" + PHOTOS_PATH)
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     public Response getAllPhotosFromUser(@PathParam("username") String username, @Context HttpHeaders headers) {
         try {
             // Retrieve provided auth info
@@ -194,8 +188,6 @@ public final class UsersAPI {
 
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-
-
         return Response.noContent().build();
     }
 
@@ -207,7 +199,6 @@ public final class UsersAPI {
     @GET
     @Path(Resources.FOLLOWING + "/{username}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     public Response getFollowing(@PathParam("username") String username, @Context HttpHeaders headers) {
         // Retrieve provided auth info
         String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
@@ -238,7 +229,6 @@ public final class UsersAPI {
     @GET
     @Path(Resources.FOLLOWERS + "/{username}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     public Response getFollowers(@PathParam("username") String username, @Context HttpHeaders headers) {
         // Retrieve provided auth info
         String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
@@ -256,6 +246,32 @@ public final class UsersAPI {
 
         } catch (InvalidResourceRequestException e) {
             return Response.status(Response.Status.BAD_REQUEST).build();
+        } catch (UnauthorisedException e) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+    }
+
+    @GET
+    @Path(SEARCH)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response bar(@QueryParam(NAME_PARAM) String value, @Context HttpHeaders headers) {
+
+        // Retrieve provided auth info
+        String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+        String sender = authHeader[0], apiKey = authHeader[1];
+        String date = headers.getHeaderString(HttpHeaders.DATE);
+
+
+        try {
+            // Process request
+            String path = String.format("%s?%s=%s", USERS_SEARCH_BAR_PATH, NAME_PARAM , value);
+            RESOLVER.verifyAuth(path, sender, apiKey, date);
+
+            List<User> users = RESOLVER.getUsersWithName(value);
+
+            return Response.ok(gson.toJson(users)).build();
+
         } catch (UnauthorisedException e) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }

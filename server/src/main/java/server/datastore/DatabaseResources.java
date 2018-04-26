@@ -31,6 +31,7 @@ abstract class DatabaseResources {
     static final String PHOTOS_ID = "photoId";
     static final String PHOTOS_NAME = "photoName";
     static final String PHOTOS_CONTENTS = "photoContents";
+    static final String PHOTOS_EXT = "photoExt";
     static final String PHOTOS_TIME = "photoTime";
     static final String PHOTOS_DESCRIPTION = "photoDescription";
 
@@ -49,4 +50,11 @@ abstract class DatabaseResources {
     static final String FOLLOW_ID = "followId";
     static final String USER_FROM = "userFrom";
     static final String USER_TO = "userTo";
+
+    // Notifications table attributes
+    static final String CONTENT_TYPE = "content_type";
+    static final String CONTENT_ID = "content_id";
+    static final String NOTIFICATIONS_ID = "notification_id";
+
+
 }

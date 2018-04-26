@@ -1,18 +1,18 @@
 package server.objects;
 
 /**
- * Class representing a single user
+ * Class representing the result of logging-in.
+ * The username, pw, and admin are sent back to the corresponding client
  */
-public class User {
+public class LoginResult {
     private final String username;
-    private boolean admin;
+    private final boolean admin;
+    private final String password;
 
-    // 'Transient' modifier ensures this won't be exposed during serialisation
-    private transient final String password;
-
-    public User(String username, String password) {
+    public LoginResult(String username, String password, boolean admin) {
         this.username = username;
         this.password = password;
+        this.admin = admin;
     }
 
     /**
@@ -34,13 +34,5 @@ public class User {
      */
     public boolean isAdmin() {
         return admin;
-    }
-
-    /**
-     * set this user's admin status
-     * @param admin the new admin status
-     */
-    public void setAdmin(boolean admin) {
-        this.admin = admin;
     }
 }

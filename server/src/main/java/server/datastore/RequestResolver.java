@@ -18,8 +18,14 @@ import java.util.stream.Collectors;
 public final class RequestResolver {
     public static boolean DEBUG = false;
     private static final long TIMEOUT = (long) (10 * (Math.pow(10, 9)));
-    private static long CURRENT_ID = Long.MIN_VALUE;
     private DataStore dataStore = new DatabaseBackedDataStore();
+
+    // Variables for database ID generation. This avoids extra database queries
+    // to ascertain newly-assigned ids.
+    private static long PHOTOS_CURRENT_ID = 0;
+    private static long COMMENTS_CURRENT_ID = 0;
+    private static long ALBUMS_CURRENT_ID = 0;
+    private static long FOLLOW_CURRENT_ID = 0;
 
     // Allowed extensions
     private static Set<String> allowedExtensions = new HashSet<>();
@@ -136,7 +142,7 @@ public final class RequestResolver {
         }
 
         // Create photo and persist it
-        long id = ++CURRENT_ID;
+        long id = ++PHOTOS_CURRENT_ID;
         dataStore.persistUploadPhoto(id, user, request);
 
         // Return receipt confirming photo was created
@@ -202,7 +208,7 @@ public final class RequestResolver {
         getUser(author);
 
         // Create photo and persist it
-        Album newAlbum = new Album(++CURRENT_ID, albumName, author, description, System.nanoTime());
+        Album newAlbum = new Album(++ALBUMS_CURRENT_ID, albumName, author, description, System.nanoTime());
         dataStore.persistAddAlbum(newAlbum);
 
         // Return receipt confirming photo was created
@@ -378,7 +384,7 @@ public final class RequestResolver {
         }
 
         // Add unique id to be able to future identify this comment
-        Comment comment = new Comment(++CURRENT_ID, user, request);
+        Comment comment = new Comment(++COMMENTS_CURRENT_ID, user, request);
 
         // Persist comment to data store
         dataStore.persistAddComment(comment);
@@ -557,7 +563,7 @@ public final class RequestResolver {
 
         }
 
-        Follow follow = new Follow(userFrom, userTo, ++CURRENT_ID);
+        Follow follow = new Follow(userFrom, userTo, ++FOLLOW_CURRENT_ID);
 
         dataStore.persistFollowing(userFrom, userTo);
         dataStore.persistAddNotification(userTo, follow);

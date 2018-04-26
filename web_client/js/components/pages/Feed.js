@@ -77,7 +77,7 @@
                 this.posts = []
 
                 // Get posts from the API
-                API.Posts.getNewsFeedForUser("CURRENT_USER").then(posts => {
+                API.Posts.getNewsFeedForUser(this.$root.auth().username).then(posts => {
                     this.posts = posts
                     loader.hide()
                 }).catch(e => {

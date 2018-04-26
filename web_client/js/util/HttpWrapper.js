@@ -14,7 +14,8 @@
             // Set additional headers if auth is provided
             if (HW.auth !== undefined && HW.auth !== null) {
                 // Make the token/digest
-                let timestamp = Math.round((new Date()).getTime() / 1000)
+                let timestamp = moment().format('YYYY/MM/DD HH:mm:ss')
+                console.log(timestamp)
                 let endPoint = '/' + url
                 let token = timestamp + endPoint + HW.auth.username + ':' + HW.auth.passwordHash
                 token = sha256(token)
@@ -39,11 +40,10 @@
                 }
 
                 // Additional headers
-                if (HW.additionalHeaders !== undefined && HW.additionalHeaders.length > 0) {
-                    for (let k in HW.additionalHeaders) {
-                        for (let hKey in HW.additionalHeaders[k]) {
-                            options.headers[hKey] = HW.additionalHeaders[k][hKey]
-                        }
+                let headers = HW.getAdditionalHeaders()
+                if (headers !== undefined && headers !== null) {
+                    for (let k in headers) {
+                        options.headers[k] = headers[k]
                     }
                 }
 
@@ -106,6 +106,10 @@
 
         static setAdditionalHeaders(headers) {
             HW.additionalHeaders = headers
+        }
+
+        static getAdditionalHeaders() {
+            return HW.additionalHeaders
         }
 
         static setAuthParameters(username, passwordHash) {

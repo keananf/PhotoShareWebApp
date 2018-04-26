@@ -236,6 +236,7 @@ public class NotificationAPITests extends TestUtility{
 
         // Send a follow request to sample user
         Response response = apiClient.followUser(username);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
 
         // Check notifications for user
         apiClient.loginUser(username, pw);

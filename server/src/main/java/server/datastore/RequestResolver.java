@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  * and persists changes to the underlying data store
  */
 public final class RequestResolver {
-    public static boolean DEBUG = false;
+    public static final Locale LOCALE = Locale.UK;
     private static final long TIMEOUT = (long) (10 * (Math.pow(10, 9)));
     private int CURRENT_ID = 0;
     private DataStore dataStore = new DatabaseBackedDataStore();
@@ -41,10 +41,10 @@ public final class RequestResolver {
         try {
             User user = getUser(username);
 
-            // Check timestamp isn't too old, provided not debug mode
+            // Check timestamp isn't too old
             Date d = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse(date);
             long time = System.currentTimeMillis(), dateTime = d.getTime();
-            if(!DEBUG && time - dateTime > TIMEOUT) throw new UnauthorisedException();
+            if(time - dateTime > TIMEOUT) throw new UnauthorisedException();
 
             // Compare generated secret API key
             String key = Auth.getApiKey(endPoint, username, user.getPassword(), dateTime).split(":")[1];
@@ -131,8 +131,8 @@ public final class RequestResolver {
         }
 
         // Ensure photo extension is permitted
-        if(!allowedExtensions.contains(request.getExt().toLowerCase())) {
-            throw new InvalidFileTypeException(request.getExt().toLowerCase());
+        if(!allowedExtensions.contains(request.getExt().toLowerCase(LOCALE))) {
+            throw new InvalidFileTypeException(request.getExt().toLowerCase(LOCALE));
         }
 
         // Create photo and persist it

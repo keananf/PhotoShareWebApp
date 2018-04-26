@@ -116,7 +116,7 @@ public class PhotosApi {
         String[] components = idAndExt.split("\\.");
         long id = Long.parseLong(components[0]);
         String ext = components[1];
-        if(!ext.toLowerCase().equals("png")) return Response.status(Response.Status.BAD_REQUEST).build();
+        if(!ext.toLowerCase(RESOLVER.LOCALE).equals("png")) return Response.status(Response.Status.BAD_REQUEST).build();
 
         try {
             // Retrieve provided auth info
@@ -149,7 +149,7 @@ public class PhotosApi {
         String[] components = idAndExt.split("\\.");
         long id = Long.parseLong(components[0]);
         String ext = components[1];
-        if(!ext.toLowerCase().equals("jpg")) return Response.status(Response.Status.BAD_REQUEST).build();
+        if(!ext.toLowerCase(RESOLVER.LOCALE).equals("jpg")) return Response.status(Response.Status.BAD_REQUEST).build();
 
         try {
             // Retrieve provided auth info

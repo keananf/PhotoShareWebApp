@@ -25,6 +25,7 @@ public class NewsFeedAPITests extends TestUtility{
 
         // Follow the first user
         Response followResponse = apiClient.followUser(userBeingFollowed);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), followResponse.getStatus());
 
         // Check Status code
         Response newsFeedResponse = apiClient.getNewsFeed();
@@ -53,6 +54,7 @@ public class NewsFeedAPITests extends TestUtility{
 
         // Follow the first user
         Response followResponse = apiClient.followUser(userBeingFollowed);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), followResponse.getStatus());
 
         // Check Status code
         Response newsFeedResponse = apiClient.getNewsFeed();
@@ -93,6 +95,7 @@ public class NewsFeedAPITests extends TestUtility{
 
         // Follow the first user
         Response followResponse = apiClient.followUser(userBeingFollowed);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), followResponse.getStatus());
 
         // Check Status code
         Response newsFeedResponse = apiClient.getNewsFeed();
@@ -141,7 +144,9 @@ public class NewsFeedAPITests extends TestUtility{
 
         // Follow the first user
         Response followResponseOne = apiClient.followUser(userBeingFollowedOne);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), followResponseOne.getStatus());
         Response followResponseTwo = apiClient.followUser(userBeingFollowedTwo);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), followResponseTwo.getStatus());
 
         // Check Status code
         Response newsFeedResponse = apiClient.getNewsFeed();
@@ -158,8 +163,6 @@ public class NewsFeedAPITests extends TestUtility{
 
         // Getting photoIds of all photos in new feed
         List<Photo> photosInNewsFeed =  resolver.getNewsFeed(username);
-        ;
-
 
         assertEquals(photoOfAllFollowers.size(), photosInNewsFeed.size());
 

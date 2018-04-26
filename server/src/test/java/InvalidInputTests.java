@@ -182,7 +182,6 @@ public class InvalidInputTests extends TestUtility {
         loginAndSetupNewUser(username);
         long albumId1 = albumId;
         loginAndSetupNewUser(username2);
-        long albumId2 = albumId;
 
         // Since username2 is currently logged-in, attempt to upload a photo
         // to username's album. This will fail, as the indicated album is NOT owned by the logged-in user.
@@ -408,7 +407,7 @@ public class InvalidInputTests extends TestUtility {
         loginAndSetupNewUser(randomName);
 
         // The second following should return a conflict
-        Response firstFollowResponse = apiClient.followUser(randomName);
+        apiClient.followUser(randomName);
         Response secondFollowResponse = apiClient.followUser(randomName);
         assertEquals(Response.Status.CONFLICT.getStatusCode(), secondFollowResponse.getStatus());
     }
@@ -417,11 +416,6 @@ public class InvalidInputTests extends TestUtility {
     public void deleteUnownedCommentTest() throws InvalidResourceRequestException {
         // Add two users and login as second. Only the first user will be an admin.
         loginAndSetupNewUser(username); // admin
-
-        // Create sample data
-        String photoName = "photo";
-        String comment = "a comment";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo' (byte[])
         Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
@@ -461,11 +455,6 @@ public class InvalidInputTests extends TestUtility {
     public void deleteUnownedPhotoTest() throws InvalidResourceRequestException {
         // Add two users and login as second. Only the first user will be an admin.
         loginAndSetupNewUser(username); // admin
-
-        // Create sample data
-        String photoName = "photo";
-        String comment = "a comment";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
 
         // Upload 'photo'
         Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);

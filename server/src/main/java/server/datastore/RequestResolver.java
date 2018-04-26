@@ -12,7 +12,6 @@ import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 /**
@@ -523,7 +522,6 @@ public final class RequestResolver {
         // Check the user to follow exists
         getUser(userTo);
 
-
         // Check the user is not already following the userToFollow
 
         List<String> followers_usernames = getUsernamesOfFollowers(userTo);
@@ -535,8 +533,6 @@ public final class RequestResolver {
         }
 
         dataStore.persistFollowing(userFrom, userTo);
-
-        Random rand = new Random();
 
     }
 

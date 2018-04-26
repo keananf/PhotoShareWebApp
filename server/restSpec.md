@@ -44,13 +44,6 @@ PhotoShare RESTful API specification
     
       ```
       {
-          "auth" : 
-          {
-            "apiKey" : string,
-            "time": long,
-            "user": string,
-            "password": int
-          },
           "albumId": long,
           "description": string, 
       }
@@ -66,6 +59,7 @@ PhotoShare RESTful API specification
       or
     
       * **Code:** 401 Unauthorized <br />
+        
         
 * `/albums/users/{user}`
 
@@ -392,6 +386,7 @@ PhotoShare RESTful API specification
     
       * **Code:** 401 Unauthorized <br />
   
+
 * `/comments/replies/{id}`
 
     * **Summary:** Retrieves all replies to the given comment
@@ -428,32 +423,6 @@ PhotoShare RESTful API specification
       or
     
       * **Code:** 401 Unauthorized <br />
-    
-    * **Sample Call:**
-    
-      ```javascript
-        $.ajax(
-        {
-          url: "/comments/replies/123456",
-          dataType: "json",
-          data :
-          {
-              {
-                "auth" : 
-                {
-                  "apiKey" : abc123,
-                  "time": 1524219966,
-                  "user": "username1",
-                  "password": 1
-                }
-            }
-          },
-          type : "POST",
-          success : function(r) 
-          {
-            console.log(r);
-          }
-        });
 
 * `/comments/upvote/{id}`
 

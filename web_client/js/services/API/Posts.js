@@ -7,13 +7,13 @@
         getNewsFeedForUser(username) {
             return new Promise((resolve, reject) => {
                 http.get(API.endpoints.POSTS_FEED.replace(':username', username)).then(res => {
-                    console.log(res);
-                    resolve([]);
+                    console.log(res)
+                    resolve([])
                 }).catch(err => {
-                    console.log(err);
-                    reject(err);
-                });
-            });
+                    console.log(err)
+                    reject(err)
+                })
+            })
         },
 
         getPostsByUser(username) {
@@ -43,7 +43,7 @@
                     }))
                 }, 1000) // Simulate API Call
 
-                return;
+                return
 
                 http.get(API.endpoints.POSTS_GET.replace(':id', postId)).then(data => {
                     if (!data) {
@@ -92,12 +92,15 @@
             })
         },
 
-        createPost(title, albumId, base64contents){
+        createPost(title, description, extension, albumId, base64contents){
             return new Promise((resolve, reject) => {
-                // Debug
-                return resolve(31)
-
-                http.post(API.endpoints.POSTS_CREATE, {photoName: title, albumId, encodedPhotoContents: base64contents}).then(res => {
+                http.post(API.endpoints.POSTS_CREATE, {
+                    extension,
+                    description,
+                    albumId,
+                    photoName: title,
+                    encodedPhotoContents: base64contents
+                }).then(res => {
                     if (res.referenceId) {
                         // All succesfull, return the post id
                         resolve(res.referenceId)

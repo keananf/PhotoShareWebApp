@@ -5,6 +5,7 @@
             this.username = username
             this.password = null
             this.isAdmin = false
+            this.albums = null
         }
 
         static fromJson(data) {
@@ -27,6 +28,40 @@
 
         get route() {
             return '/user/' + this.username
+        }
+
+        getAlbums() {
+            let $user = this
+
+            return new Promise((resolve, reject) => {
+
+                if (this.albums === null) {
+
+                    API.Albums.getForUser(this.username).then(albums => {
+                        $user.albums = albums
+                        resolve(albums)
+                    }).catch(err => {
+                        alert(err)
+                    })
+
+                } else {
+
+                    resolve($user.albums)
+
+                }
+            })
+        }
+
+        addAlbum(album) {
+            let $user = this
+
+            if (this.albums === null) {
+                this.getAlbums().then(() => {
+                    $user.albums.push(album)
+                })
+            } else {
+                $user.albums.push(album)
+            }
         }
     }
 

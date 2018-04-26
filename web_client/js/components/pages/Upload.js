@@ -3,6 +3,13 @@
     window.Components.Pages.Upload = {
         template: `<div>
 
+    <div v-if="albums.length === 0" class="text-center">
+        <p class="lead">
+            You don't have any albums, please <router-link to="/albums">create one</router-link> first
+        </p>
+    </div>
+    <div v-else>
+
     <div class="row justify-content-center">
         <div class="col-sm-6 text-center box">
 
@@ -22,7 +29,7 @@
             
             <label>Select album</label>
             <select class="form-control" v-model="albumId">
-                <option value="0">No album</option>
+                <option v-for="album in albums" :value="album.id" v-text="album.name"></option>
             </select>
             
         </div>
@@ -32,6 +39,11 @@
             
             <label>Photo title</label>
             <input type="text" class="form-control" v-model="title"/>
+            
+            <hr/>
+            
+            <label>Description</label>
+            <textarea class="form-control" v-model="description"></textarea>
             
         </div>
     </div>
@@ -55,16 +67,21 @@
     </div>
 </div>
 
+</div>
+
 </div>`,
 
         data() {
             return {
                 step: 1,
                 filePreview: null,
+                file: null,
                 error: null,
                 isLoading: false,
-                albumId: 0,
-                title: ''
+                albumId: null,
+                title: '',
+                description: '',
+                albums: []
             }
         },
 
@@ -81,8 +98,28 @@
                 reader.readAsDataURL(file)
 
                 reader.onload = () => {
-                    this.filePreview = reader.result
-                    this.step = 2
+
+                    // Get the file extension
+                    let extension = null
+                    if (file.type === 'image/jpeg' || file.type === 'image/jpg') {
+                        extension = 'jpg'
+                    } else if (file.type === 'image/png') {
+                        extension = 'png'
+                    } else {
+                        this.error = 'Please select a valid JPG or PNG image'
+                    }
+
+                    if (!this.error) {
+                        this.file = {
+                            name: file.name,
+                            extension: extension
+                        }
+
+                        this.title = file.name
+
+                        this.filePreview = reader.result
+                        this.step = 2
+                    }
                 }
 
                 reader.onerror = (err) => {
@@ -97,7 +134,7 @@
                     this.isLoading = true
 
                     // Send the request
-                    API.Posts.createPost(this.title, this.albumId, this.filePreview).then(id => {
+                    API.Posts.createPost(this.title, this.description, this.file.extension, this.albumId, this.filePreview).then(id => {
                         if (!id) {
                             this.error = 'Could not save your post, please try again'
                         } else {
@@ -116,6 +153,10 @@
             validate(){
                 if (this.filePreview === null) {
                     this.error = 'Please select a picture'
+                } else if (this.file === null || this.file.extension === null) {
+                    this.error = 'Pleas select a valid JPG or PNG file'
+                } else if (this.albumId === null) {
+                    this.error = 'Please select an album'
                 } else {
                     this.error = null
                 }
@@ -125,6 +166,12 @@
                 this.step = 1
                 this.filePreview = null
             }
+        },
+
+        mounted(){
+            this.$root.auth().user.getAlbums().then(albums => {
+                this.albums = albums
+            })
         }
     }
 

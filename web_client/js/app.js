@@ -2,6 +2,7 @@
 Vue.component('auth', window.Components.Auth)
 Vue.component('post', window.Components.Common.Post)
 Vue.component('loader', window.Components.Common.Loader)
+Vue.component('modal', window.Components.Common.Modal)
 
 // Define the app routes
 const routes = [
@@ -25,6 +26,9 @@ const routes = [
     },
     {
         path: '/register', component: window.Components.Pages.Register
+    },
+    {
+        path: '/albums', component: window.Components.Pages.Albums
     }
 ]
 

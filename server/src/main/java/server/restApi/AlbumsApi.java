@@ -6,13 +6,13 @@ import server.datastore.exceptions.DoesNotOwnAlbumException;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.datastore.exceptions.UnauthorisedException;
 import server.objects.Album;
-import server.objects.Auth;
 import server.objects.Receipt;
 import server.requests.AddAlbumRequest;
-import server.requests.AuthRequest;
 import server.requests.UpdateAlbumDescriptionRequest;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -35,17 +35,19 @@ public class AlbumsApi {
     @POST
     @Path(Resources.ADD_ALBUM)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response addAlbum(String message) {
+    public Response addAlbum(String message, @Context HttpHeaders headers) {
         // Retrieve request wrapper
         try {
             AddAlbumRequest request = gson.fromJson(message, AddAlbumRequest.class);
 
-            // Retrieve and verify provided auth info
-            Auth auth = request.getAuth();
-            RESOLVER.verifyAuth(Resources.ADD_ALBUM_PATH, auth);
+            // Retrieve provided auth info
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
+            String date = headers.getHeaderString(HttpHeaders.DATE);
+            RESOLVER.verifyAuth(Resources.ADD_ALBUM_PATH, sender, apiKey, date);
 
             // Upload new album to the data store
-            Receipt receipt = RESOLVER.addAlbum(auth.getUser(), request.getAlbumName(), request.getDescription());
+            Receipt receipt = RESOLVER.addAlbum(sender, request.getAlbumName(), request.getDescription());
             return Response.ok(gson.toJson(receipt)).build();
         }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
@@ -62,44 +64,47 @@ public class AlbumsApi {
     @POST
     @Path(Resources.UPDATE_ALBUM_DESCRIPTION)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateAlbumDescription(String message) {
+    public Response updateAlbumDescription(String message, @Context HttpHeaders headers) {
         // Retrieve request wrapper
         try {
             UpdateAlbumDescriptionRequest request = gson.fromJson(message, UpdateAlbumDescriptionRequest.class);
 
-            // Retrieve and verify provided auth info
-            Auth auth = request.getAuth();
-            RESOLVER.verifyAuth(Resources.UPDATE_ALBUM_DESCRIPTION_PATH, auth);
+            // Retrieve provided auth info
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
+            String date = headers.getHeaderString(HttpHeaders.DATE);
+            RESOLVER.verifyAuth(Resources.UPDATE_ALBUM_DESCRIPTION_PATH, sender, apiKey, date);
 
             // Upload new description to data store
-            RESOLVER.updateAlbumDescription(auth.getUser(), request.getAlbumId(), request.getDescription());
+            RESOLVER.updateAlbumDescription(sender, request.getAlbumId(), request.getDescription());
             return Response.noContent().build();
         }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
-        catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
-        catch(DoesNotOwnAlbumException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
+        catch(InvalidResourceRequestException | DoesNotOwnAlbumException e) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
     }
 
     /**
      * Retrieves all albums a user has made
-     * @param username the provided username in the URL
-     * @param jsonAuth the serialised AuthRequest passed as the request body.
+     * @param user the provided username in the URL
      * @return a parsed list of all albums from the requested user in the system
      */
-    @POST
+    @GET
     @Path(Resources.USERS_PATH + "/{username}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response getAllAlbums(@PathParam("username") String username, String jsonAuth) {
+    public Response getAllAlbums(@PathParam("username") String user, @Context HttpHeaders headers) {
         // Retrieve provided auth info
         try {
-            AuthRequest auth = gson.fromJson(jsonAuth, AuthRequest.class);
-            String path = String.format("%s/%s", Resources.GET_USER_ALBUMS_PATH, username);
-            RESOLVER.verifyAuth(path, auth.getAuth());
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
+            String date = headers.getHeaderString(HttpHeaders.DATE);
+            String path = String.format("%s/%s", Resources.GET_USER_ALBUMS_PATH, user);
+            RESOLVER.verifyAuth(path, sender, apiKey, date);
 
             // Retrieve list retrieved from data manipulation layer
             // and convert albums into JSON array
-            List<Album> albums = RESOLVER.getAlbums(username);
+            List<Album> albums = RESOLVER.getAlbums(user);
             return Response.ok(gson.toJson(albums)).build();
 
         }
@@ -109,22 +114,20 @@ public class AlbumsApi {
 
     /**
      * Retrieves a given photo from the server
-     * @param message the serialised auth information
      * @return the serialised response
      */
-    @POST
-    @Path(Resources.ID + "/{id}")
+    @GET
+    @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response getPhoto(@PathParam("id") long id, String message) {
-        // Retrieve request wrapper
+    public Response getPhoto(@PathParam("id") long id, @Context HttpHeaders headers) {
         try {
-            AuthRequest request = gson.fromJson(message, AuthRequest.class);
-
             // Retrieve provided auth info
-            Auth auth = request.getAuth();
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
+            String date = headers.getHeaderString(HttpHeaders.DATE);
+
             String path = String.format("%s/%s", Resources.GET_ALBUM_BY_ID_PATH, id);
-            RESOLVER.verifyAuth(path, auth);
+            RESOLVER.verifyAuth(path, sender, apiKey, date);
 
             // Upload encoded album to the data store
             Album album = RESOLVER.getAlbum(id);

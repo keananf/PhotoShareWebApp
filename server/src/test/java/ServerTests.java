@@ -1,7 +1,6 @@
 import org.junit.Test;
 
-import server.Resources;
-import server.requests.*;
+
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.objects.*;
 
@@ -10,10 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static server.objects.CommentType.*;
+import static server.objects.EventType.*;
 
 /**
  * Tests Server behaviour in response to RESTful API calls
@@ -44,7 +44,7 @@ public final class ServerTests extends TestUtility {
         loginAndSetupNewUser(username);
 
         // Add new album, and retrieve the returned id
-        Response response = apiClient.addAlbum(albumName, description, username);
+        Response response = apiClient.addAlbum(albumName, description);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long albumId = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -76,7 +76,7 @@ public final class ServerTests extends TestUtility {
         loginAndSetupNewUser(username);
 
         // Add a new album, with the same name and description as the default album.
-        Response response = apiClient.addAlbum(albumName, description, username);
+        Response response = apiClient.addAlbum(albumName, description);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         // Check server has record of both albums
@@ -91,19 +91,15 @@ public final class ServerTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String name = "username";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(name, albumId, contents);
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         // Check server has record of photo by decoding its base64 representation and checking for
         // equivalence.
         List<Photo> photos = resolver.getPhotos(this.username);
-        assertArrayEquals(contents, UploadPhotoRequest.decodeContents(photos.get(0).getPhotoContents()));
-        assertEquals(name, photos.get(0).getPhotoName());
+        assertEquals(photoName, photos.get(0).getPhotoName());
+        assertEquals(description, photos.get(0).getDescription());
     }
 
     @Test
@@ -111,17 +107,13 @@ public final class ServerTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "name";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
         // Upload photo again
-        response = apiClient.uploadPhoto(photoName, albumId, contents);
+        response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id2 = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -131,8 +123,8 @@ public final class ServerTests extends TestUtility {
         assertEquals(2, photos.size());
         assertNotEquals(id, id2);
         for(Photo p : photos) {
-            assertArrayEquals(contents, UploadPhotoRequest.decodeContents(p.getPhotoContents()));
             assertEquals(photoName, p.getPhotoName());
+            assertEquals(description, p.getDescription());
         }
     }
 
@@ -141,12 +133,8 @@ public final class ServerTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "name";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         // Get all photos from user on server
@@ -158,7 +146,7 @@ public final class ServerTests extends TestUtility {
         for(Photo photo : photos) {
             assertEquals(photo.getAuthorName(), username);
             assertEquals(photo.getPhotoName(), photoName);
-            assertArrayEquals(contents, UploadPhotoRequest.decodeContents(photo.getPhotoContents()));
+            assertEquals(photo.getDescription(), description);
         }
     }
 
@@ -167,23 +155,19 @@ public final class ServerTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "name";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
         // Upload photo to default album twice
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        response = apiClient.uploadPhoto(photoName, albumId, contents);
+        response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         // Create second album, in preparation to upload a photo to it.
-        response = apiClient.addAlbum(albumName, description, username);
+        response = apiClient.addAlbum(albumName, description);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long albumId2 = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
         // Upload photo to second album
-        response = apiClient.uploadPhoto(photoName, albumId2, contents);
+        response = apiClient.uploadPhoto(photoName, ext, description, albumId2, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         // Get all photos from album on server
@@ -199,7 +183,7 @@ public final class ServerTests extends TestUtility {
         for(Photo photo : photoArray) {
             assertEquals(photo.getAuthorName(), username);
             assertEquals(photo.getPhotoName(), photoName);
-            assertArrayEquals(contents, UploadPhotoRequest.decodeContents(photo.getPhotoContents()));
+            assertEquals(photo.getDescription(), description);
         }
     }
 
@@ -222,47 +206,41 @@ public final class ServerTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "name";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
         // Get recently uploaded photo from server
-        Response photosResponse = apiClient.getPhoto(id);
+        Response photosResponse = apiClient.getAllPhotos(albumId);
         assertEquals(Response.Status.OK.getStatusCode(), photosResponse.getStatus());
 
         // Parse JSON and check photo contents and who posted it
         String photoStr = photosResponse.readEntity(String.class);
-        Photo photo = gson.fromJson(photoStr, Photo.class);
+        Photo photo = gson.fromJson(photoStr, Photo[].class)[0];
         assertEquals(photo.getAuthorName(), username);
         assertEquals(photo.getPhotoName(), photoName);
-        assertArrayEquals(contents, UploadPhotoRequest.decodeContents(photo.getPhotoContents()));
-    }
 
+        // Make separate request for photo contents
+        byte[] receivedContents = apiClient.getPhotoContentsJPG(id, ext).readEntity(byte[].class);
+        assertArrayEquals(contents, receivedContents);
+    }
 
     @Test
     public void ratePhotoTest() throws InvalidResourceRequestException {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "username";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
-        // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        // Upload 'photo'
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
         // Send upvote request to server, and check it was successful on the server.
         Response voteResponse = apiClient.ratePhoto(id, true);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
-        assertEquals(1, resolver.getPhoto(id).getUpvotes().size());
-        assertEquals(0, resolver.getPhoto(id).getDownvotes().size());
+        assertEquals(1, resolver.getPhotoMetaData(id).getUpvotes().size());
+        assertEquals(0, resolver.getPhotoMetaData(id).getDownvotes().size());
     }
 
     @Test
@@ -270,26 +248,22 @@ public final class ServerTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "username";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
-        // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        // Upload 'photo'
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
         // Send upvote request to server, and check it was successful on the server.
         Response voteResponse = apiClient.ratePhoto(id, true);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
-        assertEquals(1, resolver.getPhoto(id).getUpvotes().size());
-        assertEquals(0, resolver.getPhoto(id).getDownvotes().size());
+        assertEquals(1, resolver.getPhotoMetaData(id).getUpvotes().size());
+        assertEquals(0, resolver.getPhotoMetaData(id).getDownvotes().size());
 
         // Send same upvote request again. Ensure it worked, but that nothing changed on the server
         voteResponse = apiClient.ratePhoto(id, true);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
-        assertEquals(1, resolver.getPhoto(id).getUpvotes().size());
-        assertEquals(0, resolver.getPhoto(id).getDownvotes().size());
+        assertEquals(1, resolver.getPhotoMetaData(id).getUpvotes().size());
+        assertEquals(0, resolver.getPhotoMetaData(id).getDownvotes().size());
     }
 
     @Test
@@ -297,26 +271,22 @@ public final class ServerTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "username";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
-        // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        // Upload 'photo'
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
         // Send upvote request to server, and check it was successful on the server.
         Response voteResponse = apiClient.ratePhoto(id, true);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
-        assertEquals(1, resolver.getPhoto(id).getUpvotes().size());
-        assertEquals(0, resolver.getPhoto(id).getDownvotes().size());
+        assertEquals(1, resolver.getPhotoMetaData(id).getUpvotes().size());
+        assertEquals(0, resolver.getPhotoMetaData(id).getDownvotes().size());
 
         // Send same upvote request again. Ensure it worked, but that nothing changed on the server
         voteResponse = apiClient.ratePhoto(id, false);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
-        assertEquals(0, resolver.getPhoto(id).getUpvotes().size());
-        assertEquals(1, resolver.getPhoto(id).getDownvotes().size());
+        assertEquals(0, resolver.getPhotoMetaData(id).getUpvotes().size());
+        assertEquals(1, resolver.getPhotoMetaData(id).getDownvotes().size());
     }
 
     @Test
@@ -324,12 +294,8 @@ public final class ServerTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "username", comment = "comment";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
-        // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        // Upload 'photo'
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -350,12 +316,8 @@ public final class ServerTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "username", comment = "comment";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
-        // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        // Upload 'photo'
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -382,12 +344,8 @@ public final class ServerTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "username", comment = "comment";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
-        // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        // Upload 'photo'
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -415,13 +373,8 @@ public final class ServerTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "username";
-        String comment = "comment";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
-        // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        // Upload 'photo'
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -442,13 +395,8 @@ public final class ServerTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "username";
-        String comment = "comment";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
-        // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        // Upload 'photo'
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -478,13 +426,8 @@ public final class ServerTests extends TestUtility {
         String user = username + "2";
         loginAndSetupNewUser(user);
 
-        // Create sample data
-        String photoName = "photo";
-        String comment = "a comment";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
-        // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        // Upload 'photo'
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -512,12 +455,8 @@ public final class ServerTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "username";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
-        // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        // Upload 'photo'
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -526,7 +465,7 @@ public final class ServerTests extends TestUtility {
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), removeResponse.getStatus());
 
         // Check photo was removed, InvalidResourceRequestException should be thrown
-        resolver.getPhoto(id);
+        resolver.getPhotoContents(id, ext);
     }
 
     @Test (expected = InvalidResourceRequestException.class)
@@ -536,12 +475,8 @@ public final class ServerTests extends TestUtility {
         String user = username + "2"; // not admin
         loginAndSetupNewUser(user);
 
-        // Create sample data
-        String photoName = "photo";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
-        // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        // Upload 'photo'
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -550,7 +485,7 @@ public final class ServerTests extends TestUtility {
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), removeResponse.getStatus());
 
         // Check photo was removed, InvalidResourceRequestException should be thrown
-        resolver.getPhoto(id);
+        resolver.getPhotoContents(id, ext);
     }
 
     @Test
@@ -558,13 +493,8 @@ public final class ServerTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "username";
-        String comment = "comment";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
-        // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        // Upload 'photo'
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -594,13 +524,8 @@ public final class ServerTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "username";
-        String comment = "comment";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
-        // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        // Upload 'photo'
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -635,13 +560,8 @@ public final class ServerTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "username";
-        String comment = "comment";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
-        // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        // Upload 'photo'
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -686,13 +606,8 @@ public final class ServerTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "username";
-        String comment = "comment";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
-        // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        // Upload 'photo'
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -735,13 +650,8 @@ public final class ServerTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "username";
-        String comment = "comment";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
-        // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        // Upload 'photo'
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -780,13 +690,8 @@ public final class ServerTests extends TestUtility {
         String user = username + "2";
         loginAndSetupNewUser(user);
 
-        // Create sample data
-        String photoName = "photo";
-        String comment = "a comment";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
-        // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        // Upload 'photo'
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -823,13 +728,8 @@ public final class ServerTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "username";
-        String comment = "comment";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
-        // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        // Upload 'photo'
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -846,10 +746,9 @@ public final class ServerTests extends TestUtility {
         Notification[] notifications = gson.fromJson(notificationsResponse.readEntity(String.class),
                 Notification[].class);
         assertEquals(1, notifications.length);
-        assertEquals(commentId, notifications[0].getCommentId());
-        assertEquals(id, notifications[0].getReferenceId());
+        assertEquals(commentId, notifications[0].getContentId());
         assertEquals(PHOTO_COMMENT, notifications[0].getCommentType());
-        assertEquals(username, notifications[0].getCommentAuthor());
+        assertEquals(username, notifications[0].getAuthor());
     }
 
     @Test
@@ -885,13 +784,8 @@ public final class ServerTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "username";
-        String comment = "comment";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
-        // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        // Upload 'photo'
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -915,17 +809,15 @@ public final class ServerTests extends TestUtility {
         assertEquals(2, notifications.length);
 
         // Ensure the user posted both
-        assertEquals(username, notifications[0].getCommentAuthor());
-        assertEquals(username, notifications[1].getCommentAuthor());
+        assertEquals(username, notifications[0].getAuthor());
+        assertEquals(username, notifications[1].getAuthor());
 
         // Ensure the second comment is registered as a reply to the first
         assertEquals(PHOTO_COMMENT, notifications[0].getCommentType());
-        assertEquals(id, notifications[0].getReferenceId());
-        assertEquals(commentId, notifications[0].getCommentId());
+        assertEquals(commentId, notifications[0].getContentId());
 
         assertEquals(REPLY, notifications[1].getCommentType());
-        assertEquals(replyId, notifications[1].getCommentId());
-        assertEquals(commentId, notifications[1].getReferenceId());
+        assertEquals(replyId, notifications[1].getContentId());
     }
 
     @Test
@@ -933,13 +825,8 @@ public final class ServerTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "username";
-        String comment = "comment";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
-        // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        // Upload 'photo'
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -956,10 +843,9 @@ public final class ServerTests extends TestUtility {
         Notification[] notifications = gson.fromJson(notificationsResponse.readEntity(String.class),
                 Notification[].class);
         assertEquals(1, notifications.length);
-        assertEquals(commentId, notifications[0].getCommentId());
-        assertEquals(id, notifications[0].getReferenceId());
+        assertEquals(commentId, notifications[0].getContentId());
         assertEquals(PHOTO_COMMENT, notifications[0].getCommentType());
-        assertEquals(username, notifications[0].getCommentAuthor());
+        assertEquals(username, notifications[0].getAuthor());
 
         // Get all user comments, such that the notification generated by this user's comment on its OWN photo
         // is removed.
@@ -979,13 +865,8 @@ public final class ServerTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "username";
-        String comment = "comment";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
-        // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        // Upload 'photo'
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -1002,10 +883,9 @@ public final class ServerTests extends TestUtility {
         Notification[] notifications = gson.fromJson(notificationsResponse.readEntity(String.class),
                 Notification[].class);
         assertEquals(1, notifications.length);
-        assertEquals(commentId, notifications[0].getCommentId());
-        assertEquals(id, notifications[0].getReferenceId());
+        assertEquals(commentId, notifications[0].getContentId());
         assertEquals(PHOTO_COMMENT, notifications[0].getCommentType());
-        assertEquals(username, notifications[0].getCommentAuthor());
+        assertEquals(username, notifications[0].getAuthor());
 
         // Get all photo comments
         commentsResponse = apiClient.getAllPhotoComments(id);
@@ -1024,13 +904,8 @@ public final class ServerTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "username";
-        String comment = "comment";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -1054,17 +929,15 @@ public final class ServerTests extends TestUtility {
         assertEquals(2, notifications.length);
 
         // Ensure the user posted both
-        assertEquals(username, notifications[0].getCommentAuthor());
-        assertEquals(username, notifications[1].getCommentAuthor());
+        assertEquals(username, notifications[0].getAuthor());
+        assertEquals(username, notifications[1].getAuthor());
 
         // Ensure the second comment is registered as a reply to the first
         assertEquals(PHOTO_COMMENT, notifications[0].getCommentType());
-        assertEquals(id, notifications[0].getReferenceId());
-        assertEquals(commentId, notifications[0].getCommentId());
+        assertEquals(commentId, notifications[0].getContentId());
 
         assertEquals(REPLY, notifications[1].getCommentType());
-        assertEquals(replyId, notifications[1].getCommentId());
-        assertEquals(commentId, notifications[1].getReferenceId());
+        assertEquals(replyId, notifications[1].getContentId());
 
         // Get all replies
         commentsResponse = apiClient.getAllReplies(commentId);
@@ -1084,13 +957,8 @@ public final class ServerTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "username";
-        String comment = "comment";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
-        // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        // Upload 'photo'
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -1119,13 +987,8 @@ public final class ServerTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "username";
-        String comment = "comment";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -1154,13 +1017,8 @@ public final class ServerTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "username";
-        String comment = "comment";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
-        // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        // Upload 'photo'
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -1188,13 +1046,8 @@ public final class ServerTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "username";
-        String comment = "comment";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
-        // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        // Upload 'photo'
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -1212,13 +1065,8 @@ public final class ServerTests extends TestUtility {
         // Add sample user and register it
         loginAndSetupNewUser(username);
 
-        // Create sample data
-        String photoName = "username";
-        String comment = "comment";
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(photoName, albumId, contents);
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long id = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
@@ -1235,6 +1083,31 @@ public final class ServerTests extends TestUtility {
         Comment[] comments = gson.fromJson(commentsResponse.readEntity(String.class), Comment[].class);
         assertEquals(0, comments.length);
     }
+
+    @Test
+    public void getPhotoFollowNotificationTest() throws InvalidResourceRequestException {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Add user to be a follower of sample
+        String userFollowing = "userFollowing";
+        loginAndSetupNewUser(userFollowing);
+
+        // Send a follow request to sample user
+        Response response = apiClient.followUser(username);
+
+        // Check notifications for user
+        apiClient.loginUser(username, pw);
+        Response notificationsResponse = apiClient.getNotifications();
+        assertEquals(Response.Status.OK.getStatusCode(), notificationsResponse.getStatus());
+
+        // Parse notifications, and assert one was generated for the new comment on the photo
+        Notification[] notifications = gson.fromJson(notificationsResponse.readEntity(String.class),
+                Notification[].class);
+        assertEquals(1, notifications.length);
+
+    }
+
 
     @Test
     public void emptyNewsFeedTest() throws InvalidResourceRequestException {
@@ -1267,11 +1140,8 @@ public final class ServerTests extends TestUtility {
         String userBeingFollowed = "user_being_followed";
         loginAndSetupNewUser(userBeingFollowed);
 
-        // Create sample data
-        byte[] contents = new byte[] {1, 2, 3, 4, 5};
-
         // Upload 'photo' (byte[])
-        Response response = apiClient.uploadPhoto(userBeingFollowed, albumId, contents);
+        Response response = apiClient.uploadPhoto(userBeingFollowed, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         // Set up user whose news feed we want
@@ -1307,11 +1177,11 @@ public final class ServerTests extends TestUtility {
         byte[] contentsTwo = new byte[] {1, 1, 3, 1, 2};
 
         // Upload 'photo' (byte[])
-        Response uploadResponseOne = apiClient.uploadPhoto(userBeingFollowed, albumId, contentsOne);
+        Response uploadResponseOne = apiClient.uploadPhoto(userBeingFollowed, ext, description, albumId, contentsOne);
         assertEquals(Response.Status.OK.getStatusCode(), uploadResponseOne.getStatus());
 
         // Upload 'photo' (byte[])
-        Response uploadResponseTwo = apiClient.uploadPhoto(userBeingFollowed, albumId, contentsTwo);
+        Response uploadResponseTwo = apiClient.uploadPhoto(userBeingFollowed, ext, description, albumId, contentsTwo);
         assertEquals(Response.Status.OK.getStatusCode(), uploadResponseTwo.getStatus());
 
         // Set up user whose news feed we want
@@ -1348,18 +1218,18 @@ public final class ServerTests extends TestUtility {
 
         // Upload 'photo' (byte[]) for first followee
         loginAndSetupNewUser(userBeingFollowedOne);
-        Response uploadResponseOne = apiClient.uploadPhoto(userBeingFollowedOne, albumId, contentsOne);
+        Response uploadResponseOne = apiClient.uploadPhoto(userBeingFollowedOne, ext, description, albumId, contentsOne);
         assertEquals(Response.Status.OK.getStatusCode(), uploadResponseOne.getStatus());
 
         // Upload 'photo' (byte[]) for second followee
         loginAndSetupNewUser(userBeingFollowedTwo);
 
         // Add new album, and retrieve the returned id
-        Response response = apiClient.addAlbum(albumName, description, userBeingFollowedTwo);
+        Response response = apiClient.addAlbum(albumName, description);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         long albumIdTwo = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
-        Response uploadResponseTwo = apiClient.uploadPhoto(userBeingFollowedTwo, albumIdTwo, contentsTwo);
+        Response uploadResponseTwo = apiClient.uploadPhoto(userBeingFollowedTwo, ext, description, albumIdTwo, contentsTwo);
         assertEquals(Response.Status.OK.getStatusCode(), uploadResponseTwo.getStatus());
 
         // Set up user whose news feed we want
@@ -1521,5 +1391,132 @@ public final class ServerTests extends TestUtility {
         String users = response.readEntity(String.class);
 
         assertEquals(gson.fromJson(users, User[].class).length, 2);
+    }
+    @Test
+    public void notificationAddedForFollowTest() {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Set up users who are following our sample user
+        String userFollowingOne = "user_following_one";
+        loginAndSetupNewUser(userFollowingOne);
+        apiClient.followUser(username);
+
+        // Log back into the sample user
+        apiClient.loginUser(username, pw);
+
+
+        // Get followers, and ensure it was successful
+        Response response = apiClient.getNotifications();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        // Parse JSON
+        String notifications = response.readEntity(String.class);
+
+        assertEquals(gson.fromJson(notifications, Notification[].class).length, 1);
+    }
+
+    @Test
+    public void notificationAddedForTwoFollowTest() {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Set up users who are following our sample user
+        String userFollowingOne = "user_following_one";
+        loginAndSetupNewUser(userFollowingOne);
+        apiClient.followUser(username);
+
+        String userFollowingTwo = "user_following_two";
+        loginAndSetupNewUser(userFollowingTwo);
+        apiClient.followUser(username);
+
+        // Log back into the sample user
+        apiClient.loginUser(username, pw);
+
+
+        // Get followers, and ensure it was successful
+        Response response = apiClient.getNotifications();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        // Parse JSON
+        String notifications = response.readEntity(String.class);
+        assertEquals(gson.fromJson(notifications, Notification[].class).length, 2);
+    }
+
+
+
+    @Test
+    public void emptyUsersNameSearchTest() {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Get followers, and ensure it was successful
+        String searchTerm = "user";
+        Response response = apiClient.getUserWithNameBegining(searchTerm);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        String content = response.readEntity(String.class);
+        User[] users = gson.fromJson(content, User[].class);
+        assertEquals(0, users.length);
+
+    }
+
+    @Test
+    public void usersNameSearchForOneSubjectTests() {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Set up users who are following our sample user
+        String sampleSearchedUser = "user_one";
+        loginAndSetupNewUser(sampleSearchedUser);
+
+        // Log back into the sample user
+        apiClient.loginUser(username, pw);
+
+
+        // Get followers, and ensure it was successful
+        String searchTerm = sampleSearchedUser.substring(0, 4);
+        Response response = apiClient.getUserWithNameBegining(searchTerm);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        String content = response.readEntity(String.class);
+        User[] users = gson.fromJson(content, User[].class);
+        assertEquals(1, users.length);
+
+        for (User user: users){
+            assertTrue(user.getUsername().contains(searchTerm));
+        }
+
+    }
+
+    @Test
+    public void usersNameSearchForTwoSubjectTests() {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Set up users who are following our sample user
+        String sampleSearchedUserOne = "user_one";
+        loginAndSetupNewUser(sampleSearchedUserOne);
+
+        String sampleSearchedUserTwo = "user_two";
+        loginAndSetupNewUser(sampleSearchedUserTwo);
+
+        // Log back into the sample user
+        apiClient.loginUser(username, pw);
+
+
+        // Get followers, and ensure it was successful
+        String searchTerm = "user";
+        Response response = apiClient.getUserWithNameBegining(searchTerm);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        String content = response.readEntity(String.class);
+        User[] users = gson.fromJson(content, User[].class);
+        assertEquals(2, users.length);
+
+        for (User user: users){
+            assertTrue(user.getUsername().contains(searchTerm));
+        }
+
     }
 }

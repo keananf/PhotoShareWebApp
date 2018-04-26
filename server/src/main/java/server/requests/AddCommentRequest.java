@@ -1,22 +1,21 @@
 package server.requests;
 
-import server.objects.Auth;
-import server.objects.CommentType;
+import server.objects.EventType;
+import server.objects.EventType;
 
 /**
  * Request wrapper for add comment common
  */
-public class AddCommentRequest extends AuthRequest {
+public class AddCommentRequest {
 
     private final String commentContents;
     private final long referenceId;
-    private final CommentType commentType;
+    private final EventType eventType;
 
-    public AddCommentRequest(Auth auth, String commentContents, long referenceId, CommentType commentType) {
-        super(auth);
+    public AddCommentRequest(String commentContents, long referenceId, EventType eventType) {
         this.commentContents = commentContents;
         this.referenceId = referenceId;
-        this.commentType = commentType;
+        this.eventType = eventType;
     }
 
     /**
@@ -36,7 +35,7 @@ public class AddCommentRequest extends AuthRequest {
     /**
      * @return whether this is a reply or a comment
      */
-    public CommentType getCommentType() {
-        return commentType;
+    public EventType getEventType() {
+        return eventType;
     }
 }

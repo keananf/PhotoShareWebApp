@@ -9,6 +9,8 @@ import server.datastore.exceptions.InvalidResourceRequestException;
 import server.datastore.exceptions.UnauthorisedException;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -31,17 +33,19 @@ public class CommentsApi {
     @POST
     @Path(Resources.ADD_COMMENT)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response addComment(String message) {
+    public Response addComment(String message, @Context HttpHeaders headers) {
         // Retrieve request wrapper
         try {
             AddCommentRequest request = gson.fromJson(message, AddCommentRequest.class);
 
             // Retrieve provided auth info
-            Auth auth = request.getAuth();
-            RESOLVER.verifyAuth(Resources.ADD_COMMENT_PATH, auth);
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
+            String date = headers.getHeaderString(HttpHeaders.DATE);
+            RESOLVER.verifyAuth(Resources.ADD_COMMENT_PATH, sender, apiKey, date);
 
             // Upload comment to the data store
-            Receipt receipt = RESOLVER.addComment(auth.getUser(), request);
+            Receipt receipt = RESOLVER.addComment(sender, request);
             return Response.ok(gson.toJson(receipt)).build();
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
@@ -52,23 +56,24 @@ public class CommentsApi {
      * Allows users to delete their own comments
      *
      * @param commentId the ID of the comment to be removed, provided in the URL
-     * @param message the auth information
      * @return a response object containing the result of the request
      */
-    @POST
+    @DELETE
     @Path(Resources.DELETE_COMMENT + "/{commentId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response removeComment(@PathParam("commentId") long commentId, String message) {
+    public Response removeComment(@PathParam("commentId") long commentId, @Context HttpHeaders headers) {
 
         // Retrieve request wrapper
         try {
-            // Retrieve provided auth info and verify it
-            Auth auth = gson.fromJson(message, AuthRequest.class).getAuth();
+            // Retrieve provided auth info
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
+            String date = headers.getHeaderString(HttpHeaders.DATE);
             String path = String.format("%s/%s", Resources.DELETE_COMMENT_PATH, commentId);
-            RESOLVER.verifyAuth(path, auth);
+            RESOLVER.verifyAuth(path, sender, apiKey, date);
 
             // Upload comment to the data store
-            RESOLVER.removeComment(auth.getUser(), commentId);
+            RESOLVER.removeComment(sender, commentId);
             return Response.noContent().build();
 
         } catch (InvalidResourceRequestException | DoesNotOwnCommentException e) {
@@ -85,18 +90,20 @@ public class CommentsApi {
     @POST
     @Path(Resources.EDIT_COMMENT + "/{commentId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response editComment(@PathParam("commentId") long commentId, String message) {
+    public Response editComment(@PathParam("commentId") long commentId, String message, @Context HttpHeaders headers) {
         // Retrieve request wrapper
         try {
             EditCommentRequest request = gson.fromJson(message, EditCommentRequest.class);
 
             // Retrieve provided auth info
-            Auth auth = request.getAuth();
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
+            String date = headers.getHeaderString(HttpHeaders.DATE);
             String path = String.format("%s/%s", Resources.EDIT_COMMENT_PATH, commentId);
-            RESOLVER.verifyAuth(path, auth);
+            RESOLVER.verifyAuth(path, sender, apiKey, date);
 
             // Update comment in the data store
-            Receipt receipt = RESOLVER.editComment(auth.getUser(), commentId, request);
+            Receipt receipt = RESOLVER.editComment(sender, commentId, request);
             return Response.ok(gson.toJson(receipt)).build();
 
         } catch(InvalidResourceRequestException | DoesNotOwnCommentException e) {
@@ -106,24 +113,24 @@ public class CommentsApi {
     }
 
     /**
-     * @param username the provided username in the URL
-     * @param jsonAuth the serialised AuthRequest passed as the request body.
+     * @param user the provided username in the URL
      * @return a parsed list of all comments from the requested user in the system
      */
-    @POST
+    @GET
     @Path("{username}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response getAllUserComments(@PathParam("username") String username, String jsonAuth) {
-        // Retrieve provided auth info
+    public Response getAllUserComments(@PathParam("username") String user, @Context HttpHeaders headers) {
         try {
-            AuthRequest auth = gson.fromJson(jsonAuth, AuthRequest.class);
-            String path = String.format("%s/%s", Resources.COMMENTS_PATH, username);
-            RESOLVER.verifyAuth(path, auth.getAuth());
+            // Retrieve provided auth info
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
+            String date = headers.getHeaderString(HttpHeaders.DATE);
+            String path = String.format("%s/%s", Resources.COMMENTS_PATH, user);
+            RESOLVER.verifyAuth(path, sender, apiKey, date);
 
             // Retrieve list retrieved from data manipulation layer
             // and convert comments into JSON array
-            List<Comment> comments = RESOLVER.getComments(username);
+            List<Comment> comments = RESOLVER.getComments(user);
             return Response.ok(gson.toJson(comments)).build();
 
         }
@@ -133,23 +140,23 @@ public class CommentsApi {
 
     /**
      * @param photoId the provided photoId in the URL
-     * @param jsonAuth the serialised AuthRequest passed as the request body.
      * @return a parsed list of all comments on the requested photo in the system
      */
-    @POST
+    @GET
     @Path(Resources.PHOTOS_PATH + "/{photoId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response getTopLevelPhotoComments(@PathParam("photoId") long photoId, String jsonAuth) {
+    public Response getTopLevelPhotoComments(@PathParam("photoId") long photoId, @Context HttpHeaders headers) {
         // Retrieve provided auth info
         try {
-            AuthRequest auth = gson.fromJson(jsonAuth, AuthRequest.class);
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
+            String date = headers.getHeaderString(HttpHeaders.DATE);
             String path = String.format("%s/%s", Resources.GET_ALL_PHOTO_COMMENTS_PATH, photoId);
-            RESOLVER.verifyAuth(path, auth.getAuth());
+            RESOLVER.verifyAuth(path, sender, apiKey, date);
 
             // Retrieve list retrieved from data manipulation layer
             // and convert comments into JSON array
-            List<Comment> comments = RESOLVER.getPhotoComments(auth.getAuth().getUser(), photoId);
+            List<Comment> comments = RESOLVER.getPhotoComments(sender, photoId);
             return Response.ok(gson.toJson(comments)).build();
 
         }
@@ -159,23 +166,23 @@ public class CommentsApi {
 
     /**
      * @param commentId the provided commentId in the URL
-     * @param jsonAuth the serialised AuthRequest passed as the request body.
      * @return a parsed list of all replies to the requested comment in the system
      */
-    @POST
+    @GET
     @Path(Resources.REPLY_PATH + "/{commentId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response getTopLevelReplies(@PathParam("commentId") long commentId, String jsonAuth) {
+    public Response getTopLevelReplies(@PathParam("commentId") long commentId, @Context HttpHeaders headers) {
         // Retrieve provided auth info
         try {
-            AuthRequest auth = gson.fromJson(jsonAuth, AuthRequest.class);
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
+            String date = headers.getHeaderString(HttpHeaders.DATE);
             String path = String.format("%s/%s", Resources.GET_ALL_REPLIES_PATH, commentId);
-            RESOLVER.verifyAuth(path, auth.getAuth());
+            RESOLVER.verifyAuth(path, sender, apiKey, date);
 
             // Retrieve list retrieved from data manipulation layer
             // and convert comments into JSON array
-            List<Comment> comments = RESOLVER.getReplies(auth.getAuth().getUser(), commentId);
+            List<Comment> comments = RESOLVER.getReplies(sender, commentId);
             return Response.ok(gson.toJson(comments)).build();
 
         }
@@ -186,22 +193,23 @@ public class CommentsApi {
     /**
      * Registers an upvote from the authorised user on the provided commentId, if it exists.
      * @param commentId the provided commentId in the URL
-     * @param jsonAuth the serialised AuthRequest passed as the request body.
      * @return a response indicating success / failure
      */
-    @POST
+    @PUT
     @Path(Resources.UPVOTE + "/{commentId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response upvote(@PathParam("commentId") long commentId, String jsonAuth) {
+    public Response upvote(@PathParam("commentId") long commentId, @Context HttpHeaders headers) {
         // Retrieve provided auth info
         try {
-            Auth auth = gson.fromJson(jsonAuth, AuthRequest.class).getAuth();
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
+            String date = headers.getHeaderString(HttpHeaders.DATE);
             String path = String.format("%s/%s", Resources.COMMENT_UPVOTE_PATH, commentId);
-            RESOLVER.verifyAuth(path, auth);
+            RESOLVER.verifyAuth(path, sender, apiKey, date);
 
             // Register upvote with server
-            RESOLVER.voteOnComment(commentId, auth.getUser(), true);
+            RESOLVER.voteOnComment(commentId, sender, true);
             return Response.noContent().build();
 
         }
@@ -212,22 +220,24 @@ public class CommentsApi {
     /**
      * Registers a downvote from the authorised user on the provided commentId, if it exists.
      * @param commentId the provided commentId in the URL
-     * @param jsonAuth the serialised AuthRequest passed as the request body.
      * @return a response indicating success / failure
      */
-    @POST
+    @PUT
     @Path(Resources.DOWNVOTE + "/{commentId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response downvote(@PathParam("commentId") long commentId, String jsonAuth) {
+    public Response downvote(@PathParam("commentId") long commentId, @Context HttpHeaders headers) {
         // Retrieve provided auth info
         try {
-            Auth auth = gson.fromJson(jsonAuth, AuthRequest.class).getAuth();
+            // Retrieve provided auth info
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
+            String date = headers.getHeaderString(HttpHeaders.DATE);
             String path = String.format("%s/%s", Resources.COMMENT_DOWNVOTE_PATH, commentId);
-            RESOLVER.verifyAuth(path, auth);
+            RESOLVER.verifyAuth(path, sender, apiKey, date);
 
             // Register downvote with server
-            RESOLVER.voteOnComment(commentId, auth.getUser(), false);
+            RESOLVER.voteOnComment(commentId, sender, false);
             return Response.noContent().build();
 
         }

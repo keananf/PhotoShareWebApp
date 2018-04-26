@@ -1,17 +1,13 @@
 package server.requests;
 
-import server.objects.Auth;
-import server.objects.CommentType;
-
 /**
  * Request wrapper for edit comment common
  */
-public class EditCommentRequest extends AuthRequest {
+public class EditCommentRequest {
 
     private final String commentContents;
 
-    public EditCommentRequest(Auth auth, String commentContents) {
-        super(auth);
+    public EditCommentRequest(String commentContents) {
         this.commentContents = commentContents;
     }
 

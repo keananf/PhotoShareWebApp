@@ -1,20 +1,16 @@
 package server.requests;
 
-import server.objects.Auth;
-
 /**
  * Request wrapper for updating an album's description
  */
-public class UpdateAlbumDescriptionRequest extends AuthRequest {
+public class UpdateAlbumDescriptionRequest {
 
     private final String description;
     private final long albumId;
 
-    public UpdateAlbumDescriptionRequest(Auth auth, long albumId, String description) {
-        super(auth);
+    public UpdateAlbumDescriptionRequest(long albumId, String description) {
         this.albumId = albumId;
         this.description = description;
-
     }
 
     /**

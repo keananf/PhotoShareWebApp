@@ -6,56 +6,39 @@ package server.objects;
  * is registered on a user's photo or comment.
  */
 public final class Notification {
-    // The id of either the comment or photo which was commented on.
-    private final long referenceId;
 
-    // The id of the new comment which generated the notification
-    private final long commentId;
+    // The id of the new comment or follow event which generated the notification
+    private final long contentId;
 
-    // The type of comment this is. This indicates to the client whether or not
-    // the reference id is in reference to a photo or a comment by the given user.
-    private final CommentType commentType;
+    // The type of noification this is. This indicates to the client whether or not
+    // the reference id is in reference to a photo, follow or comment by the given user.
+    private final EventType eventType;
 
     // Who posted the comment and who is receiving the notification
-    private final String commentAuthor;
+    private final String author;
     private final String notifiedUser;
 
-    public Notification(Comment comment, String notifiedUser) {
-        this.referenceId = comment.getReferenceId();
-        this.commentId = comment.getId();
-        this.commentType = comment.getCommentType();
-        this.commentAuthor = comment.getAuthor();
+    public Notification(long contentId, String notifiedUser,
+                        String author, EventType type) {
+        this.contentId = contentId;
         this.notifiedUser = notifiedUser;
-    }
-
-    public Notification(long commentId, long referenceId, String notifiedUser,
-                        String commentAuthor, CommentType type) {
-        this.commentId = commentId;
-        this.referenceId = referenceId;
-        this.notifiedUser = notifiedUser;
-        this.commentAuthor = commentAuthor;
-        commentType = type;
+        this.author = author;
+        eventType = type;
     }
 
     /**
      * @return The id of the new comment which generated the notification
      */
-    public long getCommentId() {
-        return commentId;
+    public long getContentId() {
+        return contentId;
     }
 
-    /**
-     * @return  The id of either the comment or photo which was commented on.
-     */
-    public long getReferenceId() {
-        return referenceId;
-    }
 
     /**
      * @return Who posted the comment
      */
-    public String getCommentAuthor() {
-        return commentAuthor;
+    public String getAuthor() {
+        return author;
     }
 
     /**
@@ -63,8 +46,8 @@ public final class Notification {
      * the reference id is in reference to a photo or a comment by the given user.
      * @return the type of comment
      */
-    public CommentType getCommentType() {
-        return commentType;
+    public EventType getCommentType() {
+        return eventType;
     }
 
     /**

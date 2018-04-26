@@ -139,8 +139,10 @@ PhotoShare RESTful API specification
       ```
       {
           "photoName": string,
+          "extension": string,
           "albumId": long,
-          "encodedPhotoContents": string
+          "encodedPhotoContents": string,
+          "description": string
       }
       
     * **Success Response:**
@@ -174,10 +176,11 @@ PhotoShare RESTful API specification
             {
                 "id": long, 
                 "photoName": string,
+                "extension": string,
                 "authorName": string,
-                "albumId": long,                 
-                "photoContents": (base64) string,
+                "albumId": long,
                 "photoTime": long 
+                "description": string
             },
             ...
         ]
@@ -192,7 +195,7 @@ PhotoShare RESTful API specification
 
 * `/photos/{id}`
 
-    * **Summary:** Retrieves the given photo 
+    * **Summary:** Retrieves the given photo's meta-data 
 
     * **Method:** `GET`
   
@@ -207,11 +210,61 @@ PhotoShare RESTful API specification
         {
             "id": long, 
             "photoName": string,
+            "extension": string,
             "authorName": string,
-            "albumId": long,                 
-            "photoContents": (base64) string,
-            "photoTime": long 
+            "albumId": long,
+            "photoTime": long,
+            "description": string
         }
+     
+    * **Error Response:**
+    
+      * **Code:** 400 Bad Request <br />
+    
+      or
+    
+      * **Code:** 401 Unauthorized <br />
+
+* `/photos/content/jpg/{id}.jpg`
+
+    * **Summary:** Retrieves the content for the given JPG photo 
+
+    * **Method:** `GET`
+  
+    * **URL Parameters:** 
+        * id: `a photo's unique id (as a long)`
+    
+    * **Success Response:**
+    
+      * **Code:** 200 OK <br />
+        **Content:** 
+        ``` 
+        The raw photo.
+     
+    * **Error Response:**
+    
+      * **Code:** 400 Bad Request <br />
+    
+      or
+    
+      * **Code:** 401 Unauthorized <br />
+
+
+* `/photos/content/png/{id}.png`
+
+    * **Summary:** Retrieves the content for the given PNG photo 
+
+    * **Method:** `GET`
+  
+    * **URL Parameters:** 
+        * id: `a photo's unique id (as a long)`
+    
+    * **Success Response:**
+    
+      * **Code:** 200 OK <br />
+        **Content:** 
+        ``` 
+        The raw photo
      
     * **Error Response:**
     
@@ -562,7 +615,7 @@ PhotoShare RESTful API specification
       ```
       {
           "username": string,
-          "password": int
+          "password": string 
       }
       
     * **Success Response:**
@@ -580,6 +633,14 @@ PhotoShare RESTful API specification
     * **Method:** `POST`
   
     * **URL Parameters:** `None`
+    
+    * **Body Parameters**
+    
+      ```
+      {
+          "username": string,
+          "password": string 
+      }
       
     * **Success Response:**
     
@@ -588,6 +649,7 @@ PhotoShare RESTful API specification
       ```
       {
         "username": string,
+        "password": string (base64-encoded of hashed password)
         "admin": boolean
       }
       ```
@@ -618,10 +680,11 @@ PhotoShare RESTful API specification
             {
                 "id": long, 
                 "photoName": string,
+                "extension": string,
                 "authorName": string,
-                "albumId": long,                 
-                "photoContents": (base64) string,
+                "albumId": long,
                 "photoTime": long 
+                "description": string
             },
             ...
         ]
@@ -706,7 +769,20 @@ PhotoShare RESTful API specification
       
     * **Success Response:**
     
-      * **Code:** 204 No Content <br />
+      * **Code:** 200 OK <br />
+      **Content:** 
+      ``` 
+      [
+          {
+              "id": long, 
+              "photoName": string,
+              "extension": string,
+              "authorName": string,
+              "albumId": long,                 
+              "photoTime": long 
+          },
+          ...
+      ]
       
     * **Error Response:**
     

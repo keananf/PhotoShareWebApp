@@ -1,6 +1,7 @@
 package client;
 
 import com.google.gson.Gson;
+import org.h2.command.dml.Update;
 import server.Auth;
 import server.Resources;
 import server.objects.CommentType;
@@ -205,6 +206,14 @@ public final class ApiClient {
 
         // Encode request and POST
         return connector.post(baseTarget, UPDATE_ALBUM_DESCRIPTION_PATH, gson.toJson(request));
+    }
+
+    public Response updatePhotoDescription(long id, String description) {
+        // Construct request
+        UpdatePhotoDescriptionRequest request = new UpdatePhotoDescriptionRequest(id, description);
+
+        //Encode request and POST
+        return connector.post(baseTarget, UPDATE_PHOTO_DESCRIPTION_PATH, gson.toJson(request));
     }
 
     /**

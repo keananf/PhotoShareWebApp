@@ -71,6 +71,14 @@ interface DataStore {
     void updateAlbumDescription(long albumId, String description) throws InvalidResourceRequestException;
 
     /**
+     * Updates a photo's description.
+     * @param photoId the photo's id
+     * @param description the new description
+     * @throws InvalidResourceRequestException
+     */
+    void updatePhotoDescription(long photoId, String description) throws InvalidResourceRequestException;
+
+    /**
      * Retrieves the given comment
      * @param id the id of the comment
      * @return the comment

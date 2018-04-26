@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  */
 public final class RequestResolver {
     public static boolean DEBUG = false;
-    private static final long TIMEOUT = (long) (10 * (Math.pow(10, 9)));
+    private static final long TIMEOUT = (long) (15 * 1000); // 15 sec
     private DataStore dataStore = new DatabaseBackedDataStore();
 
     // Variables for database ID generation. This avoids extra database queries

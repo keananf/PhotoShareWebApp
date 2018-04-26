@@ -652,7 +652,7 @@ PhotoShare RESTful API specification
       ```
       {
         "username": string,
-        "password": string (base64-encoded of hashed password)
+        "password": string (hex-encoded hashed password)
         "admin": boolean
       }
       ```

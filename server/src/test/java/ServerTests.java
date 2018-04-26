@@ -44,14 +44,16 @@ public final class ServerTests extends TestUtility {
         loginAndSetupNewUser(username);
 
         // Add new album, and retrieve the returned id
-        Response response = apiClient.addAlbum(albumName, description);
-        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        long albumId = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
+        for(int i = 0; i < 10; i++) {
+            Response response = apiClient.addAlbum(albumName, description);
+            assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+            long albumId = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
 
-        // Check server has record of album
-        Album album = resolver.getAlbum(albumId);
-        assertEquals(albumName, album.getAlbumName());
-        assertEquals(description, album.getDescription());
+            // Check server has record of album
+            Album album = resolver.getAlbum(albumId);
+            assertEquals(albumName, album.getAlbumName());
+            assertEquals(description, album.getDescription());
+        }
     }
 
     @Test

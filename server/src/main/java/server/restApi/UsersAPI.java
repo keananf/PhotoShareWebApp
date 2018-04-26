@@ -33,7 +33,6 @@ public final class UsersAPI {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     public Response getUsers(@Context HttpHeaders headers) {
         try {
             // Retrieve auth headers
@@ -109,7 +108,6 @@ public final class UsersAPI {
     @GET
     @Path("/{username}" + PHOTOS_PATH)
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     public Response getAllPhotosFromUser(@PathParam("username") String username, @Context HttpHeaders headers) {
         try {
             // Retrieve provided auth info
@@ -190,8 +188,6 @@ public final class UsersAPI {
 
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-
-
         return Response.noContent().build();
     }
 
@@ -203,7 +199,6 @@ public final class UsersAPI {
     @GET
     @Path(Resources.FOLLOWING + "/{username}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     public Response getFollowing(@PathParam("username") String username, @Context HttpHeaders headers) {
         // Retrieve provided auth info
         String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
@@ -234,7 +229,6 @@ public final class UsersAPI {
     @GET
     @Path(Resources.FOLLOWERS + "/{username}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     public Response getFollowers(@PathParam("username") String username, @Context HttpHeaders headers) {
         // Retrieve provided auth info
         String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
@@ -252,6 +246,32 @@ public final class UsersAPI {
 
         } catch (InvalidResourceRequestException e) {
             return Response.status(Response.Status.BAD_REQUEST).build();
+        } catch (UnauthorisedException e) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+    }
+
+    @GET
+    @Path(SEARCH)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response bar(@QueryParam(NAME_PARAM) String value, @Context HttpHeaders headers) {
+
+        // Retrieve provided auth info
+        String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+        String sender = authHeader[0], apiKey = authHeader[1];
+        String date = headers.getHeaderString(HttpHeaders.DATE);
+
+
+        try {
+            // Process request
+            String path = String.format("%s?%s=%s", USERS_SEARCH_BAR_PATH, NAME_PARAM , value);
+            RESOLVER.verifyAuth(path, sender, apiKey, date);
+
+            List<User> users = RESOLVER.getUsersWithName(value);
+
+            return Response.ok(gson.toJson(users)).build();
+
         } catch (UnauthorisedException e) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }

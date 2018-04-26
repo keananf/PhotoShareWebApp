@@ -297,4 +297,13 @@ public class AuthorisationTests extends TestUtility {
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
     }
 
+    @Test
+    public void unauthorisedGetUsersWithNameBeginingTest() {
+
+        // Check Status codes
+        Response response = apiClient.getUserWithNameBegining("bob");
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
+
+    }
+
 }

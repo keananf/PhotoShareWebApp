@@ -93,7 +93,6 @@ public class AlbumsApi {
     @GET
     @Path(Resources.USERS_PATH + "/{username}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     public Response getAllAlbums(@PathParam("username") String user, @Context HttpHeaders headers) {
         // Retrieve provided auth info
         try {
@@ -120,7 +119,6 @@ public class AlbumsApi {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     public Response getPhoto(@PathParam("id") long id, @Context HttpHeaders headers) {
         try {
             // Retrieve provided auth info

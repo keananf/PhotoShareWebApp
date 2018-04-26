@@ -85,7 +85,6 @@ public class PhotosApi {
     @GET
     @Path(Resources.ALBUMS_PATH + "/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     public Response getAllPhotosFromAlbum(@PathParam("id") long albumId, @Context HttpHeaders headers) {
         try {
             // Retrieve provided auth info
@@ -111,7 +110,6 @@ public class PhotosApi {
      */
     @GET
     @Path(PHOTO_CONTENTS + PNG + "/{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
     @Produces("image/png")
     public Response getPhotoContentsPNG(@PathParam("id") String idAndExt, @Context HttpHeaders headers) {
         // Parse parameter in form id.ext into an id and file extension

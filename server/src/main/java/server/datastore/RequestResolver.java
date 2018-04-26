@@ -546,6 +546,7 @@ public final class RequestResolver {
         // Check the user to follow exists
         getUser(userTo);
 
+
         // Check the user is not already following the userToFollow
 
         List<String> followers_usernames = getUsernamesOfFollowers(userTo);
@@ -658,6 +659,17 @@ public final class RequestResolver {
         }
 
         return newsFeed;
+    }
+
+    /**
+     * Search for users whose name contains query
+     *
+     * @param name search query on the user's name
+     * @return the given users, who have names like the query
+     */
+
+    public List<User> getUsersWithName(String name){
+        return dataStore.getUserWithNameBegining(name);
     }
 
     public void clear() {

@@ -554,16 +554,15 @@ PhotoShare RESTful API specification
       ``` 
       [
           {
-              "commentId": long, 
-              "referenceId": long,
-              "commentAuthor": string,             
+              "contentId": long, 
+              "author": string,             
               "notifiedUser": string,
-              "commentType": string
+              "eventType": string
           },
           ...
       ]
       ```
-      Note, "commentType" here refers to "PHOTO_COMMENT" or "REPLY".
+      Note, "eventType" here refers to "PHOTO_COMMENT", "REPLY" or "FOLLOW".
            
     * **Error Response:**
     

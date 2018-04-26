@@ -14,7 +14,7 @@
                 this.currentUser = user
 
                 // Set up the headers on HttpWrapper class (used for all API calls)
-                HW.setAuthParameters(user.username, btoa(user.password))
+                HW.setAuthParameters(user.username, user.password)
             },
 
             logoutUser(){

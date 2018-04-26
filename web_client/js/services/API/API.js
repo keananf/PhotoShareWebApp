@@ -1,7 +1,7 @@
 (function () {
 
     window.API = {
-        http: new HW('http://localhost:3000/photoshare'),
+        http: new HW('http://localhost:8080/photoshare'),
         endpoints: {
             USERS_CREATE: 'users/adduser',
             USERS_LOGIN: 'users/login',

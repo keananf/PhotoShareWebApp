@@ -64,16 +64,23 @@
                 }
 
                 // Send the request
+                let rawResponse = null
                 fetch(fullUrl, options)
                     .then(function (response) {
 
+                        rawResponse = response
+
                         if (!response.ok) {
-                            throw response
+                            reject(response)
                         }
 
-                        return response.json()
+                        if (response.status === 204) {
+                            return resolve(null, rawResponse)
+                        } else {
+                            return response.json()
+                        }
                     })
-                    .then(response => resolve(response))
+                    .then(jsonRes => resolve(jsonRes, rawResponse))
                     .catch(function (response) {
                         try {
                             response.json().then(error => reject(error.error ? error.error : error))
@@ -108,7 +115,7 @@
             }
         }
 
-        static unsetAuthParameters(){
+        static unsetAuthParameters() {
             HW.auth = null
         }
 

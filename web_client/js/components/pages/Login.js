@@ -66,16 +66,10 @@
                     this.isLoading = true
 
                     API.Auth.login(this.username, this.password).then((user) => {
-                        if (!user) {
-                            this.authSuccess = false
-                        } else {
-                            // Save typed password to user record for the token generation
-                            user.password = this.password
 
-                            this.authSuccess = true
-                            this.postLogin()
-                            this.$root.auth().loginUser(user)
-                        }
+                        this.authSuccess = true
+                        this.postLogin()
+                        this.$root.auth().loginUser(user)
 
                         this.isLoading = false
                     }).catch(e => {

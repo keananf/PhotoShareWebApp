@@ -5,35 +5,28 @@
     window.API.Auth = {
         login(username, password){
             return new Promise((resolve, reject) => {
-                // Debug
-                resolve(Models.User.fromJson({'username': username}))
-                return;
-
                 http.post(API.endpoints.USERS_LOGIN, {username: username, password: password}).then(res => {
-                    if (!res.error && res.user) {
-                        resolve(Models.User.fromJson(res.user))
+                    resolve(Models.User.fromJson(res))
+                }).catch(e => {
+                    if (e instanceof Response && e.status === 401) {
+                        reject('Username or password incorrect')
                     } else {
-                        reject(res.error)
+                        reject('Unknown error, please try again')
                     }
-                }).catch(err => {
-                    reject(err)
                 })
             })
         },
 
         register(username, password){
             return new Promise((resolve, reject) => {
-                // Debug
-                return resolve(true)
-
-                http.post(API.endpoints.USERS_CREATE, {username: username, password: password}).then(res => {
-                    if (res.success) {
-                        resolve(true)
-                    } else {
-                        reject('Unknown error')
-                    }
+                http.post(API.endpoints.USERS_CREATE, {username: username, password: password}).then((data, response) => {
+                    resolve(true)
                 }).catch(e => {
-                    reject('Unknown error')
+                    if (e instanceof Response && e.status === 409) {
+                        reject('Username already taken')
+                    } else {
+                        reject('Unknown error, please try again')
+                    }
                 })
 
             })

@@ -232,7 +232,7 @@ interface DataStore {
     void persistDeleteFollowing(String userFrom, String userTo);
 
     /**
-     * Retrieve a list of the Persons (Users) a user followss
+     * Retrieve a list of the Persons (Users) a user follows
      *
      * @param username - username of the user trying to find out who their followers are
      * @return
@@ -240,9 +240,19 @@ interface DataStore {
     List<User> getFollowing(String username)  throws InvalidResourceRequestException;
 
     /**
+     * Search for users whose name contains query
+     *
+     * @param name search query on the user's name
+     * @return the given users, who have names like the query
+     */
+
+    List<User> getUserWithNameBegining(String name);
+
+    /**
      * Empties the data store
      *
      */
+
     void clear();
 
 }

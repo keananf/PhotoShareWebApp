@@ -106,6 +106,26 @@ class Connector {
         return result;
     }
 
+    /**
+     * Performs a GET request on the provided path with query
+     *
+     * @param baseTarget the web target for the base url
+     * @param path       the path to GET from
+     */
+    protected Response getWithQuery(WebTarget baseTarget, String path, String queryKey, String queryValue) {
+
+        // Get API resource
+        WebTarget pathTarget = baseTarget.path(path);
+        // Get API resource
+        WebTarget search = pathTarget.queryParam(queryKey, queryValue);
+
+        String query = String.format("%s=%s", queryKey, queryValue);
+        String fullpath = String.format("%s?%s", path, query);
+
+        // Get result and return
+        return headers(search.request(), fullpath).get();
+    }
+
     void setUserAndPw(String user, String password) {
         this.user = user;
         this.password = password;

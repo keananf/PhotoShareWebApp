@@ -1,7 +1,6 @@
 import org.junit.Test;
 
-import server.Resources;
-import server.requests.*;
+
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.objects.*;
 
@@ -14,8 +13,7 @@ import static org.junit.Assert.*;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static server.objects.EventType.PHOTO_COMMENT;
-import static server.objects.EventType.REPLY;
+import static server.objects.EventType.*;
 
 /**
  * Tests Server behaviour in response to RESTful API calls
@@ -1087,6 +1085,31 @@ public final class ServerTests extends TestUtility {
     }
 
     @Test
+    public void getPhotoFollowNotificationTest() throws InvalidResourceRequestException {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Add user to be a follower of sample
+        String userFollowing = "userFollowing";
+        loginAndSetupNewUser(userFollowing);
+
+        // Send a follow request to sample user
+        Response response = apiClient.followUser(username);
+
+        // Check notifications for user
+        apiClient.loginUser(username, pw);
+        Response notificationsResponse = apiClient.getNotifications();
+        assertEquals(Response.Status.OK.getStatusCode(), notificationsResponse.getStatus());
+
+        // Parse notifications, and assert one was generated for the new comment on the photo
+        Notification[] notifications = gson.fromJson(notificationsResponse.readEntity(String.class),
+                Notification[].class);
+        assertEquals(1, notifications.length);
+
+    }
+
+
+    @Test
     public void emptyNewsFeedTest() throws InvalidResourceRequestException {
 
         // Set up user who is being followed
@@ -1418,5 +1441,82 @@ public final class ServerTests extends TestUtility {
         // Parse JSON
         String notifications = response.readEntity(String.class);
         assertEquals(gson.fromJson(notifications, Notification[].class).length, 2);
+    }
+
+
+
+    @Test
+    public void emptyUsersNameSearchTest() {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Get followers, and ensure it was successful
+        String searchTerm = "user";
+        Response response = apiClient.getUserWithNameBegining(searchTerm);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        String content = response.readEntity(String.class);
+        User[] users = gson.fromJson(content, User[].class);
+        assertEquals(0, users.length);
+
+    }
+
+    @Test
+    public void usersNameSearchForOneSubjectTests() {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Set up users who are following our sample user
+        String sampleSearchedUser = "user_one";
+        loginAndSetupNewUser(sampleSearchedUser);
+
+        // Log back into the sample user
+        apiClient.loginUser(username, pw);
+
+
+        // Get followers, and ensure it was successful
+        String searchTerm = sampleSearchedUser.substring(0, 4);
+        Response response = apiClient.getUserWithNameBegining(searchTerm);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        String content = response.readEntity(String.class);
+        User[] users = gson.fromJson(content, User[].class);
+        assertEquals(1, users.length);
+
+        for (User user: users){
+            assertTrue(user.getUsername().contains(searchTerm));
+        }
+
+    }
+
+    @Test
+    public void usersNameSearchForTwoSubjectTests() {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Set up users who are following our sample user
+        String sampleSearchedUserOne = "user_one";
+        loginAndSetupNewUser(sampleSearchedUserOne);
+
+        String sampleSearchedUserTwo = "user_two";
+        loginAndSetupNewUser(sampleSearchedUserTwo);
+
+        // Log back into the sample user
+        apiClient.loginUser(username, pw);
+
+
+        // Get followers, and ensure it was successful
+        String searchTerm = "user";
+        Response response = apiClient.getUserWithNameBegining(searchTerm);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        String content = response.readEntity(String.class);
+        User[] users = gson.fromJson(content, User[].class);
+        assertEquals(2, users.length);
+
+        for (User user: users){
+            assertTrue(user.getUsername().contains(searchTerm));
+        }
+
     }
 }

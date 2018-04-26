@@ -3,16 +3,14 @@ package server.datastore;
 import server.Resources;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.objects.*;
+import server.requests.UploadPhotoRequest;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static server.datastore.DatabaseResources.*;
@@ -27,6 +25,7 @@ final class DatabaseBackedDataStore implements DataStore {
     private static String uname;
     private static String pw;
     private Connection conn;
+    private int CURRENT_ID = 0;
 
     // Before anything else, read in the username and password for accessing the database
     static {
@@ -53,22 +52,23 @@ final class DatabaseBackedDataStore implements DataStore {
     }
 
     @Override
-    public void persistUploadPhoto(Photo newPhoto) {
+    public void persistUploadPhoto(long id, String author, UploadPhotoRequest request) {
         // Set up query for inserting a new photo into the table
-        String query = "INSERT INTO "+PHOTOS_TABLE+"("+PHOTOS_ID+","+PHOTOS_NAME+","
-                +USERNAME+","+ALBUMS_ID+","+PHOTOS_CONTENTS+","+PHOTOS_TIME+","+PHOTOS_DESCRIPTION+")" +
-                " values(?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO "+PHOTOS_TABLE+"("+PHOTOS_ID+","+PHOTOS_NAME+","+PHOTOS_EXT+","+USERNAME+","
+            +ALBUMS_ID+","+PHOTOS_CONTENTS+","+PHOTOS_TIME+","+PHOTOS_DESCRIPTION+") "+"values(?, ?, ?, ?, ?, ?, ?, ?)";
 
         // Persist photo
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             // Insert user info into prepared statement
-            stmt.setLong(1, newPhoto.getId());
-            stmt.setString(2, newPhoto.getPhotoName());
-            stmt.setString(3, newPhoto.getAuthorName());
-            stmt.setLong(4, newPhoto.getAlbumId());
-            stmt.setBlob(5, new ByteArrayInputStream(newPhoto.getPhotoContents().getBytes(StandardCharsets.UTF_8)));
-            stmt.setTimestamp(6, new Timestamp(newPhoto.getPhotoTime()));
-            stmt.setString(7, newPhoto.getDescription());
+            stmt.setLong(1, id);
+            stmt.setString(2, request.getPhotoName());
+            stmt.setString(3, request.getExt());
+            stmt.setString(4, author);
+            stmt.setLong(5, request.getAlbumId());
+            stmt.setBlob(6, new ByteArrayInputStream(request.getEncodedPhotoContents()
+                    .getBytes(StandardCharsets.UTF_8)));
+            stmt.setTimestamp(7, new Timestamp(System.nanoTime()));
+            stmt.setString(8, request.getDescription());
 
             // Persist data
             stmt.executeUpdate();
@@ -93,17 +93,14 @@ final class DatabaseBackedDataStore implements DataStore {
                 // Create photos
                 long id = rs.getLong(1);
                 String photoName = rs.getString(2);
-                String username = rs.getString(3);
-                long albumId = rs.getLong(4);
-                Blob photoContents = rs.getBlob(5);
-                Timestamp timestamp = rs.getTimestamp(6);
-                String description = rs.getString(7);
+                String ext = rs.getString(3);
+                String username = rs.getString(4);
+                long albumId = rs.getLong(5);
+                Timestamp timestamp = rs.getTimestamp(7);
+                String description = rs.getString(8);
 
-                // Retrieve base 64 encoded contents
-                Scanner s = new Scanner(photoContents.getBinaryStream(), Resources.CHARSET_AS_STRING).useDelimiter("\\A");
-                String encodedPhotoContents = s.hasNext() ? s.next() : "";
-                photos.add(new Photo(encodedPhotoContents, username, photoName, id, albumId,
-                        getPhotoRatings(id), timestamp.getTime(), description));
+                photos.add(new Photo(username, photoName, ext, description, id, albumId,
+                        getPhotoRatings(id), timestamp.getTime()));
             }
             stmt.close();
         }
@@ -129,16 +126,13 @@ final class DatabaseBackedDataStore implements DataStore {
                 // Create photos
                 long id = rs.getLong(1);
                 String photoName = rs.getString(2);
-                String username = rs.getString(3);
-                Blob photoContents = rs.getBlob(5);
-                Timestamp timestamp = rs.getTimestamp(6);
-                String description = rs.getString(7);
+                String ext = rs.getString(3);
+                String username = rs.getString(4);
+                Timestamp timestamp = rs.getTimestamp(7);
+                String description = rs.getString(8);
 
-                // Retrieve base 64 encoded contents
-                Scanner s = new Scanner(photoContents.getBinaryStream(), Resources.CHARSET_AS_STRING).useDelimiter("\\A");
-                String encodedPhotoContents = s.hasNext() ? s.next() : "";
-                photos.add(new Photo(encodedPhotoContents, username, photoName, id, albumId,
-                        getPhotoRatings(id), timestamp.getTime(), description));
+                photos.add(new Photo(username, photoName, ext, description, id, albumId,
+                        getPhotoRatings(id), timestamp.getTime()));
             }
             stmt.close();
         }
@@ -149,7 +143,7 @@ final class DatabaseBackedDataStore implements DataStore {
     }
 
     @Override
-    public Photo getPhoto(long id) throws InvalidResourceRequestException {
+    public Photo getPhotoMetaData(long id) throws InvalidResourceRequestException {
         // Set up query to retrieve the requested photo in the photos table
         String query = "SELECT * FROM "+PHOTOS_TABLE+" WHERE "+PHOTOS_ID+" = ?";
         List<Photo> photos = new ArrayList<>();
@@ -163,17 +157,14 @@ final class DatabaseBackedDataStore implements DataStore {
             while(rs.next()) {
                 // Create photos
                 String photoName = rs.getString(2);
-                String username = rs.getString(3);
-                long albumId = rs.getLong(4);
-                Blob photoContents = rs.getBlob(5);
-                Timestamp timestamp = rs.getTimestamp(6);
-                String description = rs.getString(7);
+                String ext = rs.getString(3);
+                String username = rs.getString(4);
+                long albumId = rs.getLong(5);
+                Timestamp timestamp = rs.getTimestamp(7);
+                String description = rs.getString(8);
 
-                // Retrieve base 64 encoded contents
-                Scanner s = new Scanner(photoContents.getBinaryStream(), Resources.CHARSET_AS_STRING).useDelimiter("\\A");
-                String encodedPhotoContents = s.hasNext() ? s.next() : "";
-                photos.add(new Photo(encodedPhotoContents, username, photoName, id, albumId,
-                        getPhotoRatings(id), timestamp.getTime(), description));
+                photos.add(new Photo(username, photoName, ext, description, id, albumId,
+                        getPhotoRatings(id), timestamp.getTime()));
             }
             stmt.close();
         }
@@ -182,8 +173,42 @@ final class DatabaseBackedDataStore implements DataStore {
         // If no photos found, throw exception
         if(photos.size() == 0) throw new InvalidResourceRequestException(id);
 
-        // Return found photo
+        // Return found photo contents
         return photos.get(0);
+    }
+
+    @Override
+    public String getPhotoContents(long id, String ext) throws InvalidResourceRequestException {
+        // Set up query to retrieve the requested photo in the photos table
+        String query = "SELECT * FROM "+PHOTOS_TABLE+" WHERE "+PHOTOS_ID+" = ?";
+        List<String> photoContents = new ArrayList<>();
+
+        // Execute query on database
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setLong(1, id);
+            ResultSet rs = stmt.executeQuery();
+
+            // Iterate through result set, constructing PHOTO Objects
+            while(rs.next()) {
+                // Check provided file extension is correct
+                String foundExt = rs.getString(3);
+                if(!ext.equals(foundExt)) throw new InvalidResourceRequestException(id);
+
+                // Retrieve base 64 encoded contents
+                Blob photo = rs.getBlob(6);
+                Scanner s = new Scanner(photo.getBinaryStream(), Resources.CHARSET_AS_STRING).useDelimiter("\\A");
+                String encodedPhotoContents = s.hasNext() ? s.next() : "";
+                photoContents.add(encodedPhotoContents);
+            }
+            stmt.close();
+        }
+        catch (SQLException e) { throw new InvalidResourceRequestException(id); }
+
+        // If no photos found, throw exception
+        if(photoContents.size() == 0) throw new InvalidResourceRequestException(id);
+
+        // Return found photo contents
+        return photoContents.get(0);
     }
 
     @Override
@@ -315,7 +340,7 @@ final class DatabaseBackedDataStore implements DataStore {
 
                 // Get type
                 boolean reply = rs.getBoolean(4);
-                CommentType type = reply ? CommentType.REPLY : CommentType.PHOTO_COMMENT;
+                EventType type = reply ? EventType.REPLY : EventType.PHOTO_COMMENT;
 
                 // Create comment and retrieve upvotes / downvotes
                 Comment comm = new Comment(id, username, contents, referenceId, type, getCommentVotes(id), timestamp.getTime());
@@ -436,7 +461,7 @@ final class DatabaseBackedDataStore implements DataStore {
 
                 // Get Type
                 boolean reply = rs.getBoolean(4);
-                CommentType type = reply ? CommentType.REPLY : CommentType.PHOTO_COMMENT;
+                EventType type = reply ? EventType.REPLY : EventType.PHOTO_COMMENT;
 
                 // Create comment and retrieve upvotes / downvotes
                 Comment comm = new Comment(id, username, contents, referenceId, type, getCommentVotes(id), timestamp.getTime());
@@ -469,7 +494,7 @@ final class DatabaseBackedDataStore implements DataStore {
                 Timestamp timestamp = rs.getTimestamp(5);
 
                 // Create comment and retrieve upvotes / downvotes
-                Comment comm = new Comment(id, username, contents, referenceId, CommentType.PHOTO_COMMENT,
+                Comment comm = new Comment(id, username, contents, referenceId, EventType.PHOTO_COMMENT,
                         getCommentVotes(id), timestamp.getTime());
                 comments.add(comm);
             }
@@ -500,7 +525,7 @@ final class DatabaseBackedDataStore implements DataStore {
                 Timestamp timestamp = rs.getTimestamp(5);
 
                 // Create comment and retrieve upvotes / downvotes
-                Comment comm = new Comment(id, username, contents, referenceId, CommentType.REPLY,
+                Comment comm = new Comment(id, username, contents, referenceId, EventType.REPLY,
                         getCommentVotes(id), timestamp.getTime());
                 comments.add(comm);
             }
@@ -525,7 +550,7 @@ final class DatabaseBackedDataStore implements DataStore {
             stmt.setLong(1, comment.getId());
             stmt.setString(2, comment.getAuthor());
             stmt.setString(3, comment.getCommentContents());
-            stmt.setBoolean(4, comment.getCommentType() == CommentType.REPLY);
+            stmt.setBoolean(4, comment.getEventType() == EventType.REPLY);
             stmt.setLong(5, comment.getReferenceId());
             stmt.setTimestamp(6, new Timestamp(comment.getCommentTime()));
 
@@ -554,20 +579,23 @@ final class DatabaseBackedDataStore implements DataStore {
         catch (SQLException e) { e.printStackTrace(); }
     }
 
+
     @Override
-    public void persistAddNotification(String parentName, Comment comment) {
+    public void persistAddNotification(String parentName, NotifiableEvent event) {
         // Set up query for inserting a new notification into the table
-        String query = "INSERT INTO "+NOTIFICATIONS_TABLE+"("+COMMENTS_ID+","+REFERENCE_ID+","
-                +PARENTNAME+","+USERNAME+","+COMMENT_TYPE+") values(?, ?, ?, ?, ?)";
+        String query = "INSERT INTO "+NOTIFICATIONS_TABLE+"("+NOTIFICATIONS_ID+","+CONTENT_ID+","
+                +PARENTNAME+","+USERNAME+","+CONTENT_TYPE+") values(?, ?, ?, ?, ?)";
 
         // Persist notification
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
+
+
             // Insert notification info into prepared statement
-            stmt.setLong(1, comment.getId());
-            stmt.setLong(2, comment.getReferenceId());
+            stmt.setLong(1, CURRENT_ID++);
+            stmt.setLong(2, event.getContentID());
             stmt.setString(3, parentName);
-            stmt.setString(4, comment.getAuthor());
-            stmt.setBoolean(5, comment.getCommentType() == CommentType.REPLY);
+            stmt.setString(4, event.getParentName());
+            stmt.setString(5, encodeCommentTypeToString(event.getEventType()));
 
             // Persist data
             stmt.executeUpdate();
@@ -579,7 +607,7 @@ final class DatabaseBackedDataStore implements DataStore {
     @Override
     public void persistRemoveNotification(String user, long id) {
         // Update query overwriting the comment's text
-        String query = "DELETE FROM "+NOTIFICATIONS_TABLE+" WHERE "+PARENTNAME+" = ? AND "+COMMENTS_ID+" = ?";
+        String query = "DELETE FROM "+NOTIFICATIONS_TABLE+" WHERE "+PARENTNAME+" = ? AND "+CONTENT_ID+" = ?";
 
         // Execute query
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -591,41 +619,70 @@ final class DatabaseBackedDataStore implements DataStore {
         catch (SQLException e) {e.printStackTrace();}
     }
 
-   @Override
-       public List<Notification> getNotifications(String user) {
-           // Set up query
-           String query = "SELECT * FROM "+NOTIFICATIONS_TABLE+" WHERE "+PARENTNAME+" = ?";
-           List<Notification> notifications = new ArrayList<>();
+    @Override
+    public List<Notification> getNotifications(String user) {
+        // Set up query
+        String query = "SELECT * FROM "+NOTIFICATIONS_TABLE+" WHERE "+PARENTNAME+" = ?";
+        List<Notification> notifications = new ArrayList<>();
 
-           // Get notifications
-           try (PreparedStatement stmt = conn.prepareStatement(query)) {
-               // Execute query on database
-               stmt.setString(1, user);
-               ResultSet rs = stmt.executeQuery();
 
-               // Iterate through result set, constructing PHOTO Objects
-               while (rs.next()) {
-                   // Get info
-                   long commentId = rs.getLong(1);
-                   long referenceId = rs.getLong(2);
-                   String notifiedUser = rs.getString(3);
-                   String commentPostedBy = rs.getString(4);
+        // Get notifications
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            // Execute query on database
+            stmt.setString(1, user);
+            ResultSet rs = stmt.executeQuery();
 
-                   // Get Type
-                   boolean reply = rs.getBoolean(5);
-                   CommentType type = reply ? CommentType.REPLY : CommentType.PHOTO_COMMENT;
 
-                   // Create notification
-                notifications.add(new Notification(commentId, referenceId, notifiedUser, commentPostedBy, type));
-               }
-               stmt.close();
-           }
-           catch (SQLException e) { e.printStackTrace(); }
+            // Iterate through result set, constructing PHOTO Objects
+            while (rs.next()) {
+                // Get info
 
-           return notifications;
+
+                long commentId = rs.getLong(2);
+                String notifiedUser = rs.getString(3);
+                String commentPostedBy = rs.getString(4);
+
+                // Get Type
+                String stored_type = rs.getString(5);
+                EventType type = decodeCommentTypeFromString(stored_type);
+
+                // Create notification
+                notifications.add(new Notification(commentId, commentPostedBy, notifiedUser, type));
+            }
+            stmt.close();
+        }
+        catch (SQLException e) { e.printStackTrace(); }
+
+        return notifications;
     }
 
+    private EventType decodeCommentTypeFromString(String commentType){
 
+        switch (commentType){
+            case "follow":
+                return EventType.FOLLOW;
+            case "reply":
+                return EventType.REPLY;
+            case "photo_comment":
+                return EventType.PHOTO_COMMENT;
+            default:
+                return null;
+        }
+    }
+
+    private String encodeCommentTypeToString(EventType commentType){
+
+        switch (commentType){
+            case FOLLOW:
+                return "follow";
+            case REPLY:
+                return "reply";
+            case PHOTO_COMMENT:
+                return "photo_comment";
+            default:
+                return null;
+        }
+    }
 
     @Override
     public void persistRemoveComment(long commentId) {

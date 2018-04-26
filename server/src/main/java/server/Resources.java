@@ -47,9 +47,14 @@ public abstract class Resources {
 
     // Resources regarding photos
     public static final String PHOTOS_PATH = "/photos";
+    public static final String PHOTO_CONTENTS = "/contents";
+    public static final String PNG = "/png";
+    public static final String JPG = "/jpg";
+    public static final String PHOTO_CONTENTS_PNG_PATH = PHOTOS_PATH + PHOTO_CONTENTS + PNG;
+    public static final String PHOTO_CONTENTS_JPG_PATH = PHOTOS_PATH + PHOTO_CONTENTS + JPG;
     public static final String UPLOAD_PHOTO = "/upload";
     public static final String UPLOAD_PHOTO_PATH = PHOTOS_PATH + UPLOAD_PHOTO;
-    public static final String GET_USER_PHOTOS_PATH = USERS_PATH + "/%s/" + PHOTOS_PATH;
+    public static final String GET_USER_PHOTOS_PATH = USERS_PATH + "/%s" + PHOTOS_PATH;
     public static final String GET_PHOTOS_BY_ALBUM_PATH = PHOTOS_PATH + ALBUMS_PATH;
     public static final String DELETE_PHOTO = "/delete";
     public static final String DELETE_PHOTO_PATH = PHOTOS_PATH + DELETE_PHOTO;

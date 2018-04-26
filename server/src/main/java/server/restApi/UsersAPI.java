@@ -107,7 +107,7 @@ public final class UsersAPI {
      * @return a parsed list of all photos from the requested user in the system
      */
     @GET
-    @Path("/{username}/" + PHOTOS_PATH)
+    @Path("/{username}" + PHOTOS_PATH)
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response getAllPhotosFromUser(@PathParam("username") String username, @Context HttpHeaders headers) {

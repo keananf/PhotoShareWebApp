@@ -62,7 +62,7 @@ final class DatabaseBackedDataStore implements DataStore {
             // Insert user info into prepared statement
             stmt.setLong(1, id);
             stmt.setString(2, request.getPhotoName());
-            stmt.setString(3, request.getExt());
+            stmt.setString(3, request.getExtension());
             stmt.setString(4, author);
             stmt.setLong(5, request.getAlbumId());
             stmt.setBlob(6, new ByteArrayInputStream(request.getEncodedPhotoContents()

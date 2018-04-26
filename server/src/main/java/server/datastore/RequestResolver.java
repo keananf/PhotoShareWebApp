@@ -131,8 +131,8 @@ public final class RequestResolver {
         }
 
         // Ensure photo extension is permitted
-        if(!allowedExtensions.contains(request.getExt().toLowerCase())) {
-            throw new InvalidFileTypeException(request.getExt().toLowerCase());
+        if(!allowedExtensions.contains(request.getExtension().toLowerCase())) {
+            throw new InvalidFileTypeException(request.getExtension().toLowerCase());
         }
 
         // Create photo and persist it

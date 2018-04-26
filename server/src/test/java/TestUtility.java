@@ -44,7 +44,6 @@ public abstract class TestUtility {
         server.startServer();
 
         resolver = ServerMain.RESOLVER;
-        resolver.DEBUG = true;
         resolver.clear();
     }
 

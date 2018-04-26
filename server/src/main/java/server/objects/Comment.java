@@ -79,7 +79,7 @@ public class Comment implements NotifiableEvent{
     }
 
     @Override
-    public long getContentID() {
+    public long getContentId() {
         return id;
     }
 

@@ -7,8 +7,7 @@ package server.objects;
  */
 
 public interface NotifiableEvent {
-    long getContentID();
+    long getContentId();
     EventType getEventType();
     String getParentName();
-
 }

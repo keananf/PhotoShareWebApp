@@ -1,6 +1,5 @@
 package server.restApi;
 
-import com.google.gson.Gson;
 import server.Resources;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.datastore.exceptions.UnauthorisedException;
@@ -21,8 +20,6 @@ import static server.ServerMain.RESOLVER;
  */
 @Path(Resources.ADMIN_PATH)
 public class AdminApi {
-    private final Gson gson = new Gson();
-
     /**
      * Attempts to parse the message and remove a comment
      *

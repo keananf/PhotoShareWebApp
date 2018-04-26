@@ -15,10 +15,8 @@
             if (HW.auth !== undefined && HW.auth !== null) {
                 // Make the token/digest
                 let timestamp = moment().format('YYYY/MM/DD HH:mm:ss')
-                let endPoint = '/' + url
-                let token = timestamp + endPoint + HW.auth.username + ':' + HW.auth.passwordHash
+                let token = timestamp + ':' + HW.auth.username + ':' + HW.auth.passwordHash
                 token = sha256(token)
-                token = btoa(token)
 
                 HW.setAdditionalHeaders({
                     'Authorization': HW.auth.username + ':' + token,

@@ -6,22 +6,10 @@ import server.datastore.exceptions.InvalidResourceRequestException;
 import server.datastore.exceptions.UnauthorisedException;
 import server.objects.Photo;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.util.List;
-
-import static server.ServerMain.RESOLVER;
-
-import com.google.gson.Gson;
-import server.Resources;
-import server.datastore.exceptions.InvalidResourceRequestException;
-import server.datastore.exceptions.UnauthorisedException;
-import server.objects.Photo;
-
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -48,9 +36,10 @@ public final class NewsFeedAPI {
     public Response getUsers(@PathParam("username") String username, @Context HttpHeaders headers) {
         try {
             // Retrieve provided auth info
-            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
-            String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
+            String authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION);
+            String[] authHeaderComponents = authHeader.split(":");
+            String sender = authHeaderComponents[0], apiKey = authHeaderComponents[1];
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
             String path = String.format("%s/%s", Resources.NEWS_FEED_PATH , username);
             RESOLVER.verifyAuth(path, sender, apiKey, date);
 

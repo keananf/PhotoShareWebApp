@@ -14,6 +14,7 @@ public abstract class Resources {
     // Base URI the Grizzly HTTP server will listen on
     private static final String BASE_URI = "http://localhost:8080";
     public static final String BASE_URL = BASE_URI + "/photoshare";
+    public static final String DATE_HEADER = "X-Date";
 
     // Resources regarding users
     public static final String USERS_PATH = "/users";

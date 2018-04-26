@@ -41,7 +41,7 @@ public class PhotosApi {
             // Retrieve provided auth info
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
 
             RESOLVER.verifyAuth(Resources.UPLOAD_PHOTO_PATH, sender, apiKey, date);
 
@@ -63,7 +63,7 @@ public class PhotosApi {
             // Retrieve provided auth info
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
 
             String path = String.format("%s/%s", Resources.DELETE_PHOTO_PATH, photoId);
             RESOLVER.verifyAuth(path, sender, apiKey, date);
@@ -90,7 +90,7 @@ public class PhotosApi {
             // Retrieve provided auth info
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
 
             String path = String.format("%s/%s", Resources.GET_PHOTOS_BY_ALBUM_PATH, albumId);
             RESOLVER.verifyAuth(path, sender, apiKey, date);
@@ -122,7 +122,7 @@ public class PhotosApi {
             // Retrieve provided auth info
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
 
             String path = String.format("%s/%s", PHOTO_CONTENTS_PNG_PATH, idAndExt);
             RESOLVER.verifyAuth(path, sender, apiKey, date);
@@ -155,7 +155,7 @@ public class PhotosApi {
             // Retrieve provided auth info
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
 
             String path = String.format("%s/%s", PHOTO_CONTENTS_JPG_PATH, idAndExt);
             RESOLVER.verifyAuth(path, sender, apiKey, date);
@@ -181,7 +181,7 @@ public class PhotosApi {
             // Retrieve provided auth info
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
 
             String path = String.format("%s/%s", PHOTOS_PATH, id);
             RESOLVER.verifyAuth(path, sender, apiKey, date);
@@ -208,7 +208,7 @@ public class PhotosApi {
         try {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
 
             String path = String.format("%s/%s", Resources.PHOTO_UPVOTE_PATH, photoId);
             RESOLVER.verifyAuth(path, sender, apiKey, date);
@@ -236,7 +236,7 @@ public class PhotosApi {
         try {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
 
             String path = String.format("%s/%s", Resources.PHOTO_DOWNVOTE_PATH, photoId);
             RESOLVER.verifyAuth(path, sender, apiKey, date);

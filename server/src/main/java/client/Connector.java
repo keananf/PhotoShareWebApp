@@ -1,6 +1,7 @@
 package client;
 
 import server.Auth;
+import server.Resources;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
@@ -52,7 +53,7 @@ class Connector {
             time = d.getTime();
 
             // Add header for encoded date and the apiKey
-            return request.header(DATE, format.format(d))
+            return request.header(Resources.DATE_HEADER, format.format(d))
                     .header(AUTHORIZATION, Auth.getApiKey(path, user, password, time));
         }
         catch(ParseException e) {

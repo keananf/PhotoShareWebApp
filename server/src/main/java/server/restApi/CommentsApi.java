@@ -41,7 +41,7 @@ public class CommentsApi {
             // Retrieve provided auth info
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
             RESOLVER.verifyAuth(Resources.ADD_COMMENT_PATH, sender, apiKey, date);
 
             // Upload comment to the data store
@@ -68,7 +68,7 @@ public class CommentsApi {
             // Retrieve provided auth info
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
             String path = String.format("%s/%s", Resources.DELETE_COMMENT_PATH, commentId);
             RESOLVER.verifyAuth(path, sender, apiKey, date);
 
@@ -98,7 +98,7 @@ public class CommentsApi {
             // Retrieve provided auth info
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
             String path = String.format("%s/%s", Resources.EDIT_COMMENT_PATH, commentId);
             RESOLVER.verifyAuth(path, sender, apiKey, date);
 
@@ -124,7 +124,7 @@ public class CommentsApi {
             // Retrieve provided auth info
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
             String path = String.format("%s/%s", Resources.COMMENTS_PATH, user);
             RESOLVER.verifyAuth(path, sender, apiKey, date);
 
@@ -150,7 +150,7 @@ public class CommentsApi {
         try {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
             String path = String.format("%s/%s", Resources.GET_ALL_PHOTO_COMMENTS_PATH, photoId);
             RESOLVER.verifyAuth(path, sender, apiKey, date);
 
@@ -176,7 +176,7 @@ public class CommentsApi {
         try {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
             String path = String.format("%s/%s", Resources.GET_ALL_REPLIES_PATH, commentId);
             RESOLVER.verifyAuth(path, sender, apiKey, date);
 
@@ -204,7 +204,7 @@ public class CommentsApi {
         try {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
             String path = String.format("%s/%s", Resources.COMMENT_UPVOTE_PATH, commentId);
             RESOLVER.verifyAuth(path, sender, apiKey, date);
 
@@ -232,7 +232,7 @@ public class CommentsApi {
             // Retrieve provided auth info
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
             String path = String.format("%s/%s", Resources.COMMENT_DOWNVOTE_PATH, commentId);
             RESOLVER.verifyAuth(path, sender, apiKey, date);
 

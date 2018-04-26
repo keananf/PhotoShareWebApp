@@ -38,7 +38,7 @@ public final class UsersAPI {
             // Retrieve auth headers
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
 
             RESOLVER.verifyAuth(Resources.USERS_PATH, sender, apiKey, date);
         }
@@ -113,7 +113,7 @@ public final class UsersAPI {
             // Retrieve provided auth info
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
 
             String path = String.format(Resources.GET_USER_PHOTOS_PATH, username);
             RESOLVER.verifyAuth(path, sender, apiKey, date);
@@ -139,7 +139,7 @@ public final class UsersAPI {
         // Retrieve auth headers
         String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
         String sender = authHeader[0], apiKey = authHeader[1];
-        String date = headers.getHeaderString(HttpHeaders.DATE);
+        String date = headers.getHeaderString(Resources.DATE_HEADER);
 
         try {
             // Process Request
@@ -173,7 +173,7 @@ public final class UsersAPI {
         // Retrieve provided auth info
         String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
         String sender = authHeader[0], apiKey = authHeader[1];
-        String date = headers.getHeaderString(HttpHeaders.DATE);
+        String date = headers.getHeaderString(Resources.DATE_HEADER);
 
         try {
             // Process Request
@@ -203,7 +203,7 @@ public final class UsersAPI {
         // Retrieve provided auth info
         String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
         String sender = authHeader[0], apiKey = authHeader[1];
-        String date = headers.getHeaderString(HttpHeaders.DATE);
+        String date = headers.getHeaderString(Resources.DATE_HEADER);
 
         try {
             // Process request
@@ -233,7 +233,7 @@ public final class UsersAPI {
         // Retrieve provided auth info
         String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
         String sender = authHeader[0], apiKey = authHeader[1];
-        String date = headers.getHeaderString(HttpHeaders.DATE);
+        String date = headers.getHeaderString(Resources.DATE_HEADER);
 
         try {
             // Process request
@@ -260,7 +260,7 @@ public final class UsersAPI {
         // Retrieve provided auth info
         String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
         String sender = authHeader[0], apiKey = authHeader[1];
-        String date = headers.getHeaderString(HttpHeaders.DATE);
+        String date = headers.getHeaderString(Resources.DATE_HEADER);
 
 
         try {

@@ -43,7 +43,7 @@ public class AlbumsApi {
             // Retrieve provided auth info
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
             RESOLVER.verifyAuth(Resources.ADD_ALBUM_PATH, sender, apiKey, date);
 
             // Upload new album to the data store
@@ -72,7 +72,7 @@ public class AlbumsApi {
             // Retrieve provided auth info
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
             RESOLVER.verifyAuth(Resources.UPDATE_ALBUM_DESCRIPTION_PATH, sender, apiKey, date);
 
             // Upload new description to data store
@@ -98,7 +98,7 @@ public class AlbumsApi {
         try {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
             String path = String.format("%s/%s", Resources.GET_USER_ALBUMS_PATH, user);
             RESOLVER.verifyAuth(path, sender, apiKey, date);
 
@@ -124,7 +124,7 @@ public class AlbumsApi {
             // Retrieve provided auth info
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
 
             String path = String.format("%s/%s", Resources.GET_ALBUM_BY_ID_PATH, id);
             RESOLVER.verifyAuth(path, sender, apiKey, date);

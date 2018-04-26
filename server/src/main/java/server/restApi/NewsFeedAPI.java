@@ -45,7 +45,6 @@ public final class NewsFeedAPI {
     @GET
     @Path("/{username}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     public Response getUsers(@PathParam("username") String username, @Context HttpHeaders headers) {
         try {
             // Retrieve provided auth info

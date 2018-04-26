@@ -224,7 +224,6 @@ public final class UsersAPI {
     /**
      * Gets a list of persons (Users) who follow the user
      * @param username
-     * @param json
      * @return
      */
     @GET
@@ -256,7 +255,7 @@ public final class UsersAPI {
     @GET
     @Path(SEARCH)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response bar(@QueryParam(NAME_PARAM) String value, String json, @Context HttpHeaders headers) {
+    public Response bar(@QueryParam(NAME_PARAM) String value, @Context HttpHeaders headers) {
 
         // Retrieve provided auth info
         String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");

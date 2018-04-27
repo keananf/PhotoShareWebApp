@@ -161,7 +161,8 @@ public class PhotosApi {
             RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Send the given photo's meta data back to the client
-            return Response.ok(gson.toJson(RESOLVER.getPhotoMetaData(id))).build();
+            Photo photo = RESOLVER.getPhotoMetaData(id);
+            return Response.ok(gson.toJson(photo)).build();
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}

@@ -11,16 +11,15 @@
             })
         },
 
-        followUser(username) {
+        followUser(userFrom, userTo) {
             return new Promise((resolve, reject) => {
-                resolve()
+                http.put(API.endpoints.FOLLOW_USER.replace(':username', userTo), {userFrom, userTo}).then(() => resolve()).catch(err => reject(err))
             })
         },
 
-        unfollowUser(username) {
-            // @todo
+        unfollowUser(userFrom, userTo) {
             return new Promise((resolve, reject) => {
-                resolve()
+                http.del(API.endpoints.UNFOLLOW_USER.replace(':username', userTo), {userFrom, userTo}).then(() => resolve()).catch(err => reject(err))
             })
         },
 

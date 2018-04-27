@@ -49,7 +49,7 @@
                 }
 
                 // Add data to the post body
-                if (type === "POST") {
+                if (type === "POST" || type === "PUT") {
                     if (typeof data !== "undefined") {
                         options.body = JSON.stringify(data)
                     } else {
@@ -103,6 +103,10 @@
 
         del(url) {
             return this.request(url, 'DELETE')
+        }
+
+        put(url, data) {
+            return this.request(url, 'PUT', data)
         }
 
         static setAdditionalHeaders(headers) {

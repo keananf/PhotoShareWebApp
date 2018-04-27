@@ -352,7 +352,7 @@ public final class RequestResolver {
      */
     public List<Comment> getReplies(String user, long referenceId) throws InvalidResourceRequestException {
         // Get comment the reference is referring to (exception thrown if doesn't exist)
-        Comment c = getComment(referenceId);
+        getComment(referenceId);
         getUser(user);
 
         // Find all comments on this comment

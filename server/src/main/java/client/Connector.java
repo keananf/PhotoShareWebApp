@@ -118,9 +118,6 @@ class Connector {
         // Get API resource
         WebTarget search = pathTarget.queryParam(queryKey, queryValue);
 
-        String query = String.format("%s=%s", queryKey, queryValue);
-        String fullpath = String.format("%s?%s", path, query);
-
         // Get result and return
         return headers(search.request()).get();
     }

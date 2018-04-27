@@ -180,7 +180,6 @@ public class InvalidInputTests extends TestUtility {
         loginAndSetupNewUser(username);
         Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        long photoId = gson.fromJson(response.readEntity(String.class), Receipt.class).getReferenceId();
     }
 
     @Test

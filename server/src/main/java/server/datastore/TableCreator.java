@@ -57,8 +57,8 @@ class TableCreator {
     private void createAlbumsTable() {
         // Construct create albums table query
         String query = "CREATE TABLE IF NOT EXISTS "+ALBUMS_TABLE+" ("+ALBUMS_ID+" BIGINT AUTO_INCREMENT, " +
-                ALBUMS_NAME+" varchar(25) NOT NULL," +
-                USERNAME+" varchar(25) NOT NULL," +
+                ALBUMS_NAME+" varchar(255) NOT NULL," +
+                USERNAME+" varchar(255) NOT NULL," +
                 ALBUMS_DESCRIPTION+" varchar(255) NOT NULL," +
                 ALBUMS_TIME+" varchar(50) NOT NULL," +
                 "PRIMARY KEY ("+ALBUMS_ID+"), " +
@@ -79,9 +79,9 @@ class TableCreator {
     private void createPhotosTable() {
         // Construct create photos table query
         String query = "CREATE TABLE IF NOT EXISTS "+PHOTOS_TABLE+" ("+PHOTOS_ID+" BIGINT AUTO_INCREMENT, " +
-                PHOTOS_NAME+" varchar(25) NOT NULL," +
+                PHOTOS_NAME+" varchar(255) NOT NULL," +
                 PHOTOS_EXT+" varchar(10) NOT NULL," +
-                USERNAME+" varchar(25) NOT NULL," +
+                USERNAME+" varchar(255) NOT NULL," +
                 ALBUMS_ID+" BIGINT NOT NULL," +
                 PHOTOS_CONTENTS+" BLOB NOT NULL," +
                 PHOTOS_TIME+" varchar(50) NOT NULL," +
@@ -104,7 +104,7 @@ class TableCreator {
     private void createCommentsTable() {
         // Construct create comments table query
         String query = "CREATE TABLE IF NOT EXISTS "+COMMENTS_TABLE+" ("+COMMENTS_ID+" BIGINT AUTO_INCREMENT, " +
-                USERNAME+" varchar(25) NOT NULL," +
+                USERNAME+" varchar(255) NOT NULL," +
                 COMMENTS_CONTENTS+" varchar(255) NOT NULL," +
                 COMMENT_TYPE+" boolean," +
                 COMMENTS_TIME+" varchar(50) NOT NULL," +
@@ -128,7 +128,7 @@ class TableCreator {
         // Construct create comment votes table query
         String commentVoteQuery = "CREATE TABLE IF NOT EXISTS "+COMMENTS_VOTES_TABLE+" " +
                 "("+REFERENCE_ID+" BIGINT, " +
-                USERNAME+" varchar(25) NOT NULL," +
+                USERNAME+" varchar(255) NOT NULL," +
                 "PRIMARY KEY ("+REFERENCE_ID+", "+USERNAME+"), " +
                 "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+") on delete cascade," +
                 "FOREIGN KEY("+REFERENCE_ID+") references "+COMMENTS_TABLE+"("+COMMENTS_ID+") on delete cascade)";
@@ -147,7 +147,7 @@ class TableCreator {
         // Construct create comment votes table query
         String commentVoteQuery = "CREATE TABLE IF NOT EXISTS "+PHOTO_RATINGS_TABLE+" " +
                 "("+REFERENCE_ID+" BIGINT, " +
-                USERNAME+" varchar(25) NOT NULL," +
+                USERNAME+" varchar(255) NOT NULL," +
                 "PRIMARY KEY ("+REFERENCE_ID+", "+USERNAME+"), " +
                 "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+") on delete cascade," +
                 "FOREIGN KEY("+REFERENCE_ID+") references "+PHOTOS_TABLE+"("+PHOTOS_ID+") on delete cascade)";
@@ -167,9 +167,9 @@ class TableCreator {
         // Construct create users table query
         String query = "CREATE TABLE IF NOT EXISTS "+NOTIFICATIONS_TABLE+" ("+NOTIFICATIONS_ID+" bigint, " +
                 CONTENT_ID+" bigint, " +
-                PARENTNAME+" varchar(25) NOT NULL," +
-                USERNAME+" varchar(25) NOT NULL," +
-                CONTENT_TYPE+" varchar(25) NOT NULL," +
+                PARENTNAME+" varchar(255) NOT NULL," +
+                USERNAME+" varchar(255) NOT NULL," +
+                CONTENT_TYPE+" varchar(255) NOT NULL," +
                 "PRIMARY KEY("+NOTIFICATIONS_ID+")," +
                 "FOREIGN KEY("+PARENTNAME+") references "+USERS_TABLE+"("+USERNAME+") on delete cascade)";
 
@@ -186,8 +186,8 @@ class TableCreator {
     private void createFollowingsTable() {
         // Construct create users table query
         String query = "CREATE TABLE IF NOT EXISTS "+FOLLOWINGS_TABLE+" ("+FOLLOW_ID+" bigint AUTO_INCREMENT, " +
-                USER_FROM+" varchar(25) NOT NULL," +
-                USER_TO+" varchar(25) NOT NULL," +
+                USER_FROM+" varchar(255) NOT NULL," +
+                USER_TO+" varchar(255) NOT NULL," +
                 "PRIMARY KEY("+FOLLOW_ID+")," +
                 "FOREIGN KEY("+USER_FROM+") references "+USERS_TABLE+"("+USERNAME+") on delete cascade," +
                 "FOREIGN KEY("+USER_TO+") references "+USERS_TABLE+"("+USERNAME+") on delete cascade)";

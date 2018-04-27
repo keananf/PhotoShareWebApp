@@ -20,7 +20,8 @@
 
             POSTS_GET_BY_USER: 'users/:username/photos',
 
-            COMMENTS_GET_FOR_POST: 'comments/photos/:id'
+            COMMENTS_GET_FOR_POST: 'comments/photos/:id',
+            ADD_COMMENT: 'comments/addcomment'
         }
     }
 

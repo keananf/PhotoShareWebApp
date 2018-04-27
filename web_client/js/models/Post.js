@@ -25,7 +25,7 @@
                 data.id,
                 data.photoName,
                 data.authorName,
-                data.photoTime / 1000, // Transforms milliseconds to seconds
+                data.photoTime,
                 data.ext)
 
             if (data.comments) {
@@ -69,7 +69,7 @@
                 id: this.id,
                 photoName: this.title,
                 authorName: this.username,
-                photoTime: this.date * 1000, // Transform seconds to millisconds
+                photoTime: this.date,
                 albumId: this.albumId,
                 ext: this.extension,
                 comments: this._comments,
@@ -92,6 +92,7 @@
 
         set comments(comments) {
             this._comments = comments
+            this._commentsCount = comments.length
         }
 
         get commentsCount() {
@@ -143,7 +144,7 @@
         }
 
         get friendlyDate() {
-            return this.date
+            return moment(this.date).fromNow()
         }
 
         userHasUpvoted(username) {

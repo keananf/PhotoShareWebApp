@@ -18,8 +18,8 @@
                 </div>
                 <footer>
                     <span class="comments">
-                        <router-link to="/">
-                            {{ commentsCount }} comments
+                        <router-link :to="route">
+                            Comment
                         </router-link>
                     </span>
                     <span :class="{likes: true, liked: userHasLiked}" @click="toggleVote()">
@@ -62,10 +62,6 @@
 
             likesCount(){
                 return this.post.likesCount
-            },
-
-            commentsCount(){
-                return this.post.commentsCount
             }
         }
 

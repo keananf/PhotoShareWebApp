@@ -93,6 +93,10 @@
 
         downvotePost(id){
             return http.put(API.endpoints.DOWNVOTE_POST.replace(':id', id))
+        },
+
+        addComment(id, comment){
+            return http.post(API.endpoints.ADD_COMMENT, {referenceId: id, commentContents: comment, eventType: 'PHOTO_COMMENT'})
         }
 
     }

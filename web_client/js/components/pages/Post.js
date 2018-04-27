@@ -39,7 +39,15 @@
                         <p v-text="comment.comment"></p>
                     </li>
                 </ul>
+                
+                <textarea class="form-control" placeholder="Add your comment" rows="2" v-model="newComment"/>
+                <br/>
+                
+                <button class="btn btn-block btn-primary" @click="addComment">Comment</button>
             </div>
+            
+            <br/><br/>
+            
         </div>
     </div>
 
@@ -53,7 +61,8 @@
                 post: null,
                 comments: [],
                 loading: true,
-                userHasLiked: false
+                userHasLiked: false,
+                newComment: ''
             }
         },
 
@@ -68,6 +77,7 @@
 
                     post.getComments().then(comments => {
                         this.comments = comments
+                        this.post.comments = comments
                         this.loading = false
                     })
 
@@ -89,6 +99,15 @@
                     API.Posts.downvotePost(this.postId)
                     this.post.likesCount--
                 }
+            },
+
+            addComment(){
+                API.Posts.addComment(this.postId, this.newComment).then(() => {
+                    let comment = new Models.PostComment(this.postId, this.$root.auth().username, this.newComment)
+                    this.comments.push(comment)
+                    this.post.comments = this.comments
+                    this.newComment = ''
+                })
             }
         },
 

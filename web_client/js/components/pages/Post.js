@@ -11,7 +11,7 @@
             <article class="post" v-if="!loading">
                 <header>
                     <span class="username"><router-link :to="'/user/'+post.username">{{ post.username }}</router-link></span>
-                    <span class="date">{{ post.date }}</span>
+                    <span class="date">{{ post.friendlyDate }}</span>
                 </header>
                 <div class="post-image">
                     <img :src="post.filename"/>

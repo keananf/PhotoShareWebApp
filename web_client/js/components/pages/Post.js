@@ -13,7 +13,7 @@
                     <span class="username"><router-link :to="'/user/'+post.username">{{ post.username }}</router-link></span>
                     <span class="date">{{ post.friendlyDate }}</span>
                     <hr/>
-                    <h5><router-link :to="route">{{ post.title }}</router-link></h5>
+                    <h5>{{ post.title }}</h5>
                 </header>
                 <div class="post-image">
                     <img :src="post.filename"/>
@@ -52,6 +52,10 @@
                 
                 <button class="btn btn-block btn-primary" @click="addComment">Comment</button>
             </div>
+            
+            <br/><br/>
+            
+            <button v-if="usersPost" class="btn btn-sm btn-danger" @click="deletePost">Delete your post</button>
             
             <br/><br/>
             
@@ -117,6 +121,13 @@
                     this.comments.push(comment)
                     this.post.comments = this.comments
                     this.newComment = ''
+                })
+            },
+
+            deletePost(){
+                API.Posts.deletePost(this.postId).then(() => {
+                    // Go back to user's profile
+                    router.push(this.$root.auth().user.route)
                 })
             }
         },

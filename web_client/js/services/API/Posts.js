@@ -111,6 +111,10 @@
 
         addComment(id, comment){
             return http.post(API.endpoints.ADD_COMMENT, {referenceId: id, commentContents: comment, eventType: 'PHOTO_COMMENT'})
+        },
+
+        deletePost(id) {
+            return http.del(API.endpoints.POST_DELETE.replace(':id', id))
         }
 
     }

@@ -2,6 +2,7 @@ import org.junit.Test;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.objects.Album;
 import server.objects.Photo;
+import server.objects.PhotoResult;
 import server.objects.Receipt;
 
 import javax.ws.rs.core.Response;
@@ -84,11 +85,12 @@ public class AlbumAPITests extends TestUtility{
 
         // Parse response, ensuring only the 2 original photos are present.
         String photosStr = response.readEntity(String.class);
-        Photo[] photoArray = gson.fromJson(photosStr, Photo[].class);
+        PhotoResult[] photoArray = gson.fromJson(photosStr, PhotoResult[].class);
         assertEquals(2, photoArray.length);
 
         // Check each photo's contents and who posted it
-        for(Photo photo : photoArray) {
+        for(PhotoResult result : photoArray) {
+            Photo photo = result.getPhoto();
             assertEquals(photo.getAuthorName(), username);
             assertEquals(photo.getPhotoName(), photoName);
             assertEquals(photo.getDescription(), description);

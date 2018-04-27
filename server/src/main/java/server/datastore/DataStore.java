@@ -2,6 +2,7 @@ package server.datastore;
 
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.objects.*;
+import server.requests.AddCommentRequest;
 import server.requests.UploadPhotoRequest;
 
 import java.util.List;
@@ -15,11 +16,12 @@ interface DataStore {
 
     /**
      * Uploads the given photo
-     * @param id the photo's new id
      * @param author the user who posted the photo
      * @param request the photo request
+     * @param date the formatted date string
+     * @return the newly generated id
      */
-    void persistUploadPhoto(long id, String author, UploadPhotoRequest request);
+    long persistUploadPhoto(String author, UploadPhotoRequest request, String date);
 
     /**
      * Retrieves photos a user has posted.
@@ -54,10 +56,14 @@ interface DataStore {
     String getPhotoContents(long id, String ext) throws InvalidResourceRequestException;
 
     /**
-     * Adds the given album
-     * @param album the new album to add
+     * Creates and persists the newly created album
+     * @param albumName the name of the new album
+     * @param author the author of the new album
+     * @param description the description of the new album
+     * @param date the formatted date in which the request was sent
+     * @return the newly generated id
      */
-    void persistAddAlbum(Album album) throws InvalidResourceRequestException;
+    long persistAddAlbum(String albumName, String author, String description, String date);
 
     /**
      * Retreives the album associated with the given id.
@@ -128,21 +134,17 @@ interface DataStore {
 
     /**
      * Retrieves all top-level comments made on the comment / photo with the given reference id
-     * Relevant notifications will be implicitly removed, as well.
-     * @param user the user who made the request
      * @param referenceId the id of the resource
      * @return the list of comments on this resource
      */
-    List<Comment> getPhotoComments(String user, long referenceId);
+    List<Comment> getPhotoComments(long referenceId);
 
     /**
      * Retrieves all top-level comments made on the comment / photo with the given reference id
-     * Relevant notifications will be implicitly removed, as well.
-     * @param user the user who made the request
      * @param referenceId the id of the resource
      * @return the list of comments on this resource
      */
-    List<Comment> getReplies(String user, long referenceId);
+    List<Comment> getReplies(long referenceId);
 
     /**
      * Retrieves all notifications for the given user
@@ -153,10 +155,11 @@ interface DataStore {
 
     /**
      * Adds the given comment
-     * @param comment the comment
-     *
+     * @param user the user who posted it
+     * @param request the request for a new comment
+     * @param date the formatted date in which the request was sent
      */
-    void persistAddComment(Comment comment);
+    long persistAddComment(String user, AddCommentRequest request, String date);
 
     /**
      * Edits the given comment
@@ -214,13 +217,12 @@ interface DataStore {
 
     /**
      * Attempts to follow the person a user has specified
-     *
-     * @param userFrom - the username of the user from whom the follow request comes
+     *  @param userFrom - the username of the user from whom the follow request comes
      * @param userTo - the username of the person the user is trying to follow
      *
      */
 
-    void persistFollowing(String userFrom, String userTo);
+    long persistFollowing(String userFrom, String userTo);
 
     /**
      * Retrieve a list of the Persons (Users) a user is followed by
@@ -262,5 +264,4 @@ interface DataStore {
      */
 
     void clear();
-
 }

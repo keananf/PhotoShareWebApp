@@ -2,16 +2,15 @@ package server.objects;
 
 import server.requests.AddCommentRequest;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Class representing a comment on either a photo / another comment
  */
 public class Comment implements NotifiableEvent{
     private final String author;
-    private final long commentTime;
+    private final String commentTime;
     private String commentContents;
     private long id;
 
@@ -20,10 +19,10 @@ public class Comment implements NotifiableEvent{
     private final long referenceId;
     private final EventType eventType;
 
-    private HashMap<String, Boolean> votes;
+    private List<String> votes;
 
     public Comment(long id, String author, String commentContents, long referenceId, EventType eventType,
-                   HashMap<String, Boolean> commentVotes, long time) {
+                   List<String> commentVotes, String time) {
         // Comment information
         this.author = author;
         this.commentContents = commentContents;
@@ -36,9 +35,9 @@ public class Comment implements NotifiableEvent{
         this.eventType = eventType;
     }
 
-    public Comment(long id, String author, AddCommentRequest request) {
+    public Comment(long id, String author, AddCommentRequest request, String date) {
         this(id, author, request.getCommentContents(), request.getReferenceId(),
-                request.getEventType(), new HashMap<>(), System.nanoTime());
+                request.getEventType(), new ArrayList<>(), date);
     }
 
     /**
@@ -51,7 +50,7 @@ public class Comment implements NotifiableEvent{
     /**
      * @return the time this photo was created
      */
-    public long getCommentTime() {
+    public String getCommentTime() {
         return commentTime;
     }
 
@@ -98,18 +97,7 @@ public class Comment implements NotifiableEvent{
     /**
      * @return the users who upvoted  this comment
      */
-    public List<String> getUpvotes() {
-        // Filter out all upvotes, and then create a list of the names of the users who cast them
-        return votes.entrySet().stream().filter(kv -> kv.getValue())
-                .map(kv -> kv.getKey()).collect(Collectors.toList());
-    }
-
-    /**
-     * @return the users who downvoted  this comment
-     */
-    public List<String> getDownvotes() {
-        // Filter out all downvotes, and then create a list of the names of the users who cast them
-        return votes.entrySet().stream().filter(kv -> !kv.getValue())
-                .map(kv -> kv.getKey()).collect(Collectors.toList());
+    public List<String> getLikes() {
+        return votes;
     }
 }

@@ -7,6 +7,7 @@ import server.datastore.exceptions.InvalidResourceRequestException;
 import server.datastore.exceptions.UnauthorisedException;
 import server.objects.LoginResult;
 import server.objects.Photo;
+import server.objects.PhotoResult;
 import server.objects.User;
 import server.requests.AddOrLoginUserRequest;
 
@@ -16,6 +17,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static server.Resources.*;
 import static server.ServerMain.RESOLVER;
@@ -38,9 +40,8 @@ public final class UsersAPI {
             // Retrieve auth headers
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
-
-            RESOLVER.verifyAuth(Resources.USERS_PATH, sender, apiKey, date);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
+            RESOLVER.verifyAuth(sender, apiKey, date);
         }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build(); }
 
@@ -113,15 +114,17 @@ public final class UsersAPI {
             // Retrieve provided auth info
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
 
-            String path = String.format(Resources.GET_USER_PHOTOS_PATH, username);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Retrieve list retrieved from data manipulation layer
-            // and convert photos into JSON array
             List<Photo> photos = RESOLVER.getPhotos(username);
-            return Response.ok(gson.toJson(photos)).build();
+
+            // Find all top-level comments for each photo, and compose them into PhotoResult objects
+            // This is converted into JSON and returned
+            List<PhotoResult> result = photos.stream().map(p -> RESOLVER.getPhotoResult(sender, p)).collect(Collectors.toList());
+            return Response.ok(gson.toJson(result)).build();
 
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
@@ -139,11 +142,11 @@ public final class UsersAPI {
         // Retrieve auth headers
         String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
         String sender = authHeader[0], apiKey = authHeader[1];
-        String date = headers.getHeaderString(HttpHeaders.DATE);
+        String date = headers.getHeaderString(Resources.DATE_HEADER);
 
         try {
             // Process Request
-            RESOLVER.verifyAuth(Resources.FOLLOW_USERS_PATH + "/" + userTo, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
             RESOLVER.followUser(sender, userTo);
 
         } catch (InvalidResourceRequestException ie) {
@@ -173,11 +176,11 @@ public final class UsersAPI {
         // Retrieve provided auth info
         String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
         String sender = authHeader[0], apiKey = authHeader[1];
-        String date = headers.getHeaderString(HttpHeaders.DATE);
+        String date = headers.getHeaderString(Resources.DATE_HEADER);
 
         try {
             // Process Request
-            RESOLVER.verifyAuth(Resources.UNFOLLOW_USERS_PATH + "/" + userTo, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
             RESOLVER.unfollowUser(sender, userTo);
 
         } catch (UnauthorisedException e) {
@@ -203,12 +206,11 @@ public final class UsersAPI {
         // Retrieve provided auth info
         String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
         String sender = authHeader[0], apiKey = authHeader[1];
-        String date = headers.getHeaderString(HttpHeaders.DATE);
+        String date = headers.getHeaderString(Resources.DATE_HEADER);
 
         try {
             // Process request
-            String path = String.format("%s/%s", USERS_FOLLOWING_PATH , username);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
             RESOLVER.getFollowers(username);
 
             List<User> following = RESOLVER.getFollowing(username);
@@ -233,12 +235,11 @@ public final class UsersAPI {
         // Retrieve provided auth info
         String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
         String sender = authHeader[0], apiKey = authHeader[1];
-        String date = headers.getHeaderString(HttpHeaders.DATE);
+        String date = headers.getHeaderString(Resources.DATE_HEADER);
 
         try {
             // Process request
-            String path = String.format("%s/%s", USERS_FOLLOWERS_PATH , username);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
             RESOLVER.getFollowers(username);
 
             List<User> following = RESOLVER.getFollowers(username);
@@ -260,13 +261,12 @@ public final class UsersAPI {
         // Retrieve provided auth info
         String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
         String sender = authHeader[0], apiKey = authHeader[1];
-        String date = headers.getHeaderString(HttpHeaders.DATE);
+        String date = headers.getHeaderString(Resources.DATE_HEADER);
 
 
         try {
             // Process request
-            String path = String.format("%s?%s=%s", USERS_SEARCH_BAR_PATH, NAME_PARAM , value);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             List<User> users = RESOLVER.getUsersWithName(value);
 

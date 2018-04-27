@@ -14,6 +14,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static server.ServerMain.RESOLVER;
 
@@ -41,11 +42,11 @@ public class CommentsApi {
             // Retrieve provided auth info
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
-            RESOLVER.verifyAuth(Resources.ADD_COMMENT_PATH, sender, apiKey, date);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Upload comment to the data store
-            Receipt receipt = RESOLVER.addComment(sender, request);
+            Receipt receipt = RESOLVER.addComment(sender, request, date);
             return Response.ok(gson.toJson(receipt)).build();
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
@@ -68,9 +69,8 @@ public class CommentsApi {
             // Retrieve provided auth info
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
-            String path = String.format("%s/%s", Resources.DELETE_COMMENT_PATH, commentId);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Upload comment to the data store
             RESOLVER.removeComment(sender, commentId);
@@ -98,9 +98,8 @@ public class CommentsApi {
             // Retrieve provided auth info
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
-            String path = String.format("%s/%s", Resources.EDIT_COMMENT_PATH, commentId);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Update comment in the data store
             Receipt receipt = RESOLVER.editComment(sender, commentId, request);
@@ -124,14 +123,17 @@ public class CommentsApi {
             // Retrieve provided auth info
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
-            String path = String.format("%s/%s", Resources.COMMENTS_PATH, user);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Retrieve list retrieved from data manipulation layer
             // and convert comments into JSON array
             List<Comment> comments = RESOLVER.getComments(user);
-            return Response.ok(gson.toJson(comments)).build();
+
+            // Find all top-level replies for each comment, and compose them into CommentResult objects
+            // This is converted into JSON and returned
+            List<CommentResult> result = comments.stream().map(c -> RESOLVER.getCommentResult(sender, c)).collect(Collectors.toList());
+            return Response.ok(gson.toJson(result)).build();
 
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
@@ -150,14 +152,17 @@ public class CommentsApi {
         try {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
-            String path = String.format("%s/%s", Resources.GET_ALL_PHOTO_COMMENTS_PATH, photoId);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Retrieve list retrieved from data manipulation layer
             // and convert comments into JSON array
             List<Comment> comments = RESOLVER.getPhotoComments(sender, photoId);
-            return Response.ok(gson.toJson(comments)).build();
+
+            // Find all top-level replies for each comment, and compose them into CommentResult objects
+            // This is converted into JSON and returned
+            List<CommentResult> result = comments.stream().map(c -> RESOLVER.getCommentResult(sender, c)).collect(Collectors.toList());
+            return Response.ok(gson.toJson(result)).build();
 
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
@@ -176,14 +181,17 @@ public class CommentsApi {
         try {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
-            String path = String.format("%s/%s", Resources.GET_ALL_REPLIES_PATH, commentId);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Retrieve list retrieved from data manipulation layer
             // and convert comments into JSON array
             List<Comment> comments = RESOLVER.getReplies(sender, commentId);
-            return Response.ok(gson.toJson(comments)).build();
+
+            // Find all top-level replies for each comment, and compose them into CommentResult objects
+            // This is converted into JSON and returned
+            List<CommentResult> result = comments.stream().map(c -> RESOLVER.getCommentResult(sender, c)).collect(Collectors.toList());
+            return Response.ok(gson.toJson(result)).build();
 
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
@@ -196,19 +204,18 @@ public class CommentsApi {
      * @return a response indicating success / failure
      */
     @PUT
-    @Path(Resources.UPVOTE + "/{commentId}")
+    @Path(Resources.LIKE + "/{commentId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response upvote(@PathParam("commentId") long commentId, @Context HttpHeaders headers) {
+    public Response like(@PathParam("commentId") long commentId, @Context HttpHeaders headers) {
         // Retrieve provided auth info
         try {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
-            String path = String.format("%s/%s", Resources.COMMENT_UPVOTE_PATH, commentId);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
-            // Register upvote with server
+            // Register like with server
             RESOLVER.voteOnComment(commentId, sender, true);
             return Response.noContent().build();
 
@@ -223,20 +230,19 @@ public class CommentsApi {
      * @return a response indicating success / failure
      */
     @PUT
-    @Path(Resources.DOWNVOTE + "/{commentId}")
+    @Path(Resources.UNLIKE + "/{commentId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response downvote(@PathParam("commentId") long commentId, @Context HttpHeaders headers) {
+    public Response unlike(@PathParam("commentId") long commentId, @Context HttpHeaders headers) {
         // Retrieve provided auth info
         try {
             // Retrieve provided auth info
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
-            String path = String.format("%s/%s", Resources.COMMENT_DOWNVOTE_PATH, commentId);
-            RESOLVER.verifyAuth(path, sender, apiKey, date);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
-            // Register downvote with server
+            // Register unlike with server
             RESOLVER.voteOnComment(commentId, sender, false);
             return Response.noContent().build();
 

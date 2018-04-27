@@ -29,7 +29,10 @@
             ALBUM_CREATE: 'albums/addalbum',
             ALBUM_GET: 'albums/:id',
             ALBUM_GET_POSTS: 'photos/albums/:id',
-            ALBUM_UPDATE_DESCRIPTION: 'albums/updatedescription'
+            ALBUM_UPDATE_DESCRIPTION: 'albums/updatedescription',
+
+            COMMENT_UPVOTE: 'comments/like/:id',
+            COMMENT_DOWNVOTE: 'comments/unlike/:id'
         }
     }
 

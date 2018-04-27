@@ -10,7 +10,8 @@
 
             <article class="post" v-if="!loading">
                 <header>
-                    <span class="username"><router-link :to="'/user/'+post.username">{{ post.username }}</router-link></span>
+                    <span class="username"><router-link
+                            :to="'/user/'+post.username">{{ post.username }}</router-link></span>
                     <span class="date">{{ post.friendlyDate }}</span>
                     <hr/>
                     <h5>{{ post.title }}</h5>
@@ -22,7 +23,7 @@
                     <p>
                         {{ post.description }}
                     </p>
-                  
+
                     <hr/>
                     <span class="comments">
                         {{ commentsCount }} comments
@@ -36,30 +37,25 @@
                 </footer>
             </article>
             <div class="post-comments" v-if="!loading">
-                <ul>
-                    <li v-for="comment in comments">
-                        <span class="username">
-                            <router-link :to="'/user/'+comment.username">
-                                {{ comment.username }}
-                            </router-link>
-                        </span>
-                        <p v-text="comment.comment"></p>
-                    </li>
-                </ul>
-                
+
+                <post-comment v-for="comment in comments" :data="comment.toJson()"></post-comment>
+                <br/>
+
                 <textarea class="form-control" placeholder="Add your comment" rows="2" v-model="newComment"/>
                 <br/>
-                
+
                 <button class="btn btn-block btn-primary" @click="addComment">Comment</button>
             </div>
-            
+
             <br/><br/>
-            
+
             <button v-if="usersPost" class="btn btn-sm btn-danger" @click="deletePost">Delete your post</button>
-            <button v-if="$root.auth().user.isAdmin && !usersPost" class="btn btn-sm btn-danger" @click="adminDeletePost">Delete this post</button>
-            
+            <button v-if="$root.auth().user.isAdmin && !usersPost" class="btn btn-sm btn-danger"
+                    @click="adminDeletePost">Delete this post
+            </button>
+
             <br/><br/>
-            
+
         </div>
     </div>
 

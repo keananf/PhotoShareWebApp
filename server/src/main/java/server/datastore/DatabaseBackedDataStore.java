@@ -988,13 +988,7 @@ final class DatabaseBackedDataStore implements DataStore {
         String[] tables = new String[] {USERS_TABLE,ALBUMS_TABLE,PHOTOS_TABLE,
                 COMMENTS_TABLE,COMMENTS_VOTES_TABLE, PHOTO_RATINGS_TABLE,NOTIFICATIONS_TABLE, FOLLOWINGS_TABLE};
 
-        // Disable foreign key
-        try (Statement stmt = conn.createStatement()) {
-            // Allow clearing of data without caring about foreign keys
-            stmt.executeUpdate("SET REFERENTIAL_INTEGRITY FALSE");
-        }
-        catch (SQLException e) {e.printStackTrace();}
-
+        // Clear each table, but retaining their schema.
         for(String table : tables) {
             // Execute statement
             try (PreparedStatement stmt = conn.prepareStatement(query + table)) {
@@ -1005,13 +999,6 @@ final class DatabaseBackedDataStore implements DataStore {
                 e.printStackTrace();
             }
         }
-
-        // Reset
-        try (Statement stmt = conn.createStatement()) {
-            // Reset, so foreign keys are enforced
-            stmt.executeUpdate("SET REFERENTIAL_INTEGRITY TRUE");
-        }
-        catch (SQLException e) {e.printStackTrace();}
     }
 
     @Override

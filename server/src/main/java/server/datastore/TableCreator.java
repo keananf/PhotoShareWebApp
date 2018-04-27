@@ -62,7 +62,7 @@ class TableCreator {
                 ALBUMS_DESCRIPTION+" varchar(255) NOT NULL," +
                 ALBUMS_TIME+" varchar(50) NOT NULL," +
                 "PRIMARY KEY ("+ALBUMS_ID+"), " +
-                "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+"))";
+                "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+") on delete cascade)";
 
         // Execute statement such that table is made
         try (Statement stmt = conn.createStatement()) {
@@ -86,7 +86,7 @@ class TableCreator {
                 PHOTOS_CONTENTS+" BLOB NOT NULL," +
                 PHOTOS_TIME+" varchar(50) NOT NULL," +
                 PHOTOS_DESCRIPTION+" varchar(255) NOT NULL," +
-                "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+")," +
+                "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+") on delete cascade," +
                 "FOREIGN KEY("+ALBUMS_ID+") references "+ALBUMS_TABLE+"("+ALBUMS_ID+") ON DELETE CASCADE)";
 
         // Execute statement such that table is made
@@ -130,8 +130,8 @@ class TableCreator {
                 "("+REFERENCE_ID+" BIGINT, " +
                 USERNAME+" varchar(25) NOT NULL," +
                 "PRIMARY KEY ("+REFERENCE_ID+", "+USERNAME+"), " +
-                "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+")," +
-                "FOREIGN KEY("+REFERENCE_ID+") references "+COMMENTS_TABLE+"("+COMMENTS_ID+"))";
+                "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+") on delete cascade," +
+                "FOREIGN KEY("+REFERENCE_ID+") references "+COMMENTS_TABLE+"("+COMMENTS_ID+") on delete cascade)";
 
         // Execute statement such that table is made
         try (Statement stmt = conn.createStatement()) {
@@ -149,8 +149,8 @@ class TableCreator {
                 "("+REFERENCE_ID+" BIGINT, " +
                 USERNAME+" varchar(25) NOT NULL," +
                 "PRIMARY KEY ("+REFERENCE_ID+", "+USERNAME+"), " +
-                "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+")," +
-                "FOREIGN KEY("+REFERENCE_ID+") references "+PHOTOS_TABLE+"("+PHOTOS_ID+"))";
+                "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+") on delete cascade," +
+                "FOREIGN KEY("+REFERENCE_ID+") references "+PHOTOS_TABLE+"("+PHOTOS_ID+") on delete cascade)";
 
         // Execute statement such that table is made
         try (Statement stmt = conn.createStatement()) {
@@ -171,7 +171,7 @@ class TableCreator {
                 USERNAME+" varchar(25) NOT NULL," +
                 CONTENT_TYPE+" varchar(25) NOT NULL," +
                 "PRIMARY KEY("+NOTIFICATIONS_ID+")," +
-                "FOREIGN KEY("+PARENTNAME+") references "+USERS_TABLE+"("+USERNAME+"))";
+                "FOREIGN KEY("+PARENTNAME+") references "+USERS_TABLE+"("+USERNAME+") on delete cascade)";
 
         // Execute statement such that table is made
         try (Statement stmt = conn.createStatement()) {
@@ -189,8 +189,8 @@ class TableCreator {
                 USER_FROM+" varchar(25) NOT NULL," +
                 USER_TO+" varchar(25) NOT NULL," +
                 "PRIMARY KEY("+FOLLOW_ID+")," +
-                "FOREIGN KEY("+USER_FROM+") references "+USERS_TABLE+"("+USERNAME+")," +
-                "FOREIGN KEY("+USER_TO+") references "+USERS_TABLE+"("+USERNAME+"))";
+                "FOREIGN KEY("+USER_FROM+") references "+USERS_TABLE+"("+USERNAME+") on delete cascade," +
+                "FOREIGN KEY("+USER_TO+") references "+USERS_TABLE+"("+USERNAME+") on delete cascade)";
 
         // Execute statement such that table is made
         try (Statement stmt = conn.createStatement()) {

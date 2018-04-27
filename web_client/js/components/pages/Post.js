@@ -19,6 +19,11 @@
                     <img :src="post.filename"/>
                 </div>
                 <footer>
+                    <p>
+                        {{ post.description }}
+                    </p>
+                  
+                    <hr/>
                     <span class="comments">
                         {{ commentsCount }} comments
                     </span>
@@ -64,7 +69,8 @@
                 comments: [],
                 loading: true,
                 userHasLiked: false,
-                newComment: ''
+                newComment: '',
+                usersPost: false
             }
         },
 
@@ -76,6 +82,8 @@
 
                 API.Posts.getPostData(this.postId).then(post => {
                     this.post = post
+
+                    this.usersPost = post.username === this.$root.auth().username
 
                     post.getComments().then(comments => {
                         this.comments = comments

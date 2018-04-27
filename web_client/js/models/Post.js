@@ -1,12 +1,13 @@
 (function () {
 
     class Post {
-        constructor(id, title, username, date, extension) {
+        constructor(id, title, username, date, extension, description) {
             this.id = id
             this.title = title
             this.username = username
             this.date = date
             this.extension = extension
+            this.description = description
 
             this.albumId = null
             this._comments = null
@@ -26,7 +27,8 @@
                 data.photoName,
                 data.authorName,
                 data.photoTime,
-                data.ext)
+                data.ext,
+                data.description)
 
             if (data.comments) {
                 post.comments = data.comments

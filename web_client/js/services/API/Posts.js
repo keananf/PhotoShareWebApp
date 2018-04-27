@@ -10,7 +10,8 @@
                     let posts = []
 
                     for (let i in res) {
-                        posts.push(Models.Post.fromJson(res[i]))
+                        let post = Models.Post.fromJson(res[i])
+                        posts.push(post)
                     }
 
                     resolve(posts)
@@ -24,7 +25,9 @@
 
                     let posts = []
                     for (let i in res) {
-                        posts.push(Models.Post.fromJson(res[i]))
+                        let post = Models.Post.fromJson(res[i].photo)
+                        post.commentsCount = res[i].childComments.length
+                        posts.push(post)
                     }
 
                     resolve(posts)
@@ -38,7 +41,9 @@
 
                     let posts = []
                     for (let i in res) {
-                        posts.push(Models.Post.fromJson(res[i]))
+                        let post = Models.Post.fromJson(res[i].photo)
+                        post.commentsCount = res[i].childComments.length
+                        posts.push(post)
                     }
 
                     resolve(posts)
@@ -49,11 +54,11 @@
         getPostData(postId) {
             return new Promise((resolve, reject) => {
                 http.get(API.endpoints.POSTS_GET.replace(':id', postId)).then(data => {
+                    console.log(data)
                     if (!data) {
-                        console.log(data)
                         reject(null)
                     } else {
-                        resolve(Models.Post.fromJson(data))
+                        resolve(Models.Post.fromJson(data.photo))
                     }
                 }).catch(err => {
                     reject(err)
@@ -69,7 +74,7 @@
 
                     if (data.length > 0) {
                         for (let i = 0; i < data.length; i++) {
-                            posts.push(Models.PostComment.fromJson(data[i]))
+                            posts.push(Models.PostComment.fromJson(data[i].comment))
                         }
                     }
 

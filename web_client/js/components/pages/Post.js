@@ -148,6 +148,8 @@
                 if (pos !== null) {
                     this.comments.splice(pos, 1)
                 }
+
+                this.post.commentsCount--
             }
         },
 

@@ -44,7 +44,7 @@
                 post.likesCount = data.likes.length
             }
 
-            if (data.votes) {
+            if (data.votes !== undefined) {
                 post.likes = data.votes
                 post.likesCount = data.votes.length
             }
@@ -144,7 +144,7 @@
         }
 
         userHasUpvoted(username) {
-            return this.likes.indexOf(username) !== -1
+            return this.likes && this.likes.indexOf(username) !== -1
         }
     }
 

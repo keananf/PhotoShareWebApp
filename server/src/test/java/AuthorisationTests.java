@@ -1,7 +1,7 @@
-import server.objects.*;
 import org.junit.Test;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.objects.LoginResult;
+import server.objects.Receipt;
 import server.objects.User;
 
 import javax.ws.rs.core.Response;

@@ -117,7 +117,7 @@ public class PhotosApi {
         String[] components = idAndExt.split("\\.");
         long id = Long.parseLong(components[0]);
         String ext = components[1];
-        if(!ext.toLowerCase().equals("png")) return Response.status(Response.Status.BAD_REQUEST).build();
+        if(!ext.toLowerCase(RESOLVER.LOCALE).equals("png")) return Response.status(Response.Status.BAD_REQUEST).build();
 
         try {
             // Retrieve provided auth info
@@ -150,7 +150,7 @@ public class PhotosApi {
         String[] components = idAndExt.split("\\.");
         long id = Long.parseLong(components[0]);
         String ext = components[1];
-        if(!ext.toLowerCase().equals("jpg")) return Response.status(Response.Status.BAD_REQUEST).build();
+        if(!ext.toLowerCase(RESOLVER.LOCALE).equals("jpg")) return Response.status(Response.Status.BAD_REQUEST).build();
 
         try {
             // Retrieve provided auth info
@@ -176,11 +176,9 @@ public class PhotosApi {
     @GET
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response getPhoto(@PathParam("id") long id, String message, @Context HttpHeaders headers) {
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getPhotoMetaData(@PathParam("id") long id, @Context HttpHeaders headers) {
         try {
-
-            UploadPhotoRequest request = gson.fromJson(message, UploadPhotoRequest.class);
-
             // Retrieve provided auth info
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];

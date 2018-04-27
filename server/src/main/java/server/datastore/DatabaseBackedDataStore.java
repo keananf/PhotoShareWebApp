@@ -613,7 +613,7 @@ final class DatabaseBackedDataStore implements DataStore {
 
             // Insert notification info into prepared statement
             stmt.setLong(1, CURRENT_ID++);
-            stmt.setLong(2, event.getContentID());
+            stmt.setLong(2, event.getContentId());
             stmt.setString(3, parentName);
             stmt.setString(4, event.getParentName());
             stmt.setString(5, encodeCommentTypeToString(event.getEventType()));

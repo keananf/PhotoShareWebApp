@@ -112,7 +112,7 @@ class Connector {
      * @param baseTarget the web target for the base url
      * @param path       the path to GET from
      */
-    protected Response getWithQuery(WebTarget baseTarget, String path, String queryKey, String queryValue) {
+    Response getWithQuery(WebTarget baseTarget, String path, String queryKey, String queryValue) {
 
         // Get API resource
         WebTarget pathTarget = baseTarget.path(path);

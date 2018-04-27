@@ -3,40 +3,64 @@
     window.Components.Pages.Profile = {
         template: `<div>
 
-    <loader ref="user-loader" visible="1" v-if="!userDataLoaded"></loader>
-
-    <div v-if="userDataLoaded">
-        <h3>{{ username }}</h3>
-        <hr/>
-
-        <div class="user-data">
-
-            <button class="btn btn-sm">
-                <i class="fa fa-users"></i> {{ followingCount }} Following
-            </button>
-
-            <button class="btn btn-sm">
-                <i class="fa fa-star"></i> {{ followersCount }} Followers
-            </button>
-
-            <button v-if="!usersProfile" :class="{btn: true, 'btn-sm': true, 'btn-success': isFollowing}"
-                    @click="toggleFollow">
-                <i class="fas fa-star"></i>
-                Follow{{ isFollowing ? 'ing' : '' }}
-            </button>
-
-        </div>
-    </div>
-
-    <br/><br/>
-
     <div class="row">
         <div class="col-sm-8">
+        
+            <loader ref="user-loader" visible="1" v-if="!userDataLoaded"></loader>
+    
+            <div v-if="userDataLoaded">
+                <h3>{{ username }}</h3>
+                <hr/>
+            
+                <div class="user-data">
+            
+                    <span class="btn btn-sm">
+                        <i class="fa fa-users"></i> {{ followingCount }} Following
+                    </span>
+            
+                    <span class="btn btn-sm">
+                        <i class="fa fa-star"></i> {{ followersCount }} Followers
+                    </span>
+            
+                    <button v-if="!usersProfile" :class="{btn: true, 'btn-sm': true, 'btn-success': isFollowing}"
+                            @click="toggleFollow">
+                        <i class="fas fa-star"></i>
+                        Follow{{ isFollowing ? 'ing' : '' }}
+                    </button>
+            
+                </div>
+            </div>
+            
+            <br/><br/>
 
             <div class="user-posts">
 
                 <post v-for="post in posts" :data="post.toJson()" :key="post.id"></post>
 
+            </div>
+        </div>
+        
+        <div class="col-sm-4">
+            <div class="side-panel">
+                <div class="panel-heading">
+                    Following
+                </div>
+                <ul v-if="following">
+                    <li v-for="user in following">
+                        <router-link :to="'/user/' + user.username">{{ user.username }}</router-link>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-heading">
+                    Followers
+                </div>
+                <ul v-if="followers">
+                    <li v-for="user in followers">
+                        <router-link :to="'/user/' + user.username">{{ user.username }}</router-link>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
@@ -58,7 +82,7 @@
                     posts: false,
                     followers: false,
                     following: false
-                }
+                },
             }
         },
 

@@ -14,6 +14,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static server.ServerMain.RESOLVER;
 
@@ -128,7 +129,11 @@ public class CommentsApi {
             // Retrieve list retrieved from data manipulation layer
             // and convert comments into JSON array
             List<Comment> comments = RESOLVER.getComments(user);
-            return Response.ok(gson.toJson(comments)).build();
+
+            // Find all top-level replies for each comment, and compose them into CommentResult objects
+            // This is converted into JSON and returned
+            List<CommentResult> result = comments.stream().map(c -> RESOLVER.getCommentResult(sender, c)).collect(Collectors.toList());
+            return Response.ok(gson.toJson(result)).build();
 
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
@@ -153,7 +158,11 @@ public class CommentsApi {
             // Retrieve list retrieved from data manipulation layer
             // and convert comments into JSON array
             List<Comment> comments = RESOLVER.getPhotoComments(sender, photoId);
-            return Response.ok(gson.toJson(comments)).build();
+
+            // Find all top-level replies for each comment, and compose them into CommentResult objects
+            // This is converted into JSON and returned
+            List<CommentResult> result = comments.stream().map(c -> RESOLVER.getCommentResult(sender, c)).collect(Collectors.toList());
+            return Response.ok(gson.toJson(result)).build();
 
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
@@ -178,7 +187,11 @@ public class CommentsApi {
             // Retrieve list retrieved from data manipulation layer
             // and convert comments into JSON array
             List<Comment> comments = RESOLVER.getReplies(sender, commentId);
-            return Response.ok(gson.toJson(comments)).build();
+
+            // Find all top-level replies for each comment, and compose them into CommentResult objects
+            // This is converted into JSON and returned
+            List<CommentResult> result = comments.stream().map(c -> RESOLVER.getCommentResult(sender, c)).collect(Collectors.toList());
+            return Response.ok(gson.toJson(result)).build();
 
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }

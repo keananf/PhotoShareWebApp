@@ -329,7 +329,7 @@ public final class RequestResolver {
      */
     public List<Comment> getReplies(String user, long referenceId) throws InvalidResourceRequestException {
         // Get comment the reference is referring to (exception thrown if doesn't exist)
-        getComment(referenceId);
+        Comment c = getComment(referenceId);
         getUser(user);
 
         // Find all comments on this comment
@@ -655,6 +655,39 @@ public final class RequestResolver {
         }
 
         return newsFeed;
+    }
+
+    /**
+     * Returns the comment along with its top-level replies. This results in less requests
+     * from the client
+     * @param user the user who made the request
+     * @param comment the given comment
+     * @return the result to be sent back to the client
+     */
+    public CommentResult getCommentResult(String user, Comment comment) {
+        try {
+            return new CommentResult(comment, getReplies(user, comment.getId()));
+        }
+        catch (InvalidResourceRequestException e) {
+            return new CommentResult(comment, new ArrayList<>());
+        }
+    }
+
+
+    /**
+     * Returns the photo along with its top-level comments. This results in less requests
+     * from the client
+     * @param user the user who made the request
+     * @param photo the given photo
+     * @return the result to be sent back to the client
+     */
+    public PhotoResult getPhotoResult(String user, Photo photo) {
+        try {
+            return new PhotoResult(photo, getPhotoComments(user, photo.getId()));
+        }
+        catch (InvalidResourceRequestException e) {
+            return new PhotoResult(photo, new ArrayList<>());
+        }
     }
 
     /**

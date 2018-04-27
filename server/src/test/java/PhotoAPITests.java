@@ -1,6 +1,7 @@
 import org.junit.Test;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.objects.Photo;
+import server.objects.PhotoResult;
 import server.objects.Receipt;
 
 import javax.ws.rs.core.Response;
@@ -68,15 +69,14 @@ public class PhotoAPITests extends TestUtility{
 
         // Parse JSON and check photo contents and who posted it
         String photosStr = photosResponse.readEntity(String.class);
-        Photo[] photos = gson.fromJson(photosStr, Photo[].class);
-        for(Photo photo : photos) {
+        PhotoResult[] photos = gson.fromJson(photosStr, PhotoResult[].class);
+        for(PhotoResult result : photos) {
+            Photo photo = result.getPhoto();
             assertEquals(photo.getAuthorName(), username);
             assertEquals(photo.getPhotoName(), photoName);
             assertEquals(photo.getDescription(), description);
         }
     }
-
-
 
     @Test
     public void get0PhotosFromUserTest() {
@@ -108,7 +108,7 @@ public class PhotoAPITests extends TestUtility{
 
         // Parse JSON and check photo contents and who posted it
         String photoStr = photosResponse.readEntity(String.class);
-        Photo photo = gson.fromJson(photoStr, Photo[].class)[0];
+        Photo photo = gson.fromJson(photoStr, PhotoResult[].class)[0].getPhoto();
         assertEquals(photo.getAuthorName(), username);
         assertEquals(photo.getPhotoName(), photoName);
 

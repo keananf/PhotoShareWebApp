@@ -1,6 +1,7 @@
 import org.junit.Test;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.objects.Comment;
+import server.objects.CommentResult;
 import server.objects.Receipt;
 
 import javax.ws.rs.core.Response;
@@ -268,10 +269,10 @@ public class CommentAPITests extends TestUtility{
         assertEquals(Response.Status.OK.getStatusCode(), commentsResponse.getStatus());
 
         // Parse response, asserting that only the first comment was retrieved
-        Comment[] photoComments = gson.fromJson(commentsResponse.readEntity(String.class), Comment[].class);
+        CommentResult[] photoComments = gson.fromJson(commentsResponse.readEntity(String.class), CommentResult[].class);
         assertEquals(1, photoComments.length);
-        assertEquals(commentId, photoComments[0].getId());
-        assertEquals(id, photoComments[0].getReferenceId());
+        assertEquals(commentId, photoComments[0].getComment().getId());
+        assertEquals(id, photoComments[0].getComment().getReferenceId());
     }
 
     /**
@@ -319,10 +320,10 @@ public class CommentAPITests extends TestUtility{
         assertEquals(Response.Status.OK.getStatusCode(), commentsResponse.getStatus());
 
         // Parse response, asserting that only the top-level reply was retrieved
-        Comment[] replies = gson.fromJson(commentsResponse.readEntity(String.class), Comment[].class);
+        CommentResult[] replies = gson.fromJson(commentsResponse.readEntity(String.class), CommentResult[].class);
         assertEquals(1, replies.length);
-        assertEquals(commentId2, replies[0].getId());
-        assertEquals(commentId, replies[0].getReferenceId());
+        assertEquals(commentId2, replies[0].getComment().getId());
+        assertEquals(commentId, replies[0].getComment().getReferenceId());
     }
 
     @Test
@@ -400,12 +401,12 @@ public class CommentAPITests extends TestUtility{
         assertEquals(Response.Status.OK.getStatusCode(), commentsResponse.getStatus());
 
         // Parse comments array and ensure it has two elements in it
-        Comment[] comments = gson.fromJson(commentsResponse.readEntity(String.class), Comment[].class);
+        CommentResult[] comments = gson.fromJson(commentsResponse.readEntity(String.class), CommentResult[].class);
         assertEquals(2, comments.length);
 
         // Check each comment. They're identical.
-        for(Comment recordedComment : comments) {
-            assertEquals(comment, recordedComment.getCommentContents());
+        for(CommentResult recordedComment : comments) {
+            assertEquals(comment, recordedComment.getComment().getCommentContents());
         }
     }
 
@@ -430,12 +431,12 @@ public class CommentAPITests extends TestUtility{
         assertEquals(Response.Status.OK.getStatusCode(), commentsResponse.getStatus());
 
         // Parse comments array and ensure it has two elements in it
-        Comment[] comments = gson.fromJson(commentsResponse.readEntity(String.class), Comment[].class);
+        CommentResult[] comments = gson.fromJson(commentsResponse.readEntity(String.class), CommentResult[].class);
         assertEquals(2, comments.length);
 
         // Check each comment. They're identical.
-        for(Comment recordedComment : comments) {
-            assertEquals(comment, recordedComment.getCommentContents());
+        for(CommentResult recordedComment : comments) {
+            assertEquals(comment, recordedComment.getComment().getCommentContents());
         }
     }
 
@@ -463,9 +464,9 @@ public class CommentAPITests extends TestUtility{
         assertEquals(Response.Status.OK.getStatusCode(), commentsResponse.getStatus());
 
         // Parse comments array and ensure it has two elements in it
-        Comment[] comments = gson.fromJson(commentsResponse.readEntity(String.class), Comment[].class);
+        CommentResult[] comments = gson.fromJson(commentsResponse.readEntity(String.class), CommentResult[].class);
         assertEquals(1, comments.length);
-        assertEquals(comment, comments[0].getCommentContents());
+        assertEquals(comment, comments[0].getComment().getCommentContents());
     }
 
     @Test

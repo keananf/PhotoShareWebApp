@@ -144,8 +144,9 @@ public final class ServerTests extends TestUtility {
 
         // Parse JSON and check photo contents and who posted it
         String photosStr = photosResponse.readEntity(String.class);
-        Photo[] photos = gson.fromJson(photosStr, Photo[].class);
-        for(Photo photo : photos) {
+        PhotoResult[] photos = gson.fromJson(photosStr, PhotoResult[].class);
+        for(PhotoResult result : photos) {
+            Photo photo = result.getPhoto();
             assertEquals(photo.getAuthorName(), username);
             assertEquals(photo.getPhotoName(), photoName);
             assertEquals(photo.getDescription(), description);
@@ -178,11 +179,12 @@ public final class ServerTests extends TestUtility {
 
         // Parse response, ensuring only the 2 original photos are present.
         String photosStr = response.readEntity(String.class);
-        Photo[] photoArray = gson.fromJson(photosStr, Photo[].class);
+        PhotoResult[] photoArray = gson.fromJson(photosStr, PhotoResult[].class);
         assertEquals(2, photoArray.length);
 
         // Check each photo's contents and who posted it
-        for(Photo photo : photoArray) {
+        for(PhotoResult result : photoArray) {
+            Photo photo = result.getPhoto();
             assertEquals(photo.getAuthorName(), username);
             assertEquals(photo.getPhotoName(), photoName);
             assertEquals(photo.getDescription(), description);
@@ -219,7 +221,7 @@ public final class ServerTests extends TestUtility {
 
         // Parse JSON and check photo contents and who posted it
         String photoStr = photosResponse.readEntity(String.class);
-        Photo photo = gson.fromJson(photoStr, Photo[].class)[0];
+        Photo photo = gson.fromJson(photoStr, PhotoResult[].class)[0].getPhoto();
         assertEquals(photo.getAuthorName(), username);
         assertEquals(photo.getPhotoName(), photoName);
 
@@ -580,10 +582,10 @@ public final class ServerTests extends TestUtility {
         assertEquals(Response.Status.OK.getStatusCode(), commentsResponse.getStatus());
 
         // Parse response, asserting that only the first comment was retrieved
-        Comment[] photoComments = gson.fromJson(commentsResponse.readEntity(String.class), Comment[].class);
+        CommentResult[] photoComments = gson.fromJson(commentsResponse.readEntity(String.class), CommentResult[].class);
         assertEquals(1, photoComments.length);
-        assertEquals(commentId, photoComments[0].getId());
-        assertEquals(id, photoComments[0].getReferenceId());
+        assertEquals(commentId, photoComments[0].getComment().getId());
+        assertEquals(id, photoComments[0].getComment().getReferenceId());
     }
 
     /**
@@ -631,10 +633,10 @@ public final class ServerTests extends TestUtility {
         assertEquals(Response.Status.OK.getStatusCode(), commentsResponse.getStatus());
 
         // Parse response, asserting that only the top-level reply was retrieved
-        Comment[] replies = gson.fromJson(commentsResponse.readEntity(String.class), Comment[].class);
+        CommentResult[] replies = gson.fromJson(commentsResponse.readEntity(String.class), CommentResult[].class);
         assertEquals(1, replies.length);
-        assertEquals(commentId2, replies[0].getId());
-        assertEquals(commentId, replies[0].getReferenceId());
+        assertEquals(commentId2, replies[0].getComment().getId());
+        assertEquals(commentId, replies[0].getComment().getReferenceId());
     }
 
     @Test
@@ -965,12 +967,12 @@ public final class ServerTests extends TestUtility {
         assertEquals(Response.Status.OK.getStatusCode(), commentsResponse.getStatus());
 
         // Parse comments array and ensure it has two elements in it
-        Comment[] comments = gson.fromJson(commentsResponse.readEntity(String.class), Comment[].class);
+        CommentResult[] comments = gson.fromJson(commentsResponse.readEntity(String.class), CommentResult[].class);
         assertEquals(2, comments.length);
 
         // Check each comment. They're identical.
-        for(Comment recordedComment : comments) {
-            assertEquals(comment, recordedComment.getCommentContents());
+        for(CommentResult recordedComment : comments) {
+            assertEquals(comment, recordedComment.getComment().getCommentContents());
         }
     }
 
@@ -995,12 +997,12 @@ public final class ServerTests extends TestUtility {
         assertEquals(Response.Status.OK.getStatusCode(), commentsResponse.getStatus());
 
         // Parse comments array and ensure it has two elements in it
-        Comment[] comments = gson.fromJson(commentsResponse.readEntity(String.class), Comment[].class);
+        CommentResult[] comments = gson.fromJson(commentsResponse.readEntity(String.class), CommentResult[].class);
         assertEquals(2, comments.length);
 
         // Check each comment. They're identical.
-        for(Comment recordedComment : comments) {
-            assertEquals(comment, recordedComment.getCommentContents());
+        for(CommentResult recordedComment : comments) {
+            assertEquals(comment, recordedComment.getComment().getCommentContents());
         }
     }
 
@@ -1028,9 +1030,9 @@ public final class ServerTests extends TestUtility {
         assertEquals(Response.Status.OK.getStatusCode(), commentsResponse.getStatus());
 
         // Parse comments array and ensure it has two elements in it
-        Comment[] comments = gson.fromJson(commentsResponse.readEntity(String.class), Comment[].class);
+        CommentResult[] comments = gson.fromJson(commentsResponse.readEntity(String.class), CommentResult[].class);
         assertEquals(1, comments.length);
-        assertEquals(comment, comments[0].getCommentContents());
+        assertEquals(comment, comments[0].getComment().getCommentContents());
     }
 
     @Test

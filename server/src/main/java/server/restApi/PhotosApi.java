@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import server.Resources;
 import server.datastore.exceptions.*;
 import server.objects.Photo;
+import server.objects.PhotoResult;
 import server.objects.Receipt;
 import server.requests.UploadPhotoRequest;
 
@@ -13,6 +14,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static server.Resources.*;
 import static server.ServerMain.RESOLVER;
@@ -91,9 +93,12 @@ public class PhotosApi {
             RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Retrieve list retrieved from data manipulation layer
-            // and convert photos into JSON array
             List<Photo> photos = RESOLVER.getPhotos(albumId);
-            return Response.ok(gson.toJson(photos)).build();
+
+            // Find all top-level comments for each photo, and compose them into PhotoResult objects
+            // This is converted into JSON and returned
+            List<PhotoResult> result = photos.stream().map(p -> RESOLVER.getPhotoResult(sender, p)).collect(Collectors.toList());
+            return Response.ok(gson.toJson(result)).build();
 
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
@@ -162,7 +167,10 @@ public class PhotosApi {
 
             // Send the given photo's meta data back to the client
             Photo photo = RESOLVER.getPhotoMetaData(id);
-            return Response.ok(gson.toJson(photo)).build();
+
+            // Find all top-level comments for the photo
+            PhotoResult result = RESOLVER.getPhotoResult(sender, photo);
+            return Response.ok(gson.toJson(result)).build();
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}

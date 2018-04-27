@@ -12,7 +12,6 @@
         },
 
         followUser(username) {
-            // @todo
             return new Promise((resolve, reject) => {
                 resolve()
             })
@@ -48,16 +47,36 @@
         },
 
         getUsersFollowers(username){
-            // @todo
             return new Promise((resolve, reject) => {
-                resolve([])
+                http.get(API.endpoints.USERS_FOLLOWERS.replace(':username', username)).then(res => {
+
+                    console.log(res)
+
+                    let followers = []
+                    for (let i in res) {
+                        followers.push(Models.User.fromJson(res[i]))
+                    }
+
+                    resolve(followers)
+
+                }).catch(err => reject(err))
             })
         },
 
         getUsersFollowing(username){
-            // @todo
             return new Promise((resolve, reject) => {
-                resolve([])
+                http.get(API.endpoints.USERS_FOLLOWING.replace(':username', username)).then(res => {
+
+                    console.log(res)
+
+                    let following = []
+                    for (let i in res) {
+                        following.push(Models.User.fromJson(res[i]))
+                    }
+
+                    resolve(following)
+
+                }).catch(err => reject(err))
             })
         }
 

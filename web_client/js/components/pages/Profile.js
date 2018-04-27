@@ -3,10 +3,10 @@
     window.Components.Pages.Profile = {
         template: `<div>
 
-    <loader ref="user-loader"></loader>
+    <loader ref="user-loader" visible="1" v-if="!userDataLoaded"></loader>
 
     <div v-if="userDataLoaded">
-        <h3>{{ user.username }}</h3>
+        <h3>{{ username }}</h3>
         <hr/>
 
         <div class="user-data">
@@ -33,8 +33,6 @@
     <div class="row">
         <div class="col-sm-8">
 
-            <loader ref="posts-loader"></loader>
-
             <div class="user-posts">
 
                 <post v-for="post in posts" :data="post.toJson()" :key="post.id"></post>
@@ -48,13 +46,25 @@
 
         data() {
             return {
-                user: null,
-                followersCount: 0, // @todo
-                followingCount: 0, // @todo
+                username: this.$route.params.username,
+                followersCount: 0,
+                followingCount: 0,
+                followers: [],
+                following: [],
                 posts: [], // @todo
                 isFollowing: false,
-                userDataLoaded: false
+                loaded: {
+                    posts: false,
+                    followers: false,
+                    following: false
+                }
             }
+        },
+
+        computed: {
+            userDataLoaded(){
+                return this.loaded.posts && this.loaded.followers && this.loaded.following
+            },
         },
 
         methods: {
@@ -71,25 +81,25 @@
             },
 
             fetchUsersPosts() {
-
-                let loader = this.$refs['posts-loader']
-                loader.show()
-
-                API.Posts.getPostsByUser(this.$route.params.username).then(posts => {
+                API.Posts.getPostsByUser(this.username).then(posts => {
                     this.posts = posts
-                    loader.hide()
+                    this.loaded.posts = true
                 })
             },
 
-            fetchUsersData() {
+            fetchUsersFollowers() {
+                API.Users.getUsersFollowers(this.username).then(followers => {
+                    this.followers = followers
+                    this.followersCount = followers.length
+                    this.loaded.followers = true
+                })
+            },
 
-                let loader = this.$refs['user-loader']
-                loader.show()
-
-                API.Users.getUserData(this.$route.params.username).then(user => {
-                    this.user = user
-                    loader.hide()
-                    this.userDataLoaded = true
+            fetchUsersFollowing() {
+                API.Users.getUsersFollowing(this.username).then(following => {
+                    this.following = following
+                    this.followingCount = following.length
+                    this.loaded.following = true
                 })
             }
         },
@@ -98,7 +108,8 @@
         // call this and fetch initial API data
         mounted() {
             this.fetchUsersPosts()
-            this.fetchUsersData()
+            this.fetchUsersFollowers()
+            this.fetchUsersFollowing()
         }
     }
 

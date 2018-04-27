@@ -64,7 +64,7 @@
                         <router-link :to="'/user/' + user.username">{{ user.username }}</router-link>
                     </li>
                 </ul>
-                <p v-if="following.length === 0">
+                <p v-if="followers.length === 0">
                     {{ username }} hasn't got any followers yet
                 </p>
             </div>

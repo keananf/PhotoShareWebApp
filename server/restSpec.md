@@ -175,14 +175,30 @@ PhotoShare RESTful API specification
         ``` 
         [
             {
-                "id": long, 
-                "photoName": string,
-                "extension": string,
-                "authorName": string,
-                "albumId": long,
-                "photoTime": long 
-                "description": string,
-                "votes": object
+               "photo":
+               {
+                    "id": long, 
+                    "photoName": string,
+                    "extension": string,
+                    "authorName": string,
+                    "albumId": long,
+                    "photoTime": long,
+                    "description": string,
+                    "votes": object
+                }
+                "childComments":
+                [
+                    {
+                        "id": long, 
+                        "referenceId": long,
+                        "author": string,             
+                        "commentContents": string,
+                        "commentTime": long,
+                        "eventType": string,
+                        "votes": object
+                    },
+                    ...
+                ]
             },
             ...
         ]
@@ -210,15 +226,32 @@ PhotoShare RESTful API specification
         **Content:** 
         ``` 
         {
-            "id": long, 
-            "photoName": string,
-            "extension": string,
-            "authorName": string,
-            "albumId": long,
-            "photoTime": long,
-            "description": string,
-            "votes": object
+           "photo":
+           {
+                "id": long, 
+                "photoName": string,
+                "extension": string,
+                "authorName": string,
+                "albumId": long,
+                "photoTime": long,
+                "description": string,
+                "votes": object
+            }
+            "childComments":
+            [
+                {
+                    "id": long, 
+                    "referenceId": long,
+                    "author": string,             
+                    "commentContents": string,
+                    "commentTime": long,
+                    "eventType": string,
+                    "votes": object
+                },
+                ...
+            ]
         }
+        ```
      
     * **Error Response:**
     
@@ -410,13 +443,29 @@ PhotoShare RESTful API specification
         ``` 
         [
             {
-                "id": long, 
-                "referenceId": long,
-                "author": string,             
-                "commentContents": string,
-                "commentTime": long,
-                "eventType": string,
-                "votes": object
+                "comment": 
+                {
+                    "id": long, 
+                    "referenceId": long,
+                    "author": string,             
+                    "commentContents": string,
+                    "commentTime": long,
+                    "eventType": string,
+                    "votes": object
+                }
+                "childComments":
+                [
+                    {
+                        "id": long, 
+                        "referenceId": long,
+                        "author": string,             
+                        "commentContents": string,
+                        "commentTime": long,
+                        "eventType": string,
+                        "votes": object
+                    },
+                    ...
+                ]
             },
             ...
         ]
@@ -448,13 +497,29 @@ PhotoShare RESTful API specification
         ``` 
         [
             {
-                "id": long, 
-                "referenceId": long,
-                "author": string,             
-                "commentContents": string,
-                "commentTime": long,
-                "eventType": string,
-                "votes": object
+                "comment": 
+                {
+                    "id": long, 
+                    "referenceId": long,
+                    "author": string,             
+                    "commentContents": string,
+                    "commentTime": long,
+                    "eventType": string,
+                    "votes": object
+                }
+                "childComments":
+                [
+                    {
+                        "id": long, 
+                        "referenceId": long,
+                        "author": string,             
+                        "commentContents": string,
+                        "commentTime": long,
+                        "eventType": string,
+                        "votes": object
+                    },
+                    ...
+                ]
             },
             ...
         ]
@@ -708,14 +773,30 @@ PhotoShare RESTful API specification
         ``` 
         [
             {
-                "id": long, 
-                "photoName": string,
-                "extension": string,
-                "authorName": string,
-                "albumId": long,
-                "photoTime": long 
-                "description": string,
-                votes": object
+               "photo":
+               {
+                    "id": long, 
+                    "photoName": string,
+                    "extension": string,
+                    "authorName": string,
+                    "albumId": long,
+                    "photoTime": long,
+                    "description": string,
+                    "votes": object
+                }
+                "childComments":
+                [
+                    {
+                        "id": long, 
+                        "referenceId": long,
+                        "author": string,             
+                        "commentContents": string,
+                        "commentTime": long,
+                        "eventType": string,
+                        "votes": object
+                    },
+                    ...
+                ]
             },
             ...
         ]

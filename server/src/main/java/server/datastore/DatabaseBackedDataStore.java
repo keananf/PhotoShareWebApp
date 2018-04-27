@@ -319,6 +319,27 @@ final class DatabaseBackedDataStore implements DataStore {
     }
 
     @Override
+    public void updatePhotoDescription(long photoId, String description) throws InvalidResourceRequestException {
+        // The photo's description will be overwritten.
+        String query = "UPDATE " + PHOTOS_TABLE + " SET " + PHOTOS_DESCRIPTION + " = ? WHERE " + PHOTOS_ID + " = ?";
+
+        // Setup update query.
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, description);
+            stmt.setLong(2, photoId);
+
+            // Execute query and ensure a row was changed
+            int ret = stmt.executeUpdate();
+            stmt.close();
+            if(ret == 1) return;
+        }
+        catch (SQLException e) {e.printStackTrace();}
+
+        // Photo didn't exist
+        throw new InvalidResourceRequestException(photoId);
+    }
+
+    @Override
     public Comment getComment(long id) throws InvalidResourceRequestException {
         List<Comment> comments = new ArrayList<>();
 

@@ -5,6 +5,7 @@ import server.Resources;
 import server.datastore.exceptions.*;
 import server.objects.Photo;
 import server.objects.Receipt;
+import server.requests.UpdateDescriptionRequest;
 import server.requests.UploadPhotoRequest;
 
 import javax.ws.rs.*;
@@ -191,6 +192,33 @@ public class PhotosApi {
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
+    }
+
+    /**
+     * @return the requested photo, serialised in JSON
+     */
+    @POST
+    @Path(Resources.UPDATE_PHOTO_DESCRIPTION)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response editPhotoDescription(String message, @Context HttpHeaders headers) {
+        try {
+
+            UpdateDescriptionRequest request = gson.fromJson(message, UpdateDescriptionRequest.class);
+
+            // Retrieve provided auth info
+            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
+            String sender = authHeader[0], apiKey = authHeader[1];
+            String date = headers.getHeaderString(HttpHeaders.DATE);
+            RESOLVER.verifyAuth(Resources.UPDATE_PHOTO_DESCRIPTION_PATH, sender, apiKey, date);
+
+            // Update description of relevant photo to the data store
+            RESOLVER.updatePhotoDescription(sender, request.getId(), request.getDescription());
+            return Response.noContent().build();
+        }
+        catch(InvalidResourceRequestException | DoesNotOwnPhotoException e) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        } catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
     }
 
     /**

@@ -337,6 +337,34 @@ PhotoShare RESTful API specification
       or
     
       * **Code:** 401 Unauthorized <br />
+      
+* `/photos/updatedescription`
+
+    * **Summary:** Updates a photo's description
+    
+    * **Method:** `POST`
+  
+    * **URL Parameters:** `None`
+    
+    * **Body Parameters**
+    
+      ```
+      {
+          "photoId": long,
+          "description": string, 
+      }
+      
+    * **Success Response:**
+    
+      * **Code:** 204 No Content <br />
+     
+    * **Error Response:**
+    
+      * **Code:** 400 Bad Request <br />
+    
+      or
+    
+      * **Code:** 401 Unauthorized <br />
 
 ## Comment-related APIs
 

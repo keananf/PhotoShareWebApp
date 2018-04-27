@@ -3,6 +3,7 @@ package server.datastore;
 import server.Resources;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.objects.*;
+import server.requests.AddCommentRequest;
 import server.requests.UploadPhotoRequest;
 
 import java.io.ByteArrayInputStream;
@@ -10,11 +11,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
-import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Scanner;
 
 import static server.datastore.DatabaseResources.*;
-import static server.datastore.DatabaseResources.USER_TO;
 
 /**
  * DataStore implemented in terms of a H2 database
@@ -52,29 +54,39 @@ final class DatabaseBackedDataStore implements DataStore {
     }
 
     @Override
-    public void persistUploadPhoto(long id, String author, UploadPhotoRequest request, String date) {
+    public long persistUploadPhoto(String author, UploadPhotoRequest request, String date) {
         // Set up query for inserting a new photo into the table
-        String query = "INSERT INTO "+PHOTOS_TABLE+"("+PHOTOS_ID+","+PHOTOS_NAME+","+PHOTOS_EXT+","+USERNAME+","
-            +ALBUMS_ID+","+PHOTOS_CONTENTS+","+PHOTOS_TIME+","+PHOTOS_DESCRIPTION+") "+"values(?, ?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO "+PHOTOS_TABLE+"("+PHOTOS_NAME+","+PHOTOS_EXT+","+USERNAME+","
+            +ALBUMS_ID+","+PHOTOS_CONTENTS+","+PHOTOS_TIME+","+PHOTOS_DESCRIPTION+") "+"values(?, ?, ?, ?, ?, ?, ?)";
 
         // Persist photo
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             // Insert user info into prepared statement
-            stmt.setLong(1, id);
-            stmt.setString(2, request.getPhotoName());
-            stmt.setString(3, request.getExtension());
-            stmt.setString(4, author);
-            stmt.setLong(5, request.getAlbumId());
-            stmt.setBlob(6, new ByteArrayInputStream(request.getEncodedPhotoContents()
+            stmt.setString(1, request.getPhotoName());
+            stmt.setString(2, request.getExtension());
+            stmt.setString(3, author);
+            stmt.setLong(4, request.getAlbumId());
+            stmt.setBlob(5, new ByteArrayInputStream(request.getEncodedPhotoContents()
                     .getBytes(StandardCharsets.UTF_8)));
-            stmt.setString(7, date);
-            stmt.setString(8, request.getDescription());
+            stmt.setString(6, date);
+            stmt.setString(7, request.getDescription());
 
             // Persist data
             stmt.executeUpdate();
+
+            // Retrieve last generated ID and return
+            ResultSet generatedKeys = stmt.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                long key = generatedKeys.getLong(1);
+                stmt.close();
+                return key;
+            }
             stmt.close();
         }
         catch (SQLException e) {e.printStackTrace(); }
+
+        // Default
+        return -1;
     }
 
     @Override
@@ -212,30 +224,40 @@ final class DatabaseBackedDataStore implements DataStore {
     }
 
     @Override
-    public void persistAddAlbum(Album album) throws InvalidResourceRequestException {
+    public long persistAddAlbum(String albumName, String author, String description, String date) {
         // Set up query for inserting a new album into the table
-        String query = "INSERT INTO "+ALBUMS_TABLE+"("+ALBUMS_ID+","+ALBUMS_NAME+","
-                +USERNAME+","+ALBUMS_DESCRIPTION+","+ALBUMS_TIME+") values(?, ?, ?, ?, ?)";
+        String query = "INSERT INTO " + ALBUMS_TABLE + "(" + ALBUMS_NAME + ","
+                + USERNAME + "," + ALBUMS_DESCRIPTION + "," + ALBUMS_TIME + ") values(?, ?, ?, ?)";
 
         // Persist photo
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             // Insert user info into prepared statement
-            stmt.setLong(1, album.getAlbumId());
-            stmt.setString(2, album.getAlbumName());
-            stmt.setString(3, album.getAuthorName());
-            stmt.setString(4, album.getDescription());
-            stmt.setString(5, album.getAlbumTime());
+            stmt.setString(1, albumName);
+            stmt.setString(2, author);
+            stmt.setString(3, description);
+            stmt.setString(4, date);
 
             // Persist data
             stmt.executeUpdate();
+
+            // Retrieve last generated ID and return
+            ResultSet generatedKeys = stmt.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                long key = generatedKeys.getLong(1);
+                stmt.close();
+                return key;
+            }
             stmt.close();
         }
-        catch (SQLException e) {
+        catch(SQLException e) {
             e.printStackTrace();
         }
+
+        // Failed
+        return -1;
     }
 
-    @Override
+        @Override
     public Album getAlbum(long albumId) throws InvalidResourceRequestException {
         // Set up query to retrieve the requested album in the albums table
         String query = "SELECT * FROM "+ALBUMS_TABLE+" WHERE "+ALBUMS_ID+" = ?";
@@ -539,26 +561,36 @@ final class DatabaseBackedDataStore implements DataStore {
 
 
     @Override
-    public void persistAddComment(Comment comment) {
+    public long persistAddComment(String user, AddCommentRequest request, String date) {
         // Set up query for inserting a new comment into the table
-        String query = "INSERT INTO "+COMMENTS_TABLE+"("+COMMENTS_ID+","+USERNAME+","
-                        +COMMENTS_CONTENTS+","+COMMENT_TYPE+","+REFERENCE_ID+","+COMMENTS_TIME+") values(?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO "+COMMENTS_TABLE+"("+USERNAME+","
+                        +COMMENTS_CONTENTS+","+COMMENT_TYPE+","+REFERENCE_ID+","+COMMENTS_TIME+") values(?, ?, ?, ?, ?)";
 
         // Add comment
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             // Insert user info into prepared statement)
-            stmt.setLong(1, comment.getId());
-            stmt.setString(2, comment.getAuthor());
-            stmt.setString(3, comment.getCommentContents());
-            stmt.setBoolean(4, comment.getEventType() == EventType.REPLY);
-            stmt.setLong(5, comment.getReferenceId());
-            stmt.setString(6, comment.getCommentTime());
+            stmt.setString(1, user);
+            stmt.setString(2, request.getCommentContents());
+            stmt.setBoolean(3, request.getEventType() == EventType.REPLY);
+            stmt.setLong(4, request.getReferenceId());
+            stmt.setString(5, date);
 
             // Persist data
             stmt.executeUpdate();
+
+            // Retrieve last generated ID and return
+            ResultSet generatedKeys = stmt.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                long key = generatedKeys.getLong(1);
+                stmt.close();
+                return key;
+            }
             stmt.close();
         }
         catch (SQLException e) { e.printStackTrace(); }
+
+        // Default
+        return -1;
     }
 
     @Override
@@ -843,25 +875,32 @@ final class DatabaseBackedDataStore implements DataStore {
     }
 
     @Override
-    public void persistFollowing(String userFrom, String userTo) {
+    public long persistFollowing(String userFrom, String userTo) {
 
-        String query = "INSERT INTO "+FOLLOWINGS_TABLE+"("+FOLLOW_ID+","+USER_FROM+","+USER_TO+") values(?, ?, ?)";
+        String query = "INSERT INTO "+FOLLOWINGS_TABLE+"("+USER_FROM+","+USER_TO+") values(?, ?)";
 
         // Persist the user
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             // Insert user info into prepared statement
+            stmt.setString(1, userFrom);
+            stmt.setString(2, userTo);
 
-            // Unique primary key
-            int randomNum = ThreadLocalRandom.current().nextInt(0, 99999 + 1);
-
-            stmt.setInt(1, randomNum);
-            stmt.setString(2, userFrom);
-            stmt.setString(3, userTo);
-
+            // Persist data
             stmt.executeUpdate();
+
+            // Retrieve last generated ID and return
+            ResultSet generatedKeys = stmt.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                long key = generatedKeys.getLong(1);
+                stmt.close();
+                return key;
+            }
             stmt.close();
         }
         catch (SQLException e) {e.printStackTrace();}
+
+        // Default
+        return -1;
     }
 
     @Override

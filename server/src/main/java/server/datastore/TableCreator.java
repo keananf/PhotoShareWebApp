@@ -56,7 +56,7 @@ class TableCreator {
      */
     private void createAlbumsTable() {
         // Construct create albums table query
-        String query = "CREATE TABLE IF NOT EXISTS "+ALBUMS_TABLE+" ("+ALBUMS_ID+" BIGINT, " +
+        String query = "CREATE TABLE IF NOT EXISTS "+ALBUMS_TABLE+" ("+ALBUMS_ID+" BIGINT AUTO_INCREMENT, " +
                 ALBUMS_NAME+" varchar(25) NOT NULL," +
                 USERNAME+" varchar(25) NOT NULL," +
                 ALBUMS_DESCRIPTION+" varchar(255) NOT NULL," +
@@ -78,7 +78,7 @@ class TableCreator {
      */
     private void createPhotosTable() {
         // Construct create photos table query
-        String query = "CREATE TABLE IF NOT EXISTS "+PHOTOS_TABLE+" ("+PHOTOS_ID+" BIGINT, " +
+        String query = "CREATE TABLE IF NOT EXISTS "+PHOTOS_TABLE+" ("+PHOTOS_ID+" BIGINT AUTO_INCREMENT, " +
                 PHOTOS_NAME+" varchar(25) NOT NULL," +
                 PHOTOS_EXT+" varchar(10) NOT NULL," +
                 USERNAME+" varchar(25) NOT NULL," +
@@ -103,7 +103,7 @@ class TableCreator {
      */
     private void createCommentsTable() {
         // Construct create comments table query
-        String query = "CREATE TABLE IF NOT EXISTS "+COMMENTS_TABLE+" ("+COMMENTS_ID+" BIGINT, " +
+        String query = "CREATE TABLE IF NOT EXISTS "+COMMENTS_TABLE+" ("+COMMENTS_ID+" BIGINT AUTO_INCREMENT, " +
                 USERNAME+" varchar(25) NOT NULL," +
                 COMMENTS_CONTENTS+" varchar(255) NOT NULL," +
                 COMMENT_TYPE+" boolean," +
@@ -187,7 +187,7 @@ class TableCreator {
      */
     private void createFollowingsTable() {
         // Construct create users table query
-        String query = "CREATE TABLE IF NOT EXISTS "+FOLLOWINGS_TABLE+" ("+FOLLOW_ID+" int NOT NULL, " +
+        String query = "CREATE TABLE IF NOT EXISTS "+FOLLOWINGS_TABLE+" ("+FOLLOW_ID+" bigint AUTO_INCREMENT, " +
                 USER_FROM+" varchar(25) NOT NULL," +
                 USER_TO+" varchar(25) NOT NULL," +
                 "PRIMARY KEY("+FOLLOW_ID+")," +

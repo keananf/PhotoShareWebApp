@@ -47,7 +47,7 @@ public class AlbumsApi {
             RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Upload new album to the data store
-            Receipt receipt = RESOLVER.addAlbum(sender, request.getAlbumName(), request.getDescription());
+            Receipt receipt = RESOLVER.addAlbum(sender, request.getAlbumName(), request.getDescription(), date);
             return Response.ok(gson.toJson(receipt)).build();
         }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}

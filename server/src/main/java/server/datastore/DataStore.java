@@ -18,8 +18,9 @@ interface DataStore {
      * @param id the photo's new id
      * @param author the user who posted the photo
      * @param request the photo request
+     * @param date the formatted date string
      */
-    void persistUploadPhoto(long id, String author, UploadPhotoRequest request);
+    void persistUploadPhoto(long id, String author, UploadPhotoRequest request, String date);
 
     /**
      * Retrieves photos a user has posted.

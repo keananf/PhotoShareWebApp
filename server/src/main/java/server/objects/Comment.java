@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
  */
 public class Comment implements NotifiableEvent{
     private final String author;
-    private final long commentTime;
+    private final String commentTime;
     private String commentContents;
     private long id;
 
@@ -23,7 +23,7 @@ public class Comment implements NotifiableEvent{
     private HashMap<String, Boolean> votes;
 
     public Comment(long id, String author, String commentContents, long referenceId, EventType eventType,
-                   HashMap<String, Boolean> commentVotes, long time) {
+                   HashMap<String, Boolean> commentVotes, String time) {
         // Comment information
         this.author = author;
         this.commentContents = commentContents;
@@ -36,9 +36,9 @@ public class Comment implements NotifiableEvent{
         this.eventType = eventType;
     }
 
-    public Comment(long id, String author, AddCommentRequest request) {
+    public Comment(long id, String author, AddCommentRequest request, String date) {
         this(id, author, request.getCommentContents(), request.getReferenceId(),
-                request.getEventType(), new HashMap<>(), System.nanoTime());
+                request.getEventType(), new HashMap<>(), date);
     }
 
     /**
@@ -51,7 +51,7 @@ public class Comment implements NotifiableEvent{
     /**
      * @return the time this photo was created
      */
-    public long getCommentTime() {
+    public String getCommentTime() {
         return commentTime;
     }
 

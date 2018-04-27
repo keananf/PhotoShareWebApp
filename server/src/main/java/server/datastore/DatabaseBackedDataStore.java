@@ -52,7 +52,7 @@ final class DatabaseBackedDataStore implements DataStore {
     }
 
     @Override
-    public void persistUploadPhoto(long id, String author, UploadPhotoRequest request) {
+    public void persistUploadPhoto(long id, String author, UploadPhotoRequest request, String date) {
         // Set up query for inserting a new photo into the table
         String query = "INSERT INTO "+PHOTOS_TABLE+"("+PHOTOS_ID+","+PHOTOS_NAME+","+PHOTOS_EXT+","+USERNAME+","
             +ALBUMS_ID+","+PHOTOS_CONTENTS+","+PHOTOS_TIME+","+PHOTOS_DESCRIPTION+") "+"values(?, ?, ?, ?, ?, ?, ?, ?)";
@@ -67,7 +67,7 @@ final class DatabaseBackedDataStore implements DataStore {
             stmt.setLong(5, request.getAlbumId());
             stmt.setBlob(6, new ByteArrayInputStream(request.getEncodedPhotoContents()
                     .getBytes(StandardCharsets.UTF_8)));
-            stmt.setTimestamp(7, new Timestamp(System.nanoTime()));
+            stmt.setString(7, date);
             stmt.setString(8, request.getDescription());
 
             // Persist data
@@ -96,11 +96,11 @@ final class DatabaseBackedDataStore implements DataStore {
                 String ext = rs.getString(3);
                 String username = rs.getString(4);
                 long albumId = rs.getLong(5);
-                Timestamp timestamp = rs.getTimestamp(7);
+                String timestamp = rs.getString(7);
                 String description = rs.getString(8);
 
                 photos.add(new Photo(username, photoName, ext, description, id, albumId,
-                        getPhotoRatings(id), timestamp.getTime()));
+                        getPhotoRatings(id), timestamp));
             }
             stmt.close();
         }
@@ -128,11 +128,11 @@ final class DatabaseBackedDataStore implements DataStore {
                 String photoName = rs.getString(2);
                 String ext = rs.getString(3);
                 String username = rs.getString(4);
-                Timestamp timestamp = rs.getTimestamp(7);
+                String timestamp = rs.getString(7);
                 String description = rs.getString(8);
 
                 photos.add(new Photo(username, photoName, ext, description, id, albumId,
-                        getPhotoRatings(id), timestamp.getTime()));
+                        getPhotoRatings(id), timestamp));
             }
             stmt.close();
         }
@@ -160,11 +160,11 @@ final class DatabaseBackedDataStore implements DataStore {
                 String ext = rs.getString(3);
                 String username = rs.getString(4);
                 long albumId = rs.getLong(5);
-                Timestamp timestamp = rs.getTimestamp(7);
+                String timestamp = rs.getString(7);
                 String description = rs.getString(8);
 
                 photos.add(new Photo(username, photoName, ext, description, id, albumId,
-                        getPhotoRatings(id), timestamp.getTime()));
+                        getPhotoRatings(id), timestamp));
             }
             stmt.close();
         }
@@ -224,7 +224,7 @@ final class DatabaseBackedDataStore implements DataStore {
             stmt.setString(2, album.getAlbumName());
             stmt.setString(3, album.getAuthorName());
             stmt.setString(4, album.getDescription());
-            stmt.setTimestamp(5, new Timestamp(album.getAlbumTime()));
+            stmt.setString(5, album.getAlbumTime());
 
             // Persist data
             stmt.executeUpdate();
@@ -252,9 +252,9 @@ final class DatabaseBackedDataStore implements DataStore {
                 String albumName = rs.getString(2);
                 String authorName = rs.getString(3);
                 String description = rs.getString(4);
-                Timestamp timestamp = rs.getTimestamp(5);
+                String timestamp = rs.getString(5);
 
-                albums.add(new Album(albumId, albumName, authorName, description, timestamp.getTime()));
+                albums.add(new Album(albumId, albumName, authorName, description, timestamp));
             }
             stmt.close();
         }
@@ -285,9 +285,9 @@ final class DatabaseBackedDataStore implements DataStore {
                 String albumName = rs.getString(2);
                 String authorName = rs.getString(3);
                 String description = rs.getString(4);
-                Timestamp timestamp = rs.getTimestamp(5);
+                String timestamp = rs.getString(5);
 
-                albums.add(new Album(albumId, albumName, authorName, description, timestamp.getTime()));
+                albums.add(new Album(albumId, albumName, authorName, description, timestamp));
             }
             stmt.close();
         }
@@ -335,7 +335,7 @@ final class DatabaseBackedDataStore implements DataStore {
                 // Get info
                 String username = rs.getString(2);
                 String contents = rs.getString(3);
-                Timestamp timestamp = rs.getTimestamp(5);
+                String timestamp = rs.getString(5);
                 long referenceId = rs.getLong(6);
 
                 // Get type
@@ -343,7 +343,7 @@ final class DatabaseBackedDataStore implements DataStore {
                 EventType type = reply ? EventType.REPLY : EventType.PHOTO_COMMENT;
 
                 // Create comment and retrieve upvotes / downvotes
-                Comment comm = new Comment(id, username, contents, referenceId, type, getCommentVotes(id), timestamp.getTime());
+                Comment comm = new Comment(id, username, contents, referenceId, type, getCommentVotes(id), timestamp);
                 comments.add(comm);
             }
             stmt.close();
@@ -456,7 +456,7 @@ final class DatabaseBackedDataStore implements DataStore {
                 // Get info
                 long id = rs.getLong(1);
                 String contents = rs.getString(3);
-                Timestamp timestamp = rs.getTimestamp(5);
+                String timestamp = rs.getString(5);
                 long referenceId = rs.getLong(6);
 
                 // Get Type
@@ -464,7 +464,7 @@ final class DatabaseBackedDataStore implements DataStore {
                 EventType type = reply ? EventType.REPLY : EventType.PHOTO_COMMENT;
 
                 // Create comment and retrieve upvotes / downvotes
-                Comment comm = new Comment(id, username, contents, referenceId, type, getCommentVotes(id), timestamp.getTime());
+                Comment comm = new Comment(id, username, contents, referenceId, type, getCommentVotes(id), timestamp);
                 comments.add(comm);
             }
             stmt.close();
@@ -491,11 +491,11 @@ final class DatabaseBackedDataStore implements DataStore {
                 // Get info
                 long id = rs.getLong(1);
                 String contents = rs.getString(3);
-                Timestamp timestamp = rs.getTimestamp(5);
+                String timestamp = rs.getString(5);
 
                 // Create comment and retrieve upvotes / downvotes
                 Comment comm = new Comment(id, username, contents, referenceId, EventType.PHOTO_COMMENT,
-                        getCommentVotes(id), timestamp.getTime());
+                        getCommentVotes(id), timestamp);
                 comments.add(comm);
             }
             stmt.close();
@@ -522,11 +522,11 @@ final class DatabaseBackedDataStore implements DataStore {
                 // Get info
                 long id = rs.getLong(1);
                 String contents = rs.getString(3);
-                Timestamp timestamp = rs.getTimestamp(5);
+                String timestamp = rs.getString(5);
 
                 // Create comment and retrieve upvotes / downvotes
                 Comment comm = new Comment(id, username, contents, referenceId, EventType.REPLY,
-                        getCommentVotes(id), timestamp.getTime());
+                        getCommentVotes(id), timestamp);
                 comments.add(comm);
             }
             stmt.close();
@@ -552,7 +552,7 @@ final class DatabaseBackedDataStore implements DataStore {
             stmt.setString(3, comment.getCommentContents());
             stmt.setBoolean(4, comment.getEventType() == EventType.REPLY);
             stmt.setLong(5, comment.getReferenceId());
-            stmt.setTimestamp(6, new Timestamp(comment.getCommentTime()));
+            stmt.setString(6, comment.getCommentTime());
 
             // Persist data
             stmt.executeUpdate();

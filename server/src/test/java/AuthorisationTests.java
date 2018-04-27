@@ -44,13 +44,6 @@ public class AuthorisationTests extends TestUtility {
     }
 
     @Test
-    public void unauthorisedGetPhotoTest() {
-        // Assert unauthorised
-        Response response = apiClient.getPhotoContentsJPG(100, ext);
-        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), response.getStatus());
-    }
-
-    @Test
     public void unauthorisedGetUserTest() {
         // Call the getUsername API from the client without having registered a user
         Response response = apiClient.getUsers();

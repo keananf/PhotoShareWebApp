@@ -245,10 +245,6 @@ PhotoShare RESTful API specification
     * **Error Response:**
     
       * **Code:** 400 Bad Request <br />
-    
-      or
-    
-      * **Code:** 401 Unauthorized <br />
 
 
 * `/photos/content/png/{id}.png`
@@ -270,10 +266,6 @@ PhotoShare RESTful API specification
     * **Error Response:**
     
       * **Code:** 400 Bad Request <br />
-    
-      or
-    
-      * **Code:** 401 Unauthorized <br />
   
 * `/photos/upvote/{id}`
 

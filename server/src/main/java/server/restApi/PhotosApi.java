@@ -114,19 +114,12 @@ public class PhotosApi {
         if(!ext.toLowerCase(RESOLVER.LOCALE).equals("png")) return Response.status(Response.Status.BAD_REQUEST).build();
 
         try {
-            // Retrieve provided auth info
-            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
-            String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(Resources.DATE_HEADER);
-            RESOLVER.verifyAuth(sender, apiKey, date);
-
             // Send the given photo's contents back to the client, while ensuring it is
             // decoded from base64 to its raw representation
             byte[] contents = UploadPhotoRequest.decodeContents(RESOLVER.getPhotoContents(id, ext));
             return Response.ok(contents).build();
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
-        catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
     }
 
 
@@ -145,19 +138,12 @@ public class PhotosApi {
         if(!ext.toLowerCase(RESOLVER.LOCALE).equals("jpg")) return Response.status(Response.Status.BAD_REQUEST).build();
 
         try {
-            // Retrieve provided auth info
-            String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
-            String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(Resources.DATE_HEADER);
-            RESOLVER.verifyAuth(sender, apiKey, date);
-
             // Send the given photo's contents back to the client, while ensuring it is
             // decoded from base64 to its raw representation
             byte[] contents = UploadPhotoRequest.decodeContents(RESOLVER.getPhotoContents(id, ext));
             return Response.ok(contents).build();
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
-        catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}
     }
 
     /**

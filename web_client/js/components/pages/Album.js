@@ -8,7 +8,18 @@
 
             <h1>{{ album.name }}</h1>
             <hr/>
-            <p class="lead">{{ album.description }}</p>
+            <p class="lead" v-if="!editingDescription">{{ album.description }}</p>
+            
+            <div v-if="editingDescription">
+                <textarea class="form-control" v-model="album.description"></textarea>
+                <br/>
+                
+                <button class="btn btn-success btn-sm" @click="updateDescription">Save</button>
+            </div>
+            
+            <button v-if="usersAlbum && !editingDescription" class="btn btn-link btn-sm" @click="editingDescription = true">Edit Description</button>
+            
+            <hr/>
             <small>By <strong>{{ album.author }}</strong></small>
             
             <br/><br/>
@@ -31,7 +42,8 @@
                 albumId: this.$route.params.id,
                 album: null,
                 posts: null,
-                usersAlbum: false
+                usersAlbum: false,
+                editingDescription: false
             }
         },
 
@@ -47,6 +59,11 @@
                 API.Posts.getPostsInAlbum(this.albumId).then(posts => {
                     this.posts = posts
                 })
+            },
+
+            updateDescription(){
+                API.Albums.updateDescription(this.albumId, this.album.description)
+                this.editingDescription = false
             }
         },
 

@@ -26,7 +26,8 @@
             ALBUMS_GET_FOR_USER: 'albums/users/:username',
             ALBUM_CREATE: 'albums/addalbum',
             ALBUM_GET: 'albums/:id',
-            ALBUM_GET_POSTS: 'photos/albums/:id'
+            ALBUM_GET_POSTS: 'photos/albums/:id',
+            ALBUM_UPDATE_DESCRIPTION: 'albums/updatedescription'
         }
     }
 

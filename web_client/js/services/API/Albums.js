@@ -41,6 +41,10 @@
                     resolve(Models.Album.fromJson(res))
                 }).catch(err => reject(err))
             })
+        },
+
+        updateDescription(id, description){
+            return http.post(API.endpoints.ALBUM_UPDATE_DESCRIPTION, {albumId: id, description: description})
         }
 
     }

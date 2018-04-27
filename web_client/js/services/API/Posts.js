@@ -17,7 +17,6 @@
         },
 
         getPostsByUser(username) {
-            // @todo
             return new Promise((resolve, reject) => {
                 http.get(API.endpoints.POSTS_GET_BY_USER.replace(':username', username)).then(res => {
                     console.log(res)
@@ -32,7 +31,6 @@
         },
 
         getPostData(postId) {
-            // @todo
             return new Promise((resolve, reject) => {
                 http.get(API.endpoints.POSTS_GET.replace(':id', postId)).then(data => {
                     if (!data) {
@@ -87,6 +85,14 @@
                     reject(err)
                 })
             })
+        },
+
+        upvotePost(id){
+            return http.put(API.endpoints.UPVOTE_POST.replace(':id', id))
+        },
+
+        downvotePost(id){
+            return http.put(API.endpoints.DOWNVOTE_POST.replace(':id', id))
         }
 
     }

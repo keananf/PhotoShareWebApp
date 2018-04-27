@@ -14,6 +14,8 @@
             POSTS_CREATE: 'photos/upload',
             POSTS_GET: 'photos/:id',
             POSTS_FEED: 'newsfeeds/:username',
+            UPVOTE_POST: 'photos/upvote/:id',
+            DOWNVOTE_POST: 'photos/downvote/:id',
 
             POSTS_GET_BY_USER: 'users/:username/photos',
 

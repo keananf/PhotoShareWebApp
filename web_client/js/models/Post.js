@@ -10,6 +10,7 @@
 
             this.albumId = null
             this._comments = null
+            this._likes = null
             this.commentsCount = 0
             this.likesCount = 0
         }
@@ -29,6 +30,7 @@
 
             if (data.comments) {
                 post.comments = data.comments
+                post.commentsCount = data.comments.length
             }
 
             if (data.commentsCount) {
@@ -37,6 +39,18 @@
 
             if (data.likes) {
                 post.likes = data.likes
+                post.likesCount = data.likes.length
+            }
+
+            if (data.votes) {
+                let likes = []
+                for (let username in data.votes) {
+                    if (data.votes[username]) {
+                        likes.push(username)
+                    }
+                }
+                post.likes = likes
+                post.likesCount = likes.length
             }
 
             if (data.likesCount) {
@@ -81,12 +95,12 @@
         }
 
         get commentsCount() {
-            if (this._comments) {
-                return this._comments.length
+            if (this._commentsCount !== null) {
+                return this._commentsCount
             }
 
-            if (this._commentsCount) {
-                return this._commentsCount
+            if (this._comments) {
+                return this._comments.length
             }
 
             return 0
@@ -96,13 +110,21 @@
             this._commentsCount = count
         }
 
+        set likes(likes) {
+            this._likes = likes
+        }
+
+        get likes() {
+            return this._likes
+        }
+
         get likesCount() {
-            if (this._likes) {
-                return this._likes.length
+            if (this._likesCount !== null) {
+                return this._likesCount
             }
 
-            if (this._likesCount) {
-                return this._likesCount
+            if (this._likes) {
+                return this._likes.length
             }
 
             return 0
@@ -120,8 +142,16 @@
             return '/photoshare/photos/content/' + this.extension + '/' + this.id + '.' + this.extension
         }
 
-        get friendlyDate(){
+        get friendlyDate() {
             return moment(this.date).fromNow()
+        }
+
+        userHasUpvoted(username) {
+            for (let i in this.likes) {
+                if (this.likes[i] === username) return true
+            }
+
+            return false
         }
     }
 

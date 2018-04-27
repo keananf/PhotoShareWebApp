@@ -7,6 +7,7 @@
             USERS_LOGIN: 'users/login',
             USERS_FOLLOWERS: 'users/followers/:username',
             USERS_FOLLOWING: 'users/following/:username',
+            USERS_SEARCH: 'users/search?name=:query',
 
             FOLLOW_USER: 'users/follow/:username',
             UNFOLLOW_USER: 'users/unfollow/:username',

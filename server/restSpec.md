@@ -364,6 +364,34 @@ PhotoShare RESTful API specification
       or
     
       * **Code:** 401 Unauthorized <br />
+      
+* `/photos/updatedescription`
+
+    * **Summary:** Updates a photo's description
+    
+    * **Method:** `POST`
+  
+    * **URL Parameters:** `None`
+    
+    * **Body Parameters**
+    
+      ```
+      {
+          "photoId": long,
+          "description": string, 
+      }
+      
+    * **Success Response:**
+    
+      * **Code:** 204 No Content <br />
+     
+    * **Error Response:**
+    
+      * **Code:** 400 Bad Request <br />
+    
+      or
+    
+      * **Code:** 401 Unauthorized <br />
 
 ## Comment-related APIs
 
@@ -860,6 +888,68 @@ PhotoShare RESTful API specification
     
       * **Code:** 200 No Content <br />
       
+    * **Error Response:**
+    
+      * **Code:** 400 Bad Request <br />
+    
+      or
+    
+      * **Code:** 401 Unauthorized <br />
+      
+* `/users/following/{username}`
+
+    * **Summary:** Get the persons (users) a user is following
+
+    * **Method:** `GET`
+  
+    * **URL Parameters:** 
+         * username: `refers to a user's unique name (as a string)`
+      
+    * **Success Response:**
+    
+      * **Code:** 200 OK <br />
+      
+      **Content:**
+      ``` 
+      [
+          {
+              "username": string, 
+              "admin": boolean
+          },
+          ...
+      ]
+      ```
+    * **Error Response:**
+    
+      * **Code:** 400 Bad Request <br />
+    
+      or
+    
+      * **Code:** 401 Unauthorized <br />
+      
+* `/users/followers/{username}`
+
+    * **Summary:** Get the followers of a user
+
+    * **Method:** `GET`
+  
+    * **URL Parameters:** 
+         * username: `refers to a user's unique name (as a string)`
+      
+    * **Success Response:**
+    
+      * **Code:** 200 OK <br />
+      
+      **Content:**
+      ``` 
+      [
+          {
+              "username": string, 
+              "admin": boolean
+          },
+          ...
+      ]
+      ```
     * **Error Response:**
     
       * **Code:** 400 Bad Request <br />

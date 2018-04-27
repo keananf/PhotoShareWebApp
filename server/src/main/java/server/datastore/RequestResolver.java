@@ -247,6 +247,27 @@ public final class RequestResolver {
     }
 
     /**
+     * Updates a photo's description.
+     * @param user the user who submitted the request
+     * @param photoId the photo's id
+     * @param description the new description
+     * @throws InvalidResourceRequestException
+     * @throws DoesNotOwnPhotoException
+     */
+    public void updatePhotoDescription(String user, long photoId, String description)
+        throws InvalidResourceRequestException, DoesNotOwnPhotoException {
+
+        // Ensure photo exists
+        Photo photo = getPhotoMetaData(photoId);
+
+        // Ensure photo is owned by requesting user
+        if (!photo.getAuthorName().equals(user)) throw new DoesNotOwnPhotoException(photoId, user);
+
+        // Persist description update
+        dataStore.updatePhotoDescription(photoId, description);
+    }
+
+    /**
      * Retrieves the given comment
      * @param id the id of the comment
      * @return the comment

@@ -21,21 +21,9 @@
                 <div class="panel-heading">
                     Following
                 </div>
-                <ul>
-                    <li>
-                        <router-link to="/user/username1">username1</router-link>
-                    </li>
-                    <li>
-                        <router-link to="/user/username2">username2</router-link>
-                    </li>
-                    <li>
-                        <router-link to="/user/username3">username3</router-link>
-                    </li>
-                    <li>
-                        <router-link to="/user/username4">username4</router-link>
-                    </li>
-                    <li class="muted">
-                        <router-link to="/">view all..</router-link>
+                <ul v-if="following">
+                    <li v-for="user in following">
+                        <router-link :to="'/user/' + user.username">{{ user.username }}</router-link>
                     </li>
                 </ul>
             </div>
@@ -44,21 +32,9 @@
                 <div class="panel-heading">
                     Your Followers
                 </div>
-                <ul>
-                    <li>
-                        <router-link to="/user/username1">username1</router-link>
-                    </li>
-                    <li>
-                        <router-link to="/user/username2">username2</router-link>
-                    </li>
-                    <li>
-                        <router-link to="/user/username3">username3</router-link>
-                    </li>
-                    <li>
-                        <router-link to="/user/username4">username4</router-link>
-                    </li>
-                    <li class="muted">
-                        <router-link to="/">view all..</router-link>
+                <ul v-if="followers">
+                    <li v-for="user in followers">
+                        <router-link :to="'/user/' + user.username">{{ user.username }}</router-link>
                     </li>
                 </ul>
             </div>
@@ -72,7 +48,9 @@
 
         data() {
             return {
-                posts: null
+                posts: null,
+                following: null,
+                followers: null
             }
         },
 
@@ -90,11 +68,25 @@
                 }).catch(e => {
                     this.$root.error(e)
                 })
+            },
+
+            fetchFollowers(){
+                API.Users.getUsersFollowers(this.$root.auth().username).then(followers => {
+                    this.followers = followers
+                })
+            },
+
+            fetchFollowing(){
+                API.Users.getUsersFollowing(this.$root.auth().username).then(following => {
+                    this.following = following
+                })
             }
         },
 
         mounted() {
             this.refreshFeed()
+            this.fetchFollowers()
+            this.fetchFollowing()
         }
     }
 

@@ -38,7 +38,7 @@
             </article>
             <div class="post-comments" v-if="!loading">
 
-                <post-comment v-for="comment in comments" :data="comment.toJson()"></post-comment>
+                <post-comment v-for="comment in comments" :data="comment.toJson()" @delete="removeComment"></post-comment>
                 <br/>
 
                 <textarea class="form-control" placeholder="Add your comment" rows="2" v-model="newComment"/>
@@ -113,8 +113,8 @@
             },
 
             addComment() {
-                API.Posts.addComment(this.postId, this.newComment).then(() => {
-                    let comment = new Models.PostComment(this.postId, this.$root.auth().username, this.newComment)
+                API.Posts.addComment(this.postId, this.newComment).then((id) => {
+                    let comment = new Models.PostComment(id, this.postId, this.$root.auth().username, this.newComment)
                     this.comments.push(comment)
                     this.post.comments = this.comments
                     this.newComment = ''
@@ -133,6 +133,21 @@
                     // Go back to the user's profile
                     router.push('/user/' + this.post.username)
                 })
+            },
+
+            removeComment(id) {
+                let pos = null
+
+                for (let i = 0; i < this.comments.length; i++) {
+                    if (this.comments[i].id === id) {
+                        pos = i
+                        break
+                    }
+                }
+
+                if (pos !== null) {
+                    this.comments.splice(pos, 1)
+                }
             }
         },
 

@@ -15,6 +15,11 @@
                 <div class="col-2 text-right">
                     <button :class="voteClass" @click="toggleVote"><i class="fa fa-thumbs-up"></i></button>
                     <span class="badge badge-warning">{{ score }}</span>
+                    
+                    <div v-if="$root.auth().user.isAdmin">
+                        <br/>
+                        <button class="btn btn-link text-danger" title="Delete comment" @click="deleteCommentAdmin"><i class="fa fa-times"></i></button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -45,6 +50,11 @@
                 }
 
                 this.$forceUpdate()
+            },
+
+            deleteCommentAdmin() {
+                API.Posts.deleteCommentAdmin(this.comment.id)
+                this.$emit("delete", this.comment.id)
             }
         },
 

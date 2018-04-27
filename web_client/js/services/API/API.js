@@ -32,7 +32,8 @@
             ALBUM_UPDATE_DESCRIPTION: 'albums/updatedescription',
 
             COMMENT_UPVOTE: 'comments/like/:id',
-            COMMENT_DOWNVOTE: 'comments/unlike/:id'
+            COMMENT_DOWNVOTE: 'comments/unlike/:id',
+            COMMENT_DELETE_ADMIN: 'admin/removecomment/:id'
         }
     }
 

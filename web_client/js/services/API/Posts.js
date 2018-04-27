@@ -112,10 +112,14 @@
         },
 
         addComment(id, comment) {
-            return http.post(API.endpoints.ADD_COMMENT, {
-                referenceId: id,
-                commentContents: comment,
-                eventType: 'PHOTO_COMMENT'
+            return new Promise((resolve, reject) => {
+                http.post(API.endpoints.ADD_COMMENT, {
+                    referenceId: id,
+                    commentContents: comment,
+                    eventType: 'PHOTO_COMMENT'
+                }).then(res => {
+                    resolve(res.referenceId)
+                }).catch(err => reject(err))
             })
         },
 
@@ -133,6 +137,10 @@
 
         downvoteComment(id) {
             return http.put(API.endpoints.COMMENT_DOWNVOTE.replace(':id', id))
+        },
+
+        deleteCommentAdmin(id) {
+            return http.del(API.endpoints.COMMENT_DELETE_ADMIN.replace(':id', id))
         }
 
     }

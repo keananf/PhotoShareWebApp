@@ -143,7 +143,7 @@
         }
 
         get friendlyDate() {
-            return moment(this.date).fromNow()
+            return this.date
         }
 
         userHasUpvoted(username) {

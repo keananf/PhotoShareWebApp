@@ -56,6 +56,7 @@
             <br/><br/>
             
             <button v-if="usersPost" class="btn btn-sm btn-danger" @click="deletePost">Delete your post</button>
+            <button v-if="$root.auth().user.isAdmin && !usersPost" class="btn btn-sm btn-danger" @click="adminDeletePost">Delete this post</button>
             
             <br/><br/>
             
@@ -74,7 +75,7 @@
                 loading: true,
                 userHasLiked: false,
                 newComment: '',
-                usersPost: false
+                usersPost: false // Viewing user owns this post
             }
         },
 
@@ -103,7 +104,7 @@
                 })
             },
 
-            toggleVote(){
+            toggleVote() {
                 this.userHasLiked = !this.userHasLiked
 
                 if (this.userHasLiked) {
@@ -115,7 +116,7 @@
                 }
             },
 
-            addComment(){
+            addComment() {
                 API.Posts.addComment(this.postId, this.newComment).then(() => {
                     let comment = new Models.PostComment(this.postId, this.$root.auth().username, this.newComment)
                     this.comments.push(comment)
@@ -124,10 +125,17 @@
                 })
             },
 
-            deletePost(){
+            deletePost() {
                 API.Posts.deletePost(this.postId).then(() => {
-                    // Go back to user's profile
+                    // Go back to own user's profile
                     router.push(this.$root.auth().user.route)
+                })
+            },
+
+            adminDeletePost(){
+                API.Posts.deletePost(this.postId).then(() => {
+                    // Go back to the user's profile
+                    router.push(this.post.user.route)
                 })
             }
         },
@@ -137,11 +145,11 @@
         },
 
         computed: {
-            likesCount(){
+            likesCount() {
                 return this.post.likesCount
             },
 
-            commentsCount(){
+            commentsCount() {
                 return this.post.commentsCount
             }
         }

@@ -117,6 +117,10 @@
 
         deletePost(id) {
             return http.del(API.endpoints.POST_DELETE.replace(':id', id))
+        },
+
+        adminDeletePost(id) {
+            return http.del(API.endpoints.POST_DELETE_ADMIN.replace(':id', id))
         }
 
     }

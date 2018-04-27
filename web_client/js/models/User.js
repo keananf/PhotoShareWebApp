@@ -19,7 +19,7 @@
             let user = new User(data.username)
             user.password = data.password
 
-            if (data.isAdmin === true) {
+            if (data.isAdmin === true || data.admin === true) {
                 user.isAdmin = true
             }
 

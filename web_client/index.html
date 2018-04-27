@@ -68,7 +68,7 @@
                             <i class="fa fa-power-off"></i>
                             Logout
                         </span>
-                        <span class="nav-search">
+                        <span class="nav-search" v-if="auth().isLoggedIn">
                             <input type="text" placeholder="Search" v-model="searchQuery" @keyup.enter="submitSearch"/>
                             <span class="clear-icon" v-if="searchQuery.length > 0" @click="searchQuery=''">
                                 <i class="fa fa-times clear-icon"></i>

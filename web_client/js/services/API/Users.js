@@ -25,12 +25,14 @@
 
         searchByQuery(query) {
             return new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    resolve([
-                        new Models.User('user1'),
-                        new Models.User('user2')
-                    ])
-                }, 1000) // Simulate API call
+                http.get(API.endpoints.USERS_SEARCH.replace(':query', query)).then(res => {
+                    let users = []
+                    for (let i in res) {
+                        users.push(Models.User.fromJson(res[i]))
+                    }
+
+                    resolve(users)
+                }).catch(err => reject(err))
             })
         },
 

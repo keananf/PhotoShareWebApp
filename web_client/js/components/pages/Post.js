@@ -18,10 +18,10 @@
                 </div>
                 <footer>
                     <span class="comments">
-                        {{ post.commentsCount }} comments
+                        {{ commentsCount }} comments
                     </span>
-                    <span class="likes">
-                        {{ post.likesCount }}
+                    <span :class="{likes: true, liked: userHasLiked}" @click="toggleVote()">
+                        {{ likesCount }}
                         <button title="Like">
                             <i class="fa fa-heart"></i>
                         </button>
@@ -52,7 +52,8 @@
                 postId: this.$route.params.id,
                 post: null,
                 comments: [],
-                loading: true
+                loading: true,
+                userHasLiked: false
             }
         },
 
@@ -70,12 +71,39 @@
                         this.loading = false
                     })
 
+                    // Check if user has voted
+                    if (this.post.userHasUpvoted(this.$root.auth().username)) {
+                        this.userHasLiked = true
+                    }
+
                 })
+            },
+
+            toggleVote(){
+                this.userHasLiked = !this.userHasLiked
+
+                if (this.userHasLiked) {
+                    API.Posts.upvotePost(this.postId)
+                    this.post.likesCount++
+                } else {
+                    API.Posts.downvotePost(this.postId)
+                    this.post.likesCount--
+                }
             }
         },
 
         mounted() {
             this.fetchPostData()
+        },
+
+        computed: {
+            likesCount(){
+                return this.post.likesCount
+            },
+
+            commentsCount(){
+                return this.post.commentsCount
+            }
         }
     }
 

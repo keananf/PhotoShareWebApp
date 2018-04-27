@@ -17,8 +17,8 @@
             POSTS_FEED: 'newsfeeds/:username',
             POST_DELETE: 'photos/delete/:id',
             POST_DELETE_ADMIN: 'admin/removephoto/:id',
-            UPVOTE_POST: 'photos/upvote/:id',
-            DOWNVOTE_POST: 'photos/downvote/:id',
+            UPVOTE_POST: 'photos/like/:id',
+            DOWNVOTE_POST: 'photos/unlike/:id',
 
             POSTS_GET_BY_USER: 'users/:username/photos',
 

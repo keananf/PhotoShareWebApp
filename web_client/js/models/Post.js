@@ -45,14 +45,8 @@
             }
 
             if (data.votes) {
-                let likes = []
-                for (let username in data.votes) {
-                    if (data.votes[username]) {
-                        likes.push(username)
-                    }
-                }
-                post.likes = likes
-                post.likesCount = likes.length
+                post.likes = data.votes
+                post.likesCount = data.votes.length
             }
 
             if (data.likesCount) {
@@ -150,11 +144,7 @@
         }
 
         userHasUpvoted(username) {
-            for (let i in this.likes) {
-                if (this.likes[i] === username) return true
-            }
-
-            return false
+            return this.likes.indexOf(username) !== -1
         }
     }
 

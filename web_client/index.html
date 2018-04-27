@@ -11,7 +11,7 @@
     <link rel="stylesheet" type="text/css" href="css/app.css"/>
 
     <title>PhotoShare</title>
-    
+
 </head>
 <body>
 
@@ -55,13 +55,8 @@
                             </router-link>
                         </span>
                         <span v-if="auth().isLoggedIn">
-                            <router-link to="/">
+                            <router-link :to="auth().user.route">
                                 Profile
-                            </router-link>
-                        </span>
-                        <span v-if="auth().isLoggedIn">
-                            <router-link to="/">
-                                Settings
                             </router-link>
                         </span>
                         <span class="nav-danger" v-if="auth().isLoggedIn" @click="auth().logoutUser()">

@@ -12,8 +12,6 @@
 
         static fromJson(data) {
 
-            console.log(data)
-
             if (typeof data !== "object") {
                 data = JSON.parse(data)
             }

@@ -181,7 +181,8 @@ PhotoShare RESTful API specification
                 "authorName": string,
                 "albumId": long,
                 "photoTime": long 
-                "description": string
+                "description": string,
+                "votes": object
             },
             ...
         ]
@@ -215,7 +216,8 @@ PhotoShare RESTful API specification
             "authorName": string,
             "albumId": long,
             "photoTime": long,
-            "description": string
+            "description": string,
+            "votes": object
         }
      
     * **Error Response:**
@@ -413,7 +415,8 @@ PhotoShare RESTful API specification
                 "author": string,             
                 "commentContents": string,
                 "commentTime": long,
-                "eventType": string
+                "eventType": string,
+                "votes": object
             },
             ...
         ]
@@ -450,7 +453,8 @@ PhotoShare RESTful API specification
                 "author": string,             
                 "commentContents": string,
                 "commentTime": long,
-                "eventType": string
+                "eventType": string,
+                "votes": object
             },
             ...
         ]
@@ -710,7 +714,8 @@ PhotoShare RESTful API specification
                 "authorName": string,
                 "albumId": long,
                 "photoTime": long 
-                "description": string
+                "description": string,
+                votes": object
             },
             ...
         ]

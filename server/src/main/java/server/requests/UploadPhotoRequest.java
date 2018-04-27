@@ -29,7 +29,7 @@ public final class UploadPhotoRequest {
      * @param photoContents the raw photo contents
      * @return the encoded photo
      */
-    static String encodeContents(byte[] photoContents) {
+    private static String encodeContents(byte[] photoContents) {
         return Base64.getEncoder().encodeToString(photoContents);
     }
 
@@ -40,6 +40,10 @@ public final class UploadPhotoRequest {
      * @return the decoded file
      */
     public static byte[] decodeContents(String photoContents) {
+        // Attempt to remove unnecessary info
+        String[] components = photoContents.split("base64,");
+        if(components.length == 2) photoContents = components[1];
+
         return Base64.getDecoder().decode(photoContents);
     }
 

@@ -20,13 +20,6 @@ public final class RequestResolver {
     private static final long TIMEOUT = (long) (15 * 1000); // 15 sec
     private DataStore dataStore = new DatabaseBackedDataStore();
 
-    // Variables for database ID generation. This avoids extra database queries
-    // to ascertain newly-assigned ids.
-    private static long PHOTOS_CURRENT_ID = 0;
-    private static long COMMENTS_CURRENT_ID = 0;
-    private static long ALBUMS_CURRENT_ID = 0;
-    private static long FOLLOW_CURRENT_ID = 0;
-
     // Allowed extensions
     private static Set<String> allowedExtensions = new HashSet<>();
     static {
@@ -143,8 +136,7 @@ public final class RequestResolver {
         }
 
         // Create photo and persist it
-        long id = ++PHOTOS_CURRENT_ID;
-        dataStore.persistUploadPhoto(id, user, request, date);
+        long id = dataStore.persistUploadPhoto(user, request, date);
 
         // Return receipt confirming photo was created
         return new Receipt(id);
@@ -209,12 +201,11 @@ public final class RequestResolver {
         // Ensure user is known
         getUser(author);
 
-        // Create photo and persist it
-        Album newAlbum = new Album(++ALBUMS_CURRENT_ID, albumName, author, description, date);
-        dataStore.persistAddAlbum(newAlbum);
+        // Create album and persist it
+        long newId = dataStore.persistAddAlbum(albumName, author, description, date);
 
-        // Return receipt confirming photo was created
-        return new Receipt(newAlbum.getAlbumId());
+        // Return receipt confirming album was created
+        return new Receipt(newId);
     }
 
     /**
@@ -387,17 +378,14 @@ public final class RequestResolver {
             getPhotoMetaData(request.getReferenceId());
         }
 
-        // Add unique id to be able to future identify this comment
-        Comment comment = new Comment(++COMMENTS_CURRENT_ID, user, request, date);
-
         // Persist comment to data store
-        dataStore.persistAddComment(comment);
+        long id = dataStore.persistAddComment(user, request, date);
 
         // Create notification for this comment to the appropriate user
-        addNotification(comment);
+        addNotification(new Comment(id, user, request, date));
 
         // Return a receipt
-        return new Receipt(comment.getId());
+        return new Receipt(id);
     }
 
     /**
@@ -567,10 +555,8 @@ public final class RequestResolver {
 
         }
 
-        Follow follow = new Follow(userFrom, userTo, ++FOLLOW_CURRENT_ID);
-
-        dataStore.persistFollowing(userFrom, userTo);
-        dataStore.persistAddNotification(userTo, follow);
+        long id = dataStore.persistFollowing(userFrom, userTo);
+        dataStore.persistAddNotification(userTo, new Follow(userFrom, userTo, id));
 
     }
 

@@ -117,7 +117,7 @@
         }
 
         get filename() {
-            return '/photos/content/' + this.extension + '/' + this.id + '.' + this.extension
+            return '/photoshare/photos/content/' + this.extension + '/' + this.id + '.' + this.extension
         }
 
         get friendlyDate(){

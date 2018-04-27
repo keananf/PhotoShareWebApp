@@ -34,21 +34,8 @@
         getPostData(postId) {
             // @todo
             return new Promise((resolve, reject) => {
-                // Debug
-                setTimeout(() => {
-                    resolve(Models.Post.fromJson({
-                        id: 'testId',
-                        filename: 'https://newevolutiondesigns.com/images/freebies/abstract-background-preview-1.jpg',
-                        username: 'username',
-                        date: '5 minutes ago'
-                    }))
-                }, 1000) // Simulate API Call
-
-                return
-
                 http.get(API.endpoints.POSTS_GET.replace(':id', postId)).then(data => {
                     if (!data) {
-                        // @todo 404?
                         console.log(data)
                         reject(null)
                     } else {
@@ -61,20 +48,7 @@
         },
 
         getPostComments(postId) {
-            // @todo
             return new Promise((resolve, reject) => {
-                // Debug
-                setTimeout(() => {
-                    resolve([
-                        Models.PostComment.fromJson({
-                            referenceId: postId,
-                            author: 'test-user',
-                            commentContents: 'This is a test comment'
-                        }),
-                    ])
-                }, 1000) // Simulate API Call
-
-                return
 
                 http.get(API.endpoints.COMMENTS_GET_FOR_POST.replace(':id', postId)).then(data => {
                     let posts = []

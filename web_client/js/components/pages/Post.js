@@ -132,10 +132,10 @@
                 })
             },
 
-            adminDeletePost(){
-                API.Posts.deletePost(this.postId).then(() => {
+            adminDeletePost() {
+                API.Posts.adminDeletePost(this.postId).then(() => {
                     // Go back to the user's profile
-                    router.push(this.post.user.route)
+                    router.push('/user/' + this.post.username)
                 })
             }
         },

@@ -19,7 +19,7 @@
                 <i class="fa fa-star"></i> {{ followersCount }} Followers
             </button>
 
-            <button :class="{btn: true, 'btn-sm': true, 'btn-success': isFollowing}"
+            <button v-if="!usersProfile" :class="{btn: true, 'btn-sm': true, 'btn-success': isFollowing}"
                     @click="toggleFollow">
                 <i class="fas fa-star"></i>
                 Follow{{ isFollowing ? 'ing' : '' }}
@@ -47,6 +47,7 @@
         data() {
             return {
                 username: this.$route.params.username,
+                usersProfile: this.$route.params.username === this.$root.auth().username,
                 followersCount: 0,
                 followingCount: 0,
                 followers: [],

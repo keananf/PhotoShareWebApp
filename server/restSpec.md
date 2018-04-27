@@ -347,7 +347,7 @@ PhotoShare RESTful API specification
       {
           "commentContents": string,
           "referenceId": long,
-          "commentType": string
+          "eventType": string
       }
       
     * **Success Response:**
@@ -413,12 +413,12 @@ PhotoShare RESTful API specification
                 "author": string,             
                 "commentContents": string,
                 "commentTime": long,
-                "commentType": string
+                "eventType": string
             },
             ...
         ]
         ```
-        Note, "commentType" here refers to "PHOTO_COMMENT".
+        Note, "eventType" here refers to "PHOTO_COMMENT".
      
     * **Error Response:**
     
@@ -450,13 +450,13 @@ PhotoShare RESTful API specification
                 "author": string,             
                 "commentContents": string,
                 "commentTime": long,
-                "commentType": string
+                "eventType": string
             },
             ...
         ]
         ``` 
        
-        Note, "commentType" here refers to "REPLY".
+        Note, "eventType" here refers to "REPLY".
      
     * **Error Response:**
     

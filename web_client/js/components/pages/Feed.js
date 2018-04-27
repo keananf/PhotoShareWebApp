@@ -26,6 +26,9 @@
                         <router-link :to="'/user/' + user.username">{{ user.username }}</router-link>
                     </li>
                 </ul>
+                <p v-if="following !== null && following.length === 0">
+                    You are not following anyone
+                </p>
             </div>
 
             <div class="side-panel">
@@ -37,6 +40,9 @@
                         <router-link :to="'/user/' + user.username">{{ user.username }}</router-link>
                     </li>
                 </ul>
+                <p v-if="followers !== null && followers.length === 0">
+                    You don't have any followers yet
+                </p>
             </div>
 
         </div>

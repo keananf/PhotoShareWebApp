@@ -40,7 +40,7 @@
             </div>
         </div>
         
-        <div class="col-sm-4">
+        <div class="col-sm-4" v-if="userDataLoaded">
             <div class="side-panel">
                 <div class="panel-heading">
                     Following
@@ -50,6 +50,9 @@
                         <router-link :to="'/user/' + user.username">{{ user.username }}</router-link>
                     </li>
                 </ul>
+                <p v-if="following.length === 0">
+                    {{ username }} is not following anyone
+                </p>
             </div>
 
             <div class="side-panel">
@@ -61,6 +64,9 @@
                         <router-link :to="'/user/' + user.username">{{ user.username }}</router-link>
                     </li>
                 </ul>
+                <p v-if="following.length === 0">
+                    {{ username }} hasn't got any followers yet
+                </p>
             </div>
         </div>
     </div>
@@ -76,7 +82,7 @@
                 followingCount: 0,
                 followers: [],
                 following: [],
-                posts: [], // @todo
+                posts: [],
                 isFollowing: false,
                 loaded: {
                     posts: false,

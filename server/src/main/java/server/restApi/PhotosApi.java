@@ -169,16 +169,16 @@ public class PhotosApi {
     }
 
     /**
-     * Registers an upvote from the authorised user on the provided photoId, if it exists.
+     * Registers an like from the authorised user on the provided photoId, if it exists.
      * @param photoId the provided photoId in the URL
      * @param headers the headers of the http request.
      * @return a response indicating success / failure
      */
     @PUT
-    @Path(Resources.UPVOTE + "/{photoId}")
+    @Path(Resources.LIKE + "/{photoId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response upvote(@PathParam("photoId") long photoId, @Context HttpHeaders headers) {
+    public Response like(@PathParam("photoId") long photoId, @Context HttpHeaders headers) {
         // Retrieve provided auth info
         try {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
@@ -186,7 +186,7 @@ public class PhotosApi {
             String date = headers.getHeaderString(Resources.DATE_HEADER);
             RESOLVER.verifyAuth(sender, apiKey, date);
 
-            // Register upvote with server
+            // Register like with server
             RESOLVER.ratePhoto(photoId, sender, true);
             return Response.noContent().build();
 
@@ -201,10 +201,10 @@ public class PhotosApi {
      * @return a response indicating success / failure
      */
     @PUT
-    @Path(Resources.DOWNVOTE + "/{photoId}")
+    @Path(Resources.UNLIKE + "/{photoId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response downvote(@PathParam("photoId") long photoId, @Context HttpHeaders headers) {
+    public Response unlike(@PathParam("photoId") long photoId, @Context HttpHeaders headers) {
         // Retrieve provided auth info
         try {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
@@ -212,7 +212,7 @@ public class PhotosApi {
             String date = headers.getHeaderString(Resources.DATE_HEADER);
             RESOLVER.verifyAuth(sender, apiKey, date);
 
-            // Register downvote with server
+            // Register unlike with server
             RESOLVER.ratePhoto(photoId, sender, false);
             return Response.noContent().build();
 

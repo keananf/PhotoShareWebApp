@@ -269,9 +269,9 @@ PhotoShare RESTful API specification
     
       * **Code:** 400 Bad Request <br />
   
-* `/photos/upvote/{id}`
+* `/photos/like/{id}`
 
-    * **Summary:** Up-votes the given photo
+    * **Summary:** Likes the given photo
 
     * **Method:** `PUT`
   
@@ -290,9 +290,9 @@ PhotoShare RESTful API specification
     
       * **Code:** 401 Unauthorized <br />
         
-* `/photos/downvote/{id}`
+* `/photos/unlike/{id}`
 
-    * **Summary:** Down-votes the given photo
+    * **Summary:** Unlikes the given photo
 
     * **Method:** `PUT`
   
@@ -470,9 +470,9 @@ PhotoShare RESTful API specification
     
       * **Code:** 401 Unauthorized <br />
 
-* `/comments/upvote/{id}`
+* `/comments/like/{id}`
 
-    * **Summary:** Up-votes the given comment
+    * **Summary:** Likes the given comment
     
     * **Method:** `PUT`
   
@@ -491,9 +491,9 @@ PhotoShare RESTful API specification
     
       * **Code:** 401 Unauthorized <br />
         
-* `/comments/downvote/{id}`
+* `/comments/unlike/{id}`
 
-    * **Summary:** Down-votes the given comment
+    * **Summary:** Unlikes the given comment
 
     * **Method:** `PUT`
   

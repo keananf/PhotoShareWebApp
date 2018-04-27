@@ -191,7 +191,7 @@ public final class ApiClient {
      */
     public Response voteOnComment(long id, boolean upvote) {
         // Encode request and PUT the given vote
-        String path = String.format("%s/%s", (upvote ? COMMENT_UPVOTE_PATH : COMMENT_DOWNVOTE_PATH), id);
+        String path = String.format("%s/%s", (upvote ? COMMENT_LIKE_PATH : COMMENT_UNLIKE_PATH), id);
         return connector.put(baseTarget, path);
     }
 
@@ -204,7 +204,7 @@ public final class ApiClient {
      */
     public Response ratePhoto(long id, boolean upvote) {
         // Encode request and PUT the given vote
-        String path = String.format("%s/%s", (upvote ? PHOTO_UPVOTE_PATH : PHOTO_DOWNVOTE_PATH), id);
+        String path = String.format("%s/%s", (upvote ? PHOTO_LIKE_PATH : PHOTO_UNLIKE_PATH), id);
         return connector.put(baseTarget, path);
     }
 

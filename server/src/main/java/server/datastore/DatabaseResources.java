@@ -42,10 +42,6 @@ abstract class DatabaseResources {
     static final String COMMENTS_CONTENTS = "commentContents";
     static final String COMMENTS_TIME = "commentTime";
 
-    // Vote tables attributes
-    static final String COMMENT_VOTE = "commentVote";
-    static final String PHOTO_RATING = "photoRating";
-
     // Followings table attributes
     static final String FOLLOW_ID = "followId";
     static final String USER_FROM = "userFrom";

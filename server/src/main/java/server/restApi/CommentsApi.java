@@ -191,10 +191,10 @@ public class CommentsApi {
      * @return a response indicating success / failure
      */
     @PUT
-    @Path(Resources.UPVOTE + "/{commentId}")
+    @Path(Resources.LIKE + "/{commentId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response upvote(@PathParam("commentId") long commentId, @Context HttpHeaders headers) {
+    public Response like(@PathParam("commentId") long commentId, @Context HttpHeaders headers) {
         // Retrieve provided auth info
         try {
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
@@ -202,7 +202,7 @@ public class CommentsApi {
             String date = headers.getHeaderString(Resources.DATE_HEADER);
             RESOLVER.verifyAuth(sender, apiKey, date);
 
-            // Register upvote with server
+            // Register like with server
             RESOLVER.voteOnComment(commentId, sender, true);
             return Response.noContent().build();
 
@@ -217,10 +217,10 @@ public class CommentsApi {
      * @return a response indicating success / failure
      */
     @PUT
-    @Path(Resources.DOWNVOTE + "/{commentId}")
+    @Path(Resources.UNLIKE + "/{commentId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response downvote(@PathParam("commentId") long commentId, @Context HttpHeaders headers) {
+    public Response unlike(@PathParam("commentId") long commentId, @Context HttpHeaders headers) {
         // Retrieve provided auth info
         try {
             // Retrieve provided auth info
@@ -229,7 +229,7 @@ public class CommentsApi {
             String date = headers.getHeaderString(Resources.DATE_HEADER);
             RESOLVER.verifyAuth(sender, apiKey, date);
 
-            // Register downvote with server
+            // Register unlike with server
             RESOLVER.voteOnComment(commentId, sender, false);
             return Response.noContent().build();
 

@@ -12,7 +12,6 @@ import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
@@ -749,72 +748,75 @@ final class DatabaseBackedDataStore implements DataStore {
     }
 
     @Override
-    public void persistCommentVote(long commentId, String user, boolean upvote) throws InvalidResourceRequestException {
+    public void persistCommentVote(long commentId, String user, boolean rating) throws InvalidResourceRequestException {
         // Set up query for updating / inserting a new photo into the table
-        String query = "INSERT INTO "+COMMENTS_VOTES_TABLE+"("+REFERENCE_ID+","+USERNAME+","+ COMMENT_VOTE +") values(?, ?, ?)";
-        String update = "UPDATE "+COMMENTS_VOTES_TABLE+" SET "+ COMMENT_VOTE +" = ? " +
-                "WHERE "+USERNAME+" = ? AND "+REFERENCE_ID+" = ?";
+        String query = "INSERT INTO "+COMMENTS_VOTES_TABLE+"("+REFERENCE_ID+","+USERNAME+") values(?, ?)";
+        String update = "DELETE FROM "+COMMENTS_VOTES_TABLE+" WHERE "+USERNAME+" = ? AND "+REFERENCE_ID+" = ?";
 
-        // Try to update row first
+        // Delete the existing row from the table, if present.
         try (PreparedStatement stmt = conn.prepareStatement(update)) {
-            stmt.setBoolean(1, upvote);
-            stmt.setString(2, user);
-            stmt.setLong(3, commentId);
+            stmt.setString(1, user);
+            stmt.setLong(2, commentId);
 
-            // Execute, and check if any updates were made
-            int ret = stmt.executeUpdate();
-            stmt.close();
-            if(ret == 1) return;
-        }
-        catch(SQLException e) {e.printStackTrace();}
-
-        // If update didn't succeed, add new row
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
-            // Insert user info into prepared statement
-            stmt.setLong(1, commentId);
-            stmt.setString(2, user);
-            stmt.setBoolean(3, upvote);
-
-            // Persist data
+            // Delete rating if present
             stmt.executeUpdate();
             stmt.close();
         }
-        catch (SQLException e) { throw new InvalidResourceRequestException(commentId); }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        // Add new like
+        if(rating) {
+            try (PreparedStatement stmt = conn.prepareStatement(query)) {
+                // Insert user info into prepared statement
+                stmt.setLong(1, commentId);
+                stmt.setString(2, user);
+
+                // Persist data
+                stmt.executeUpdate();
+                stmt.close();
+            }
+            catch (SQLException e) {
+                throw new InvalidResourceRequestException(commentId);
+            }
+        }
     }
 
-
     @Override
-    public void persistPhotoRating(long photoId, String user, boolean upvote) throws InvalidResourceRequestException {
+    public void persistPhotoRating(long photoId, String user, boolean rating) throws InvalidResourceRequestException {
         // Set up query for updating / inserting a new photo into the table
-        String query = "INSERT INTO "+PHOTO_RATINGS_TABLE+"("+REFERENCE_ID+","+USERNAME+","+ PHOTO_RATING +") values(?, ?, ?)";
-        String update = "UPDATE "+PHOTO_RATINGS_TABLE+" SET "+ PHOTO_RATING +" = ? " +
-                "WHERE "+USERNAME+" = ? AND "+REFERENCE_ID+" = ?";
+        String query = "INSERT INTO "+PHOTO_RATINGS_TABLE+"("+REFERENCE_ID+","+USERNAME+") values(?, ?)";
+        String update = "DELETE FROM "+PHOTO_RATINGS_TABLE+ " WHERE "+USERNAME+" = ? AND "+REFERENCE_ID+" = ?";
 
-        // Try to update row first
+        // Delete the existing row from the table, if present.
         try (PreparedStatement stmt = conn.prepareStatement(update)) {
-            stmt.setBoolean(1, upvote);
-            stmt.setString(2, user);
-            stmt.setLong(3, photoId);
+            stmt.setString(1, user);
+            stmt.setLong(2, photoId);
 
-            // Execute, and check if any updates were made
-            int ret = stmt.executeUpdate();
-            stmt.close();
-            if(ret == 1) return;
-        }
-        catch(SQLException e) {e.printStackTrace();}
-
-        // If update didn't succeed, add new row
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
-            // Insert user info into prepared statement
-            stmt.setLong(1, photoId);
-            stmt.setString(2, user);
-            stmt.setBoolean(3, upvote);
-
-            // Persist data
+            // Delete rating if present
             stmt.executeUpdate();
             stmt.close();
         }
-        catch (SQLException e) { throw new InvalidResourceRequestException(photoId); }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        // Add new like
+        if(rating) {
+            try (PreparedStatement stmt = conn.prepareStatement(query)) {
+                // Insert user info into prepared statement
+                stmt.setLong(1, photoId);
+                stmt.setString(2, user);
+
+                // Persist data
+                stmt.executeUpdate();
+                stmt.close();
+            }
+            catch (SQLException e) {
+                throw new InvalidResourceRequestException(photoId);
+            }
+        }
     }
 
     /**
@@ -822,10 +824,10 @@ final class DatabaseBackedDataStore implements DataStore {
      * @param commentId the comment
      * @return the votes for the given comment
      */
-    private HashMap<String, Boolean> getCommentVotes(long commentId) {
+    private List<String> getCommentVotes(long commentId) {
         // Set up query to retrieve each row in the votes table
         String query = "SELECT * FROM "+COMMENTS_VOTES_TABLE+" WHERE "+REFERENCE_ID+" = ?";
-        HashMap<String, Boolean> votes = new HashMap<>();
+        List<String> votes = new ArrayList<>();
 
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             // Execute query on database
@@ -835,8 +837,7 @@ final class DatabaseBackedDataStore implements DataStore {
             // Iterate through result set
             while(rs.next()) {
                 String userName = rs.getString(2);
-                boolean vote = rs.getBoolean(3);
-                votes.put(userName, vote);
+                votes.add(userName);
             }
             stmt.close();
         }
@@ -852,10 +853,10 @@ final class DatabaseBackedDataStore implements DataStore {
      * @param photoId the photo
      * @return the votes for the given photo
      */
-    private HashMap<String, Boolean> getPhotoRatings(long photoId) {
+    private List<String> getPhotoRatings(long photoId) {
         // Set up query to retrieve each row in the votes table
         String query = "SELECT * FROM "+PHOTO_RATINGS_TABLE+" WHERE "+REFERENCE_ID+" = ?";
-        HashMap<String, Boolean> votes = new HashMap<>();
+        List<String> votes = new ArrayList<>();
 
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             // Execute query on database
@@ -865,8 +866,7 @@ final class DatabaseBackedDataStore implements DataStore {
             // Iterate through result set
             while(rs.next()) {
                 String userName = rs.getString(2);
-                boolean vote = rs.getBoolean(3);
-                votes.put(userName, vote);
+                votes.add(userName);
             }
             stmt.close();
         }

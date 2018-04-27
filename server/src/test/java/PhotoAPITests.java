@@ -130,8 +130,7 @@ public class PhotoAPITests extends TestUtility{
         // Send upvote request to server, and check it was successful on the server.
         Response voteResponse = apiClient.ratePhoto(id, true);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
-        assertEquals(1, resolver.getPhotoMetaData(id).getUpvotes().size());
-        assertEquals(0, resolver.getPhotoMetaData(id).getDownvotes().size());
+        assertEquals(1, resolver.getPhotoMetaData(id).getLikes().size());
     }
 
     @Test
@@ -147,14 +146,12 @@ public class PhotoAPITests extends TestUtility{
         // Send upvote request to server, and check it was successful on the server.
         Response voteResponse = apiClient.ratePhoto(id, true);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
-        assertEquals(1, resolver.getPhotoMetaData(id).getUpvotes().size());
-        assertEquals(0, resolver.getPhotoMetaData(id).getDownvotes().size());
+        assertEquals(1, resolver.getPhotoMetaData(id).getLikes().size());
 
         // Send same upvote request again. Ensure it worked, but that nothing changed on the server
         voteResponse = apiClient.ratePhoto(id, true);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
-        assertEquals(1, resolver.getPhotoMetaData(id).getUpvotes().size());
-        assertEquals(0, resolver.getPhotoMetaData(id).getDownvotes().size());
+        assertEquals(1, resolver.getPhotoMetaData(id).getLikes().size());
     }
 
     @Test
@@ -170,13 +167,11 @@ public class PhotoAPITests extends TestUtility{
         // Send upvote request to server, and check it was successful on the server.
         Response voteResponse = apiClient.ratePhoto(id, true);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
-        assertEquals(1, resolver.getPhotoMetaData(id).getUpvotes().size());
-        assertEquals(0, resolver.getPhotoMetaData(id).getDownvotes().size());
+        assertEquals(1, resolver.getPhotoMetaData(id).getLikes().size());
 
         // Send same upvote request again. Ensure it worked, but that nothing changed on the server
         voteResponse = apiClient.ratePhoto(id, false);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), voteResponse.getStatus());
-        assertEquals(0, resolver.getPhotoMetaData(id).getUpvotes().size());
-        assertEquals(1, resolver.getPhotoMetaData(id).getDownvotes().size());
+        assertEquals(0, resolver.getPhotoMetaData(id).getLikes().size());
     }
 }

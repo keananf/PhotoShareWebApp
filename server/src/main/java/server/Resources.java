@@ -69,12 +69,12 @@ public abstract class Resources {
     public static final String EDIT_COMMENT_PATH = COMMENTS_PATH + EDIT_COMMENT;
 
     // Resources regarding voting
-    public static final String DOWNVOTE = "/downvote";
-    public static final String UPVOTE = "/upvote";
-    public static final String COMMENT_DOWNVOTE_PATH = COMMENTS_PATH + DOWNVOTE;
-    public static final String COMMENT_UPVOTE_PATH = COMMENTS_PATH + UPVOTE;
-    public static final String PHOTO_DOWNVOTE_PATH = PHOTOS_PATH + DOWNVOTE;
-    public static final String PHOTO_UPVOTE_PATH = PHOTOS_PATH + UPVOTE;
+    public static final String UNLIKE = "/unlike";
+    public static final String LIKE = "/like";
+    public static final String COMMENT_UNLIKE_PATH = COMMENTS_PATH + UNLIKE;
+    public static final String COMMENT_LIKE_PATH = COMMENTS_PATH + LIKE;
+    public static final String PHOTO_UNLIKE_PATH = PHOTOS_PATH + UNLIKE;
+    public static final String PHOTO_LIKE_PATH = PHOTOS_PATH + LIKE;
 
     // Resources regarding admins
     public static final String ADMIN_PATH = "/admin";

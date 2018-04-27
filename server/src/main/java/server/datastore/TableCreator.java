@@ -129,7 +129,6 @@ class TableCreator {
         String commentVoteQuery = "CREATE TABLE IF NOT EXISTS "+COMMENTS_VOTES_TABLE+" " +
                 "("+REFERENCE_ID+" BIGINT, " +
                 USERNAME+" varchar(25) NOT NULL," +
-                COMMENT_VOTE +" boolean," +
                 "PRIMARY KEY ("+REFERENCE_ID+", "+USERNAME+"), " +
                 "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+")," +
                 "FOREIGN KEY("+REFERENCE_ID+") references "+COMMENTS_TABLE+"("+COMMENTS_ID+"))";
@@ -149,7 +148,6 @@ class TableCreator {
         String commentVoteQuery = "CREATE TABLE IF NOT EXISTS "+PHOTO_RATINGS_TABLE+" " +
                 "("+REFERENCE_ID+" BIGINT, " +
                 USERNAME+" varchar(25) NOT NULL," +
-                PHOTO_RATING+" boolean," +
                 "PRIMARY KEY ("+REFERENCE_ID+", "+USERNAME+"), " +
                 "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+")," +
                 "FOREIGN KEY("+REFERENCE_ID+") references "+PHOTOS_TABLE+"("+PHOTOS_ID+"))";

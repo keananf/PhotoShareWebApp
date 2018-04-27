@@ -1,6 +1,5 @@
 package server;
 
-import javax.ws.rs.DELETE;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
@@ -45,7 +44,7 @@ public abstract class Resources {
 
     // Resources regarding photos
     public static final String PHOTOS_PATH = "/photos";
-    public static final String PHOTO_CONTENTS = "/contents";
+    public static final String PHOTO_CONTENTS = "/content";
     public static final String PNG = "/png";
     public static final String JPG = "/jpg";
     public static final String PHOTO_CONTENTS_PNG_PATH = PHOTOS_PATH + PHOTO_CONTENTS + PNG;

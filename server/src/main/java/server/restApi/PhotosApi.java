@@ -165,7 +165,6 @@ public class PhotosApi {
      */
     @GET
     @Path("/{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getPhotoMetaData(@PathParam("id") long id, @Context HttpHeaders headers) {
         try {
@@ -176,7 +175,7 @@ public class PhotosApi {
             RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Send the given photo's meta data back to the client
-            return Response.ok(RESOLVER.getPhotoMetaData(id)).build();
+            return Response.ok(gson.toJson(RESOLVER.getPhotoMetaData(id))).build();
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}

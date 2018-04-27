@@ -23,8 +23,8 @@
                 // Reset the HttpWrapper class auth
                 HW.unsetAuthParameters()
 
-                // Take user to the landing page
-                router.push('/')
+                // Take user to the login page
+                router.push('/login')
             }
         },
 

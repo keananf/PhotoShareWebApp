@@ -6,7 +6,14 @@
     <div class="row">
         <div class="col-sm-8 col-md-9">
             <loader ref="posts-loader"></loader>
-            <post v-for="post in posts" :data="post" :key="post.id"></post>
+            
+            <div v-if="posts">
+                <post v-for="post in posts" :data="post.toJson()" :key="post.id"></post>
+            </div>
+            
+            <div v-if="posts !== null && posts.length === 0">
+                <p class="lead">No posts in your network</p>
+            </div>
         </div>
         <div class="col-sm-4 col-md-3">
 
@@ -65,7 +72,7 @@
 
         data() {
             return {
-                posts: []
+                posts: null
             }
         },
 

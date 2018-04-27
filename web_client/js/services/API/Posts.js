@@ -7,12 +7,14 @@
         getNewsFeedForUser(username) {
             return new Promise((resolve, reject) => {
                 http.get(API.endpoints.POSTS_FEED.replace(':username', username)).then(res => {
-                    console.log(res)
-                    resolve([])
-                }).catch(err => {
-                    console.log(err)
-                    reject(err)
-                })
+                    let posts = []
+
+                    for (let i in res) {
+                        posts.push(Models.Post.fromJson(res[i]))
+                    }
+
+                    resolve(posts)
+                }).catch(err => reject(err))
             })
         },
 

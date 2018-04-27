@@ -73,10 +73,10 @@
 
                 if (this.isFollowing) {
                     this.followersCount++
-                    API.Users.followUser(this.username)
+                    API.Users.followUser(this.$root.auth().username, this.username)
                 } else {
                     this.followersCount--
-                    API.Users.unfollowUser(this.username)
+                    API.Users.unfollowUser(this.$root.auth().username, this.username)
                 }
             },
 

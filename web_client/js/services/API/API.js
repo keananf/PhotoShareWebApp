@@ -8,6 +8,9 @@
             USERS_FOLLOWERS: 'users/followers/:username',
             USERS_FOLLOWING: 'users/following/:username',
 
+            FOLLOW_USER: 'users/follow/:username',
+            UNFOLLOW_USER: 'users/unfollow/:username',
+
             POSTS_CREATE: 'photos/upload',
             POSTS_GET: 'photos/:id',
             POSTS_FEED: 'newsfeeds/:username',

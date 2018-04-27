@@ -13,14 +13,14 @@ public final class Photo {
     private final String authorName;
     private final String ext;
     private final String photoName;
-    private final long photoTime;
+    private final String photoTime;
     private final long id, albumId;
     private final String description;
 
     private HashMap<String, Boolean> votes;
 
     public Photo(String authorName, String photoName, String ext, String description, long id, long albumId,
-                 HashMap<String, Boolean> photoRatings, long photoTime) {
+                 HashMap<String, Boolean> photoRatings, String photoTime) {
         this.authorName = authorName;
         this.photoName = photoName;
         this.photoTime = photoTime;
@@ -42,7 +42,7 @@ public final class Photo {
     /**
      * @return the time this photo was created
      */
-    public long getPhotoTime() {
+    public String getPhotoTime() {
         return photoTime;
     }
 

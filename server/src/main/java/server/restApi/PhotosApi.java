@@ -45,7 +45,7 @@ public class PhotosApi {
             RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Upload encoded photo to the data store
-            Receipt receipt = RESOLVER.uploadPhoto(sender, request);
+            Receipt receipt = RESOLVER.uploadPhoto(sender, request, date);
             return Response.ok(gson.toJson(receipt)).build();
         }
         catch(UnauthorisedException e) { return Response.status(Response.Status.UNAUTHORIZED).build();}

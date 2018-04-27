@@ -45,7 +45,7 @@ public class CommentsApi {
             RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Upload comment to the data store
-            Receipt receipt = RESOLVER.addComment(sender, request);
+            Receipt receipt = RESOLVER.addComment(sender, request, date);
             return Response.ok(gson.toJson(receipt)).build();
         }
         catch(InvalidResourceRequestException e) { return Response.status(Response.Status.BAD_REQUEST).build(); }

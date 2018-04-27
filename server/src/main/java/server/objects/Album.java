@@ -4,10 +4,10 @@ package server.objects;
  * Class representing an album.
  */
 public class Album {
-    private final String albumName, description, authorName;
-    private final long albumId, albumTime;
+    private final String albumName, description, authorName, albumTime;
+    private final long albumId;
 
-    public Album(long albumId, String albumName, String authorName, String description, long albumTime) {
+    public Album(long albumId, String albumName, String authorName, String description, String albumTime) {
         this.albumName = albumName;
         this.description = description;
         this.authorName = authorName;
@@ -32,7 +32,7 @@ public class Album {
     /**
      * @return the timestamp the album was created at
      */
-    public long getAlbumTime() {
+    public String getAlbumTime() {
         return albumTime;
     }
 

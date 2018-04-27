@@ -60,7 +60,7 @@ class TableCreator {
                 ALBUMS_NAME+" varchar(25) NOT NULL," +
                 USERNAME+" varchar(25) NOT NULL," +
                 ALBUMS_DESCRIPTION+" varchar(255) NOT NULL," +
-                ALBUMS_TIME+" TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                ALBUMS_TIME+" varchar(50) NOT NULL," +
                 "PRIMARY KEY ("+ALBUMS_ID+"), " +
                 "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+"))";
 
@@ -84,7 +84,7 @@ class TableCreator {
                 USERNAME+" varchar(25) NOT NULL," +
                 ALBUMS_ID+" BIGINT NOT NULL," +
                 PHOTOS_CONTENTS+" BLOB NOT NULL," +
-                PHOTOS_TIME+" TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                PHOTOS_TIME+" varchar(50) NOT NULL," +
                 PHOTOS_DESCRIPTION+" varchar(255) NOT NULL," +
                 "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+")," +
                 "FOREIGN KEY("+ALBUMS_ID+") references "+ALBUMS_TABLE+"("+ALBUMS_ID+") ON DELETE CASCADE)";
@@ -107,7 +107,7 @@ class TableCreator {
                 USERNAME+" varchar(25) NOT NULL," +
                 COMMENTS_CONTENTS+" varchar(255) NOT NULL," +
                 COMMENT_TYPE+" boolean," +
-                COMMENTS_TIME+" TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                COMMENTS_TIME+" varchar(50) NOT NULL," +
                 REFERENCE_ID+" BIGINT," +
                 "PRIMARY KEY ("+COMMENTS_ID+"), " +
                 "FOREIGN KEY("+USERNAME+") references "+USERS_TABLE+"("+USERNAME+") ON DELETE CASCADE)";

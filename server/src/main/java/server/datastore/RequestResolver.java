@@ -124,8 +124,9 @@ public final class RequestResolver {
      *
      * @param user the user who posted the photo
      * @param request the upload photo request
+     * @param date the formatted date in which the request was sent
      */
-    public Receipt uploadPhoto(String user, UploadPhotoRequest request)
+    public Receipt uploadPhoto(String user, UploadPhotoRequest request, String date)
             throws InvalidResourceRequestException, DoesNotOwnAlbumException, InvalidFileTypeException {
         // Ensure user is known
         getUser(user);
@@ -143,7 +144,7 @@ public final class RequestResolver {
 
         // Create photo and persist it
         long id = ++PHOTOS_CURRENT_ID;
-        dataStore.persistUploadPhoto(id, user, request);
+        dataStore.persistUploadPhoto(id, user, request, date);
 
         // Return receipt confirming photo was created
         return new Receipt(id);
@@ -201,14 +202,15 @@ public final class RequestResolver {
      * @param author the author of the new album
      * @param albumName the name of the new album
      * @param description the description of the new album
+     * @param date the formatted date in which the request was sent
      */
-    public Receipt addAlbum(String author, String albumName, String description)
+    public Receipt addAlbum(String author, String albumName, String description, String date)
             throws InvalidResourceRequestException {
         // Ensure user is known
         getUser(author);
 
         // Create photo and persist it
-        Album newAlbum = new Album(++ALBUMS_CURRENT_ID, albumName, author, description, System.nanoTime());
+        Album newAlbum = new Album(++ALBUMS_CURRENT_ID, albumName, author, description, date);
         dataStore.persistAddAlbum(newAlbum);
 
         // Return receipt confirming photo was created
@@ -368,9 +370,11 @@ public final class RequestResolver {
      * Adds the given comment
      * @param user the user who posted it
      * @param request the request for a new comment
+     * @param date the formatted date in which the request was sent
      * @throws InvalidResourceRequestException if the parent of the comment doesn't exist
      */
-    public Receipt addComment(String user, AddCommentRequest request) throws InvalidResourceRequestException {
+    public Receipt addComment(String user, AddCommentRequest request, String date)
+            throws InvalidResourceRequestException {
         // Check comment type
         if(request.getEventType().equals(EventType.REPLY)) {
             // Retrieve the parent comment and check it exists
@@ -384,7 +388,7 @@ public final class RequestResolver {
         }
 
         // Add unique id to be able to future identify this comment
-        Comment comment = new Comment(++COMMENTS_CURRENT_ID, user, request);
+        Comment comment = new Comment(++COMMENTS_CURRENT_ID, user, request, date);
 
         // Persist comment to data store
         dataStore.persistAddComment(comment);

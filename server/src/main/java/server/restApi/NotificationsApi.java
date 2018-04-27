@@ -35,9 +35,9 @@ public class NotificationsApi {
             // Retrieve provided auth info
             String[] authHeader = headers.getHeaderString(HttpHeaders.AUTHORIZATION).split(":");
             String sender = authHeader[0], apiKey = authHeader[1];
-            String date = headers.getHeaderString(HttpHeaders.DATE);
+            String date = headers.getHeaderString(Resources.DATE_HEADER);
 
-            RESOLVER.verifyAuth(Resources.NOTIFICATIONS_PATH, sender, apiKey, date);
+            RESOLVER.verifyAuth(sender, apiKey, date);
 
             // Retrieve list retrieved from data manipulation layer
             // and convert notifications into JSON array

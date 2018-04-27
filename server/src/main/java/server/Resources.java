@@ -1,6 +1,5 @@
 package server;
 
-import javax.ws.rs.DELETE;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
@@ -14,6 +13,7 @@ public abstract class Resources {
     // Base URI the Grizzly HTTP server will listen on
     private static final String BASE_URI = "http://localhost:8080";
     public static final String BASE_URL = BASE_URI + "/photoshare";
+    public static final String DATE_HEADER = "X-Date";
 
     // Resources regarding users
     public static final String USERS_PATH = "/users";
@@ -44,7 +44,7 @@ public abstract class Resources {
 
     // Resources regarding photos
     public static final String PHOTOS_PATH = "/photos";
-    public static final String PHOTO_CONTENTS = "/contents";
+    public static final String PHOTO_CONTENTS = "/content";
     public static final String PNG = "/png";
     public static final String JPG = "/jpg";
     public static final String PHOTO_CONTENTS_PNG_PATH = PHOTOS_PATH + PHOTO_CONTENTS + PNG;
@@ -71,12 +71,12 @@ public abstract class Resources {
     public static final String EDIT_COMMENT_PATH = COMMENTS_PATH + EDIT_COMMENT;
 
     // Resources regarding voting
-    public static final String DOWNVOTE = "/downvote";
-    public static final String UPVOTE = "/upvote";
-    public static final String COMMENT_DOWNVOTE_PATH = COMMENTS_PATH + DOWNVOTE;
-    public static final String COMMENT_UPVOTE_PATH = COMMENTS_PATH + UPVOTE;
-    public static final String PHOTO_DOWNVOTE_PATH = PHOTOS_PATH + DOWNVOTE;
-    public static final String PHOTO_UPVOTE_PATH = PHOTOS_PATH + UPVOTE;
+    public static final String UNLIKE = "/unlike";
+    public static final String LIKE = "/like";
+    public static final String COMMENT_UNLIKE_PATH = COMMENTS_PATH + UNLIKE;
+    public static final String COMMENT_LIKE_PATH = COMMENTS_PATH + LIKE;
+    public static final String PHOTO_UNLIKE_PATH = PHOTOS_PATH + UNLIKE;
+    public static final String PHOTO_LIKE_PATH = PHOTOS_PATH + LIKE;
 
     // Resources regarding admins
     public static final String ADMIN_PATH = "/admin";

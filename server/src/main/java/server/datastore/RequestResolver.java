@@ -17,8 +17,7 @@ import java.util.stream.Collectors;
  */
 public final class RequestResolver {
     public static final Locale LOCALE = Locale.UK;
-    private static final long TIMEOUT = (long) (10 * (Math.pow(10, 9)));
-    private int CURRENT_ID = 0;
+    private static final long TIMEOUT = (long) (15 * 1000); // 15 sec
     private DataStore dataStore = new DatabaseBackedDataStore();
 
     // Allowed extensions
@@ -30,13 +29,13 @@ public final class RequestResolver {
 
     /**
      * Verify the auth info sent by the client. Try to generate shared secret.
-     * @param endPoint the api being accessed.
+     *
      * @param username the user who sent the request
      * @param apiKey the apiKey the user provided with the login request
      * @param date the timestamp of the sent request
      * @throws UnauthorisedException if bad provided info
      */
-    public void verifyAuth(String endPoint, String username, String apiKey, String date) throws UnauthorisedException {
+    public void verifyAuth(String username, String apiKey, String date) throws UnauthorisedException {
         // Check user exists on server
         try {
             User user = getUser(username);
@@ -47,7 +46,7 @@ public final class RequestResolver {
             if(time - dateTime > TIMEOUT) throw new UnauthorisedException();
 
             // Compare generated secret API key
-            String key = Auth.getApiKey(endPoint, username, user.getPassword(), dateTime).split(":")[1];
+            String key = Auth.getApiKey(username, user.getPassword(), date).split(":")[1];
             if(!key.equals(apiKey)) throw new UnauthorisedException();
         }
         catch (InvalidResourceRequestException | ParseException ignored) {throw new UnauthorisedException();}
@@ -55,16 +54,16 @@ public final class RequestResolver {
 
     /**
      * Verify the admin auth info sent by the client. Try to generate shared secret.
-     * @param endPoint the api being accessed.
+     *
      * @param user the user who sent the request
      * @param apiKey the apiKey the user provided with the login request
      * @param date the timestamp of the sent request
      * @throws UnauthorisedException if bad provided info
      */
-    public void verifyAdminAuth(String endPoint, String user, String apiKey, String date) throws UnauthorisedException,
+    public void verifyAdminAuth(String user, String apiKey, String date) throws UnauthorisedException,
             InvalidResourceRequestException {
         // Ensure valid user and client
-        verifyAuth(endPoint, user, apiKey, date);
+        verifyAuth(user, apiKey, date);
 
         // Ensure user is an admin
         if(!getUser(user).isAdmin()) throw new UnauthorisedException();
@@ -90,7 +89,7 @@ public final class RequestResolver {
         boolean admin = (getUsers().size() == 0);
 
         // Persist user with hashed and encoded password
-        dataStore.persistAddUser(username, Auth.hashAndEncodeBase64(password), admin);
+        dataStore.persistAddUser(username, Auth.hashAndEncodeHex(password), admin);
     }
 
     /**
@@ -107,7 +106,7 @@ public final class RequestResolver {
 
         // Check the stored, hashed password with the hash of the sent password.
         // If they don't match, then the request is unauthorised.
-        if(!user.getPassword().equals(Auth.hashAndEncodeBase64(password))) throw new UnauthorisedException();
+        if(!user.getPassword().equals(Auth.hashAndEncodeHex(password))) throw new UnauthorisedException();
 
         // Return user information to client
         return new LoginResult(user.getUsername(), user.getPassword(), user.isAdmin());
@@ -118,9 +117,9 @@ public final class RequestResolver {
      *
      * @param user the user who posted the photo
      * @param request the upload photo request
+     * @param date the formatted date in which the request was sent
      */
-
-    public Receipt uploadPhoto(String user, UploadPhotoRequest request)
+    public Receipt uploadPhoto(String user, UploadPhotoRequest request, String date)
             throws InvalidResourceRequestException, DoesNotOwnAlbumException, InvalidFileFormatException {
         // Ensure user is known
         getUser(user);
@@ -134,13 +133,12 @@ public final class RequestResolver {
         }
 
         // Ensure photo extension is permitted
-        if(!allowedExtensions.contains(request.getExt().toLowerCase(LOCALE))) {
-            throw new InvalidFileFormatException(request.getExt().toLowerCase(LOCALE));
+        if(!allowedExtensions.contains(request.getExtension().toLowerCase(LOCALE))) {
+            throw new InvalidFileFormatException(request.getExtension().toLowerCase(LOCALE));
         }
 
         // Create photo and persist it
-        long id = CURRENT_ID++;
-        dataStore.persistUploadPhoto(id, user, request);
+        long id = dataStore.persistUploadPhoto(user, request, date);
 
         // Return receipt confirming photo was created
         return new Receipt(id);
@@ -198,18 +196,18 @@ public final class RequestResolver {
      * @param author the author of the new album
      * @param albumName the name of the new album
      * @param description the description of the new album
+     * @param date the formatted date in which the request was sent
      */
-    public Receipt addAlbum(String author, String albumName, String description)
+    public Receipt addAlbum(String author, String albumName, String description, String date)
             throws InvalidResourceRequestException {
         // Ensure user is known
         getUser(author);
 
-        // Create photo and persist it
-        Album newAlbum = new Album(CURRENT_ID++, albumName, author, description, System.nanoTime());
-        dataStore.persistAddAlbum(newAlbum);
+        // Create album and persist it
+        long newId = dataStore.persistAddAlbum(albumName, author, description, date);
 
-        // Return receipt confirming photo was created
-        return new Receipt(newAlbum.getAlbumId());
+        // Return receipt confirming album was created
+        return new Receipt(newId);
     }
 
     /**
@@ -333,7 +331,7 @@ public final class RequestResolver {
         getUser(user);
 
         // Find all comments on this photo
-        List<Comment> photoComments = dataStore.getPhotoComments(user, referenceId);
+        List<Comment> photoComments = dataStore.getPhotoComments(referenceId);
 
         // Remove any notifications for these comments that may exist for this user
         for (Comment comment : photoComments) {
@@ -354,11 +352,11 @@ public final class RequestResolver {
      */
     public List<Comment> getReplies(String user, long referenceId) throws InvalidResourceRequestException {
         // Get comment the reference is referring to (exception thrown if doesn't exist)
-        getComment(referenceId);
+        Comment c = getComment(referenceId);
         getUser(user);
 
         // Find all comments on this comment
-        List<Comment> replies = dataStore.getReplies(user, referenceId);
+        List<Comment> replies = dataStore.getReplies(referenceId);
 
         // Remove any notifications for these comments that may exist for this user
         for (Comment reply : replies) {
@@ -386,9 +384,11 @@ public final class RequestResolver {
      * Adds the given comment
      * @param user the user who posted it
      * @param request the request for a new comment
+     * @param date the formatted date in which the request was sent
      * @throws InvalidResourceRequestException if the parent of the comment doesn't exist
      */
-    public Receipt addComment(String user, AddCommentRequest request) throws InvalidResourceRequestException {
+    public Receipt addComment(String user, AddCommentRequest request, String date)
+            throws InvalidResourceRequestException {
         // Check comment type
         if(request.getEventType().equals(EventType.REPLY)) {
             // Retrieve the parent comment and check it exists
@@ -401,17 +401,14 @@ public final class RequestResolver {
             getPhotoMetaData(request.getReferenceId());
         }
 
-        // Add unique id to be able to future identify this comment
-        Comment comment = new Comment(CURRENT_ID++, user, request);
-
         // Persist comment to data store
-        dataStore.persistAddComment(comment);
+        long id = dataStore.persistAddComment(user, request, date);
 
         // Create notification for this comment to the appropriate user
-        addNotification(comment);
+        addNotification(new Comment(id, user, request, date));
 
         // Return a receipt
-        return new Receipt(comment.getId());
+        return new Receipt(id);
     }
 
     /**
@@ -581,10 +578,8 @@ public final class RequestResolver {
 
         }
 
-        Follow follow = new Follow(userFrom, userTo, CURRENT_ID++);
-
-        dataStore.persistFollowing(userFrom, userTo);
-        dataStore.persistAddNotification(userTo, follow);
+        long id = dataStore.persistFollowing(userFrom, userTo);
+        dataStore.persistAddNotification(userTo, new Follow(userFrom, userTo, id));
 
     }
 
@@ -701,6 +696,39 @@ public final class RequestResolver {
         }
 
         return newsFeed;
+    }
+
+    /**
+     * Returns the comment along with its top-level replies. This results in less requests
+     * from the client
+     * @param user the user who made the request
+     * @param comment the given comment
+     * @return the result to be sent back to the client
+     */
+    public CommentResult getCommentResult(String user, Comment comment) {
+        try {
+            return new CommentResult(comment, getReplies(user, comment.getId()));
+        }
+        catch (InvalidResourceRequestException e) {
+            return new CommentResult(comment, new ArrayList<>());
+        }
+    }
+
+
+    /**
+     * Returns the photo along with its top-level comments. This results in less requests
+     * from the client
+     * @param user the user who made the request
+     * @param photo the given photo
+     * @return the result to be sent back to the client
+     */
+    public PhotoResult getPhotoResult(String user, Photo photo) {
+        try {
+            return new PhotoResult(photo, getPhotoComments(user, photo.getId()));
+        }
+        catch (InvalidResourceRequestException e) {
+            return new PhotoResult(photo, new ArrayList<>());
+        }
     }
 
     /**

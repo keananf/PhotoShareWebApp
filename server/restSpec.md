@@ -175,13 +175,30 @@ PhotoShare RESTful API specification
         ``` 
         [
             {
-                "id": long, 
-                "photoName": string,
-                "extension": string,
-                "authorName": string,
-                "albumId": long,
-                "photoTime": long 
-                "description": string
+               "photo":
+               {
+                    "id": long, 
+                    "photoName": string,
+                    "extension": string,
+                    "authorName": string,
+                    "albumId": long,
+                    "photoTime": long,
+                    "description": string,
+                    "votes": object
+                }
+                "childComments":
+                [
+                    {
+                        "id": long, 
+                        "referenceId": long,
+                        "author": string,             
+                        "commentContents": string,
+                        "commentTime": long,
+                        "eventType": string,
+                        "votes": object
+                    },
+                    ...
+                ]
             },
             ...
         ]
@@ -209,14 +226,32 @@ PhotoShare RESTful API specification
         **Content:** 
         ``` 
         {
-            "id": long, 
-            "photoName": string,
-            "extension": string,
-            "authorName": string,
-            "albumId": long,
-            "photoTime": long,
-            "description": string
+           "photo":
+           {
+                "id": long, 
+                "photoName": string,
+                "extension": string,
+                "authorName": string,
+                "albumId": long,
+                "photoTime": long,
+                "description": string,
+                "votes": object
+            }
+            "childComments":
+            [
+                {
+                    "id": long, 
+                    "referenceId": long,
+                    "author": string,             
+                    "commentContents": string,
+                    "commentTime": long,
+                    "eventType": string,
+                    "votes": object
+                },
+                ...
+            ]
         }
+        ```
      
     * **Error Response:**
     
@@ -245,10 +280,6 @@ PhotoShare RESTful API specification
     * **Error Response:**
     
       * **Code:** 400 Bad Request <br />
-    
-      or
-    
-      * **Code:** 401 Unauthorized <br />
 
 
 * `/photos/content/png/{id}.png`
@@ -270,14 +301,10 @@ PhotoShare RESTful API specification
     * **Error Response:**
     
       * **Code:** 400 Bad Request <br />
-    
-      or
-    
-      * **Code:** 401 Unauthorized <br />
   
-* `/photos/upvote/{id}`
+* `/photos/like/{id}`
 
-    * **Summary:** Up-votes the given photo
+    * **Summary:** Likes the given photo
 
     * **Method:** `PUT`
   
@@ -296,9 +323,9 @@ PhotoShare RESTful API specification
     
       * **Code:** 401 Unauthorized <br />
         
-* `/photos/downvote/{id}`
+* `/photos/unlike/{id}`
 
-    * **Summary:** Down-votes the given photo
+    * **Summary:** Unlikes the given photo
 
     * **Method:** `PUT`
   
@@ -383,7 +410,7 @@ PhotoShare RESTful API specification
       {
           "commentContents": string,
           "referenceId": long,
-          "commentType": string
+          "eventType": string
       }
       
     * **Success Response:**
@@ -444,17 +471,34 @@ PhotoShare RESTful API specification
         ``` 
         [
             {
-                "id": long, 
-                "referenceId": long,
-                "author": string,             
-                "commentContents": string,
-                "commentTime": long,
-                "commentType": string
+                "comment": 
+                {
+                    "id": long, 
+                    "referenceId": long,
+                    "author": string,             
+                    "commentContents": string,
+                    "commentTime": long,
+                    "eventType": string,
+                    "votes": object
+                }
+                "childComments":
+                [
+                    {
+                        "id": long, 
+                        "referenceId": long,
+                        "author": string,             
+                        "commentContents": string,
+                        "commentTime": long,
+                        "eventType": string,
+                        "votes": object
+                    },
+                    ...
+                ]
             },
             ...
         ]
         ```
-        Note, "commentType" here refers to "PHOTO_COMMENT".
+        Note, "eventType" here refers to "PHOTO_COMMENT".
      
     * **Error Response:**
     
@@ -481,18 +525,35 @@ PhotoShare RESTful API specification
         ``` 
         [
             {
-                "id": long, 
-                "referenceId": long,
-                "author": string,             
-                "commentContents": string,
-                "commentTime": long,
-                "commentType": string
+                "comment": 
+                {
+                    "id": long, 
+                    "referenceId": long,
+                    "author": string,             
+                    "commentContents": string,
+                    "commentTime": long,
+                    "eventType": string,
+                    "votes": object
+                }
+                "childComments":
+                [
+                    {
+                        "id": long, 
+                        "referenceId": long,
+                        "author": string,             
+                        "commentContents": string,
+                        "commentTime": long,
+                        "eventType": string,
+                        "votes": object
+                    },
+                    ...
+                ]
             },
             ...
         ]
         ``` 
        
-        Note, "commentType" here refers to "REPLY".
+        Note, "eventType" here refers to "REPLY".
      
     * **Error Response:**
     
@@ -502,9 +563,9 @@ PhotoShare RESTful API specification
     
       * **Code:** 401 Unauthorized <br />
 
-* `/comments/upvote/{id}`
+* `/comments/like/{id}`
 
-    * **Summary:** Up-votes the given comment
+    * **Summary:** Likes the given comment
     
     * **Method:** `PUT`
   
@@ -523,9 +584,9 @@ PhotoShare RESTful API specification
     
       * **Code:** 401 Unauthorized <br />
         
-* `/comments/downvote/{id}`
+* `/comments/unlike/{id}`
 
-    * **Summary:** Down-votes the given comment
+    * **Summary:** Unlikes the given comment
 
     * **Method:** `PUT`
   
@@ -679,7 +740,7 @@ PhotoShare RESTful API specification
       ```
       {
         "username": string,
-        "password": string (base64-encoded of hashed password)
+        "password": string (hex-encoded hashed password)
         "admin": boolean
       }
       ```
@@ -740,13 +801,30 @@ PhotoShare RESTful API specification
         ``` 
         [
             {
-                "id": long, 
-                "photoName": string,
-                "extension": string,
-                "authorName": string,
-                "albumId": long,
-                "photoTime": long 
-                "description": string
+               "photo":
+               {
+                    "id": long, 
+                    "photoName": string,
+                    "extension": string,
+                    "authorName": string,
+                    "albumId": long,
+                    "photoTime": long,
+                    "description": string,
+                    "votes": object
+                }
+                "childComments":
+                [
+                    {
+                        "id": long, 
+                        "referenceId": long,
+                        "author": string,             
+                        "commentContents": string,
+                        "commentTime": long,
+                        "eventType": string,
+                        "votes": object
+                    },
+                    ...
+                ]
             },
             ...
         ]

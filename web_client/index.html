@@ -2,9 +2,139 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+
+    <!-- Stylesheets -->
+    <!-- ThirdParty / Vendor libraries -->
+    <link rel="stylesheet" type="text/css" href="css/vendor/bootstrap.min.css"/> <!-- Bootstrap 4 -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css"
+          integrity="sha384-+d0P83n9kaQMCwj8F4RJB66tzIwOKmrdb46+porD/OvrJ+37WqIM7UoBtwHO6Nlg" crossorigin="anonymous">
+    <!-- FontAwesome -->
+
+    <!-- Application styles -->
+    <link rel="stylesheet" type="text/css" href="css/app.css"/>
+
     <title>PhotoShare</title>
-Hello World
+
 </head>
 <body>
+
+<div id="photoshare-app" v-cloak>
+
+    <!-- Invisible components -->
+    <auth ref="auth"></auth>
+
+    <header id="page-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-4 col-md-3">
+
+                    <router-link to="/">
+                        <img src="images/logo.png" alt="PhotoShare" id="logo"/>
+                    </router-link>
+
+                </div>
+                <div class="col-sm-8 col-md-9 text-right">
+
+                    <nav>
+                        <span v-if="!auth().isLoggedIn">
+                            <router-link to="/login">
+                                Login
+                            </router-link>
+                        </span>
+                        <span v-if="!auth().isLoggedIn">
+                            <router-link to="/register">
+                                Register
+                            </router-link>
+                        </span>
+                        <span class="nav-button" v-if="auth().isLoggedIn">
+                            <router-link to="/upload">
+                                <i class="fa fa-plus"></i>
+                                Upload
+                            </router-link>
+                        </span>
+                        <span class="nav-strong" v-if="auth().isLoggedIn">
+                            <router-link to="/">
+                                My Feed
+                            </router-link>
+                        </span>
+                        <span v-if="auth().isLoggedIn">
+                            <router-link :to="auth().user.route">
+                                Profile
+                            </router-link>
+                        </span>
+                        <span class="nav-danger" v-if="auth().isLoggedIn" @click="auth().logoutUser()">
+                            <i class="fa fa-power-off"></i>
+                            Logout
+                        </span>
+                        <span class="nav-search" v-if="auth().isLoggedIn">
+                            <input type="text" placeholder="Search" v-model="searchQuery" @keyup.enter="submitSearch"/>
+                            <span class="clear-icon" v-if="searchQuery.length > 0" @click="searchQuery=''">
+                                <i class="fa fa-times clear-icon"></i>
+                            </span>
+                        </span>
+                    </nav>
+
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container" id="main-content">
+
+        <router-view :key="$route.fullPath"></router-view>
+
+    </div>
+
+</div>
+
+<!-- Scripts -->
+<!-- ThirdParty / Vendor libraries -->
+<script src="js/vendor/vue.2.5.16.js"></script> <!-- VueJS - Main framework -->
+<script src="js/vendor/vue-router.3.0.1.js"></script> <!-- VueJS Router -->
+<script src="js/vendor/jquery-3.3.1.slim.min.js"></script> <!-- jQuery Slim 3.0 - Bootstrap Prerequisite -->
+<script src="js/vendor/popper.min.js"></script> <!-- Popper - Bootstrap Prerequisite -->
+<script src="js/vendor/bootstrap.min.js"></script> <!-- Bootstrap 4 - Required for the CSS framework -->
+<script src="js/vendor/sha256.min.js"></script> <!-- Sha256 Hashing -->
+<script src="js/vendor/moment.min.js"></script> <!-- MomentJS For easy work with dates -->
+
+<!-- Application -->
+<!-- Some basic set up in the structure -->
+<script src="js/setup.js"></script>
+
+<!-- Useful utilities -->
+<script src="js/util/HttpWrapper.js"></script>
+
+<!-- API -->
+<script src="js/services/API/API.js"></script>
+<script src="js/services/API/Posts.js"></script>
+<script src="js/services/API/Users.js"></script>
+<script src="js/services/API/Auth.js"></script>
+<script src="js/services/API/Albums.js"></script>
+
+<!-- Models -->
+<script src="js/models/Post.js"></script>
+<script src="js/models/PostComment.js"></script>
+<script src="js/models/User.js"></script>
+<script src="js/models/Album.js"></script>
+
+<!-- Import Components Used Manually -->
+<script src="js/components/Auth.js"></script>
+<script src="js/components/common/Post.js"></script>
+<script src="js/components/common/PostComment.js"></script>
+<script src="js/components/common/Loader.js"></script>
+<script src="js/components/common/Modal.js"></script>
+<script src="js/components/pages/Feed.js"></script>
+<script src="js/components/pages/Profile.js"></script>
+<script src="js/components/pages/Post.js"></script>
+<script src="js/components/pages/Search.js"></script>
+<script src="js/components/pages/Upload.js"></script>
+<script src="js/components/pages/Login.js"></script>
+<script src="js/components/pages/Register.js"></script>
+<script src="js/components/pages/Albums.js"></script>
+<script src="js/components/pages/Album.js"></script>
+
+<!-- Main App File -->
+<script src="js/app.js"></script>
+
 </body>
-</html>
+</h

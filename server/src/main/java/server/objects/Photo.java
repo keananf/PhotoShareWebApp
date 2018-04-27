@@ -1,9 +1,7 @@
 package server.objects;
 
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Class representing an uploaded photo
@@ -13,14 +11,14 @@ public final class Photo {
     private final String authorName;
     private final String ext;
     private final String photoName;
-    private final long photoTime;
+    private final String photoTime;
     private final long id, albumId;
     private final String description;
 
-    private HashMap<String, Boolean> votes;
+    private List<String> votes;
 
     public Photo(String authorName, String photoName, String ext, String description, long id, long albumId,
-                 HashMap<String, Boolean> photoRatings, long photoTime) {
+                 List<String> photoRatings, String photoTime) {
         this.authorName = authorName;
         this.photoName = photoName;
         this.photoTime = photoTime;
@@ -42,7 +40,7 @@ public final class Photo {
     /**
      * @return the time this photo was created
      */
-    public long getPhotoTime() {
+    public String getPhotoTime() {
         return photoTime;
     }
 
@@ -78,19 +76,8 @@ public final class Photo {
     /**
      * @return the users who upvoted  this comment
      */
-    public List<String> getUpvotes() {
-        // Filter out all upvotes, and then create a list of the names of the users who cast them
-        return votes.entrySet().stream().filter(kv -> kv.getValue())
-                .map(kv -> kv.getKey()).collect(Collectors.toList());
-    }
-
-    /**
-     * @return the users who downvoted  this comment
-     */
-    public List<String> getDownvotes() {
-        // Filter out all downvotes, and then create a list of the names of the users who cast them
-        return votes.entrySet().stream().filter(kv -> !kv.getValue())
-                .map(kv -> kv.getKey()).collect(Collectors.toList());
+    public List<String> getLikes() {
+        return votes;
     }
 
     /**

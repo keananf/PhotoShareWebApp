@@ -126,21 +126,17 @@ interface DataStore {
 
     /**
      * Retrieves all top-level comments made on the comment / photo with the given reference id
-     * Relevant notifications will be implicitly removed, as well.
-     * @param user the user who made the request
      * @param referenceId the id of the resource
      * @return the list of comments on this resource
      */
-    List<Comment> getPhotoComments(String user, long referenceId);
+    List<Comment> getPhotoComments(long referenceId);
 
     /**
      * Retrieves all top-level comments made on the comment / photo with the given reference id
-     * Relevant notifications will be implicitly removed, as well.
-     * @param user the user who made the request
      * @param referenceId the id of the resource
      * @return the list of comments on this resource
      */
-    List<Comment> getReplies(String user, long referenceId);
+    List<Comment> getReplies(long referenceId);
 
     /**
      * Retrieves all notifications for the given user

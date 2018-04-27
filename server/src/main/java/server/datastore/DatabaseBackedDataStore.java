@@ -498,7 +498,7 @@ final class DatabaseBackedDataStore implements DataStore {
     }
 
     @Override
-    public List<Comment> getPhotoComments(String username, long referenceId) {
+    public List<Comment> getPhotoComments(long referenceId) {
         // Set up query to retrieve the requested comments in the comments table
         List<Comment> comments = new ArrayList<>();
         String query = "SELECT * FROM "+COMMENTS_TABLE+" WHERE "+REFERENCE_ID+" = ? AND "+COMMENT_TYPE+" = false";
@@ -512,6 +512,7 @@ final class DatabaseBackedDataStore implements DataStore {
             while(rs.next()) {
                 // Get info
                 long id = rs.getLong(1);
+                String username = rs.getString(2);
                 String contents = rs.getString(3);
                 String timestamp = rs.getString(5);
 
@@ -529,7 +530,7 @@ final class DatabaseBackedDataStore implements DataStore {
     }
 
     @Override
-    public List<Comment> getReplies(String username, long referenceId) {
+    public List<Comment> getReplies(long referenceId) {
         // Set up query to retrieve the requested comments in the comments table
         List<Comment> comments = new ArrayList<>();
         String query = "SELECT * FROM "+COMMENTS_TABLE+" WHERE "+REFERENCE_ID+" = ? AND "+COMMENT_TYPE+" = true";
@@ -543,6 +544,7 @@ final class DatabaseBackedDataStore implements DataStore {
             while(rs.next()) {
                 // Get info
                 long id = rs.getLong(1);
+                String username = rs.getString(2);
                 String contents = rs.getString(3);
                 String timestamp = rs.getString(5);
 

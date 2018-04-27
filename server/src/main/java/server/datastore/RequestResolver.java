@@ -308,7 +308,7 @@ public final class RequestResolver {
         getUser(user);
 
         // Find all comments on this photo
-        List<Comment> photoComments = dataStore.getPhotoComments(user, referenceId);
+        List<Comment> photoComments = dataStore.getPhotoComments(referenceId);
 
         // Remove any notifications for these comments that may exist for this user
         for (Comment comment : photoComments) {
@@ -333,7 +333,7 @@ public final class RequestResolver {
         getUser(user);
 
         // Find all comments on this comment
-        List<Comment> replies = dataStore.getReplies(user, referenceId);
+        List<Comment> replies = dataStore.getReplies(referenceId);
 
         // Remove any notifications for these comments that may exist for this user
         for (Comment reply : replies) {

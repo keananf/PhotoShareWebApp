@@ -10,6 +10,8 @@
                         </router-link>
                     </span>
                     <span class="date">{{ post.friendlyDate }}</span>
+                    <hr/>
+                    <h5><router-link :to="route">{{ post.title }}</router-link></h5>
                 </header>
                 <div class="post-image">
                     <router-link :to="route">

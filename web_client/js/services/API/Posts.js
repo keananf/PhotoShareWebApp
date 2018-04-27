@@ -19,7 +19,21 @@
         getPostsByUser(username) {
             return new Promise((resolve, reject) => {
                 http.get(API.endpoints.POSTS_GET_BY_USER.replace(':username', username)).then(res => {
-                    console.log(res)
+
+                    let posts = []
+                    for (let i in res) {
+                        posts.push(Models.Post.fromJson(res[i]))
+                    }
+
+                    resolve(posts)
+                }).catch(err => reject(err))
+            })
+        },
+
+        getPostsInAlbum(albumId) {
+            return new Promise((resolve, reject) => {
+                http.get(API.endpoints.ALBUM_GET_POSTS.replace(':id', albumId)).then(res => {
+
                     let posts = []
                     for (let i in res) {
                         posts.push(Models.Post.fromJson(res[i]))

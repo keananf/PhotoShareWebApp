@@ -29,6 +29,9 @@ const routes = [
     },
     {
         path: '/albums', component: window.Components.Pages.Albums
+    },
+    {
+        path: '/album/:id', component: window.Components.Pages.Album
     }
 ]
 

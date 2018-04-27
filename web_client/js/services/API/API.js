@@ -21,7 +21,12 @@
             POSTS_GET_BY_USER: 'users/:username/photos',
 
             COMMENTS_GET_FOR_POST: 'comments/photos/:id',
-            ADD_COMMENT: 'comments/addcomment'
+            ADD_COMMENT: 'comments/addcomment',
+
+            ALBUMS_GET_FOR_USER: 'albums/users/:username',
+            ALBUM_CREATE: 'albums/addalbum',
+            ALBUM_GET: 'albums/:id',
+            ALBUM_GET_POSTS: 'photos/albums/:id'
         }
     }
 

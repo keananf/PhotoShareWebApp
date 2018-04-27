@@ -32,6 +32,8 @@
                 <option v-for="album in albums" :value="album.id" v-text="album.name"></option>
             </select>
             
+            <router-link to="/albums" class="btn btn-sm btn-link">Manage your albums</router-link>
+            
         </div>
     </div>
     <div class="row justify-content-center" v-if="step >= 2">
@@ -60,7 +62,7 @@
     </div>
     <div class="row justify-content-center">
         <div class="col-sm-6 text-center box">
-            <button class="btn btn-block btn-lg btn-info" :disabled="error || isLoading" @click="savePost">
+            <button class="btn btn-block btn-lg btn-info" :disabled="isLoading" @click="savePost">
                 Upload Post
             </button>
         </div>

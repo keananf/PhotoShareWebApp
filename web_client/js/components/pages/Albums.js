@@ -24,7 +24,7 @@
 
             <ul v-if="albums.length > 0">
                 <li v-for="album in albums" :key="album.id">
-                    <a>{{ album.name }}</a>
+                    <router-link :to="'/album/' + album.id">{{ album.name }}</router-link>
                 </li>
             </ul>
 
@@ -76,7 +76,7 @@
 
                 API.Albums.create(this.newAlbum.title, this.newAlbum.description).then(albumId => {
                     user.addAlbum(new Models.Album(albumId, this.newAlbum.title, this.newAlbum.description, user.username, moment().unix()))
-                    user.getAlbums().then(albums => this.albums);
+                    user.getAlbums().then(albums => this.albums)
                     this.$refs['newAlbumModal'].close()
                 }).catch(err => {
                     alert(err)

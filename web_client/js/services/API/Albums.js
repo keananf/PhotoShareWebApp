@@ -6,7 +6,7 @@
 
         getForUser(username){
             return new Promise((resolve, reject) => {
-                http.get('albums/users/' + username).then(res => {
+                http.get(API.endpoints.ALBUMS_GET_FOR_USER.replace(':username', username)).then(res => {
                     let albums = []
 
                     for (let i in res) {
@@ -23,7 +23,7 @@
 
         create(name, description){
             return new Promise((resolve, reject) => {
-                http.post('albums/addalbum', {albumName: name, description}).then(res => {
+                http.post(API.endpoints.ALBUM_CREATE, {albumName: name, description}).then(res => {
                     if (res.hasOwnProperty('referenceId')) {
                         resolve(res.referenceId)
                     } else {
@@ -32,6 +32,14 @@
                 }).catch(err => {
                     reject(err)
                 })
+            })
+        },
+
+        getById(id){
+            return new Promise((resolve, reject) => {
+                http.get(API.endpoints.ALBUM_GET.replace(':id', id)).then(res => {
+                    resolve(Models.Album.fromJson(res))
+                }).catch(err => reject(err))
             })
         }
 

@@ -120,9 +120,11 @@ public final class RequestResolver {
      * @param date the formatted date in which the request was sent
      */
     public Receipt uploadPhoto(String user, UploadPhotoRequest request, String date)
-            throws InvalidResourceRequestException, DoesNotOwnAlbumException, InvalidFileTypeException {
+            throws InvalidResourceRequestException, DoesNotOwnAlbumException, InvalidFileFormatException {
         // Ensure user is known
         getUser(user);
+
+        if(!isValidPhotoFormat(request.getEncodedPhotoContents())) throw new InvalidFileFormatException();
 
         // Ensure albumId is known, and that it belongs to the user
         Album album = getAlbum(request.getAlbumId());
@@ -132,7 +134,7 @@ public final class RequestResolver {
 
         // Ensure photo extension is permitted
         if(!allowedExtensions.contains(request.getExtension().toLowerCase(LOCALE))) {
-            throw new InvalidFileTypeException(request.getExtension().toLowerCase(LOCALE));
+            throw new InvalidFileFormatException(request.getExtension().toLowerCase(LOCALE));
         }
 
         // Create photo and persist it
@@ -657,6 +659,24 @@ public final class RequestResolver {
     }
 
     /**
+     * Utility method to check that a photo to be uploaded follows set constraints
+     * Photos must not be larger than 4 megabytes.
+     *
+     * @param encodedPhotoContents the base 64 encoded photo contents
+     * @return
+     */
+    public boolean isValidPhotoFormat(String encodedPhotoContents) {
+
+        // Each base-64 digit represents 6 bits of data
+        double photoSizeBytes = ((double) encodedPhotoContents.length() * 6) / 8.0;
+        double photoSizeMegabytes = photoSizeBytes / 1000000.0;
+
+        if (photoSizeMegabytes > 4.0) return false;
+
+        return true;
+    }
+
+    /**
      *  all the photos posted by the people a user is following
      *
      * @param username
@@ -726,4 +746,5 @@ public final class RequestResolver {
         // Empty records
         dataStore.clear();
     }
+
 }

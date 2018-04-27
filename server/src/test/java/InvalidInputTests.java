@@ -1,3 +1,4 @@
+import server.objects.*;
 import org.junit.Test;
 import server.datastore.exceptions.InvalidResourceRequestException;
 import server.objects.Album;
@@ -199,6 +200,28 @@ public class InvalidInputTests extends TestUtility {
 
         // Check data-store that no photo is uploaded
         assertEquals(0, resolver.getPhotos(username).size());
+    }
+
+    @Test
+    public void uploadPhotoTooBigTest() throws InvalidResourceRequestException {
+        // Add sample user and register it
+        loginAndSetupNewUser(username);
+
+        // Create sample data
+        String photoName = "photo";
+        byte[] contents = new byte[4500000];
+        for (int i = 0; i < contents.length; i++) {
+            contents[i] = 1;
+        }
+
+        // Send request to add photo to upload photo
+        // Fail because photo is too large
+        Response response = apiClient.uploadPhoto(photoName, ext, description, albumId, contents);
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+
+        // Check data-store that no photo is recorded
+        List<Photo> photos = resolver.getPhotos(username);
+        assertEquals(0, photos.size());
     }
 
     @Test

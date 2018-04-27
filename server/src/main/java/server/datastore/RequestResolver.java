@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  * and persists changes to the underlying data store
  */
 public final class RequestResolver {
-    public static boolean DEBUG = false;
+    public static final Locale LOCALE = Locale.UK;
     private static final long TIMEOUT = (long) (10 * (Math.pow(10, 9)));
     private int CURRENT_ID = 0;
     private DataStore dataStore = new DatabaseBackedDataStore();
@@ -41,10 +41,10 @@ public final class RequestResolver {
         try {
             User user = getUser(username);
 
-            // Check timestamp isn't too old, provided not debug mode
+            // Check timestamp isn't too old
             Date d = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse(date);
             long time = System.currentTimeMillis(), dateTime = d.getTime();
-            if(!DEBUG && time - dateTime > TIMEOUT) throw new UnauthorisedException();
+            if(time - dateTime > TIMEOUT) throw new UnauthorisedException();
 
             // Compare generated secret API key
             String key = Auth.getApiKey(endPoint, username, user.getPassword(), dateTime).split(":")[1];
@@ -134,8 +134,8 @@ public final class RequestResolver {
         }
 
         // Ensure photo extension is permitted
-        if(!allowedExtensions.contains(request.getExt().toLowerCase())) {
-            throw new InvalidFileFormatException(request.getExt().toLowerCase());
+        if(!allowedExtensions.contains(request.getExt().toLowerCase(LOCALE))) {
+            throw new InvalidFileFormatException(request.getExt().toLowerCase(LOCALE));
         }
 
         // Create photo and persist it
@@ -248,6 +248,27 @@ public final class RequestResolver {
 
         // Persist description update
         dataStore.updateAlbumDescription(albumId, description);
+    }
+
+    /**
+     * Updates a photo's description.
+     * @param user the user who submitted the request
+     * @param photoId the photo's id
+     * @param description the new description
+     * @throws InvalidResourceRequestException
+     * @throws DoesNotOwnPhotoException
+     */
+    public void updatePhotoDescription(String user, long photoId, String description)
+        throws InvalidResourceRequestException, DoesNotOwnPhotoException {
+
+        // Ensure photo exists
+        Photo photo = getPhotoMetaData(photoId);
+
+        // Ensure photo is owned by requesting user
+        if (!photo.getAuthorName().equals(user)) throw new DoesNotOwnPhotoException(photoId, user);
+
+        // Persist description update
+        dataStore.updatePhotoDescription(photoId, description);
     }
 
     /**

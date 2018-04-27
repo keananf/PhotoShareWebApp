@@ -55,6 +55,8 @@ public abstract class Resources {
     public static final String GET_PHOTOS_BY_ALBUM_PATH = PHOTOS_PATH + ALBUMS_PATH;
     public static final String DELETE_PHOTO = "/delete";
     public static final String DELETE_PHOTO_PATH = PHOTOS_PATH + DELETE_PHOTO;
+    public static final String UPDATE_PHOTO_DESCRIPTION = "/updatedescription";
+    public static final String UPDATE_PHOTO_DESCRIPTION_PATH = PHOTOS_PATH + UPDATE_PHOTO_DESCRIPTION;
 
     // Resources regarding comments
     public static final String COMMENTS_PATH = "/comments";

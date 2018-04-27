@@ -7,11 +7,10 @@ package server.objects;
  */
 
 public class Follow implements NotifiableEvent{
-
-    String userFrom;
-    String userTo;
-    long id;
-    EventType eventType = EventType.FOLLOW;
+    private final String userFrom;
+    private final String userTo;
+    private final long id;
+    private final EventType eventType = EventType.FOLLOW;
 
     public Follow(String userFrom, String userTo, long id){
         this.userFrom = userFrom;
@@ -21,7 +20,7 @@ public class Follow implements NotifiableEvent{
 
 
     @Override
-    public long getContentID() {
+    public long getContentId() {
         return id;
     }
 
@@ -33,5 +32,9 @@ public class Follow implements NotifiableEvent{
     @Override
     public String getParentName() {
         return userFrom;
+    }
+
+    public String getUserTo() {
+        return userTo;
     }
 }

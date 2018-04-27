@@ -1,6 +1,7 @@
 package client;
 
 import com.google.gson.Gson;
+import org.h2.command.dml.Update;
 import server.Auth;
 import server.Resources;
 import server.objects.EventType;
@@ -230,10 +231,25 @@ public final class ApiClient {
      */
     public Response updateAlbumDescription(long id, String description) {
         // Construct request
-        UpdateAlbumDescriptionRequest request = new UpdateAlbumDescriptionRequest(id, description);
+        UpdateDescriptionRequest request = new UpdateDescriptionRequest(id, description);
 
         // Encode request and POST
         return connector.post(baseTarget, UPDATE_ALBUM_DESCRIPTION_PATH, gson.toJson(request));
+    }
+
+    /**
+     * Sends an update photo description request to the server
+     *
+     * @param id the id of the photo
+     * @param description the new description
+     * @return the response of the request
+     */
+    public Response updatePhotoDescription(long id, String description) {
+        // Construct request
+        UpdateDescriptionRequest request = new UpdateDescriptionRequest(id, description);
+
+        //Encode request and POST
+        return connector.post(baseTarget, UPDATE_PHOTO_DESCRIPTION_PATH, gson.toJson(request));
     }
 
     /**

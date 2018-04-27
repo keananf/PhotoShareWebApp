@@ -1,6 +1,7 @@
 // Define components use
 Vue.component('auth', window.Components.Auth)
 Vue.component('post', window.Components.Common.Post)
+Vue.component('post-comment', window.Components.Common.PostComment)
 Vue.component('loader', window.Components.Common.Loader)
 Vue.component('modal', window.Components.Common.Modal)
 

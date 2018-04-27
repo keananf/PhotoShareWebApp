@@ -10,7 +10,8 @@
 
             <article class="post" v-if="!loading">
                 <header>
-                    <span class="username"><router-link :to="'/user/'+post.username">{{ post.username }}</router-link></span>
+                    <span class="username"><router-link
+                            :to="'/user/'+post.username">{{ post.username }}</router-link></span>
                     <span class="date">{{ post.friendlyDate }}</span>
                     <hr/>
                     <h5>{{ post.title }}</h5>
@@ -22,7 +23,7 @@
                     <p>
                         {{ post.description }}
                     </p>
-                  
+
                     <hr/>
                     <span class="comments">
                         {{ commentsCount }} comments
@@ -36,30 +37,25 @@
                 </footer>
             </article>
             <div class="post-comments" v-if="!loading">
-                <ul>
-                    <li v-for="comment in comments">
-                        <span class="username">
-                            <router-link :to="'/user/'+comment.username">
-                                {{ comment.username }}
-                            </router-link>
-                        </span>
-                        <p v-text="comment.comment"></p>
-                    </li>
-                </ul>
-                
+
+                <post-comment v-for="comment in comments" :data="comment.toJson()" @delete="removeComment"></post-comment>
+                <br/>
+
                 <textarea class="form-control" placeholder="Add your comment" rows="2" v-model="newComment"/>
                 <br/>
-                
+
                 <button class="btn btn-block btn-primary" @click="addComment">Comment</button>
             </div>
-            
+
             <br/><br/>
-            
+
             <button v-if="usersPost" class="btn btn-sm btn-danger" @click="deletePost">Delete your post</button>
-            <button v-if="$root.auth().user.isAdmin && !usersPost" class="btn btn-sm btn-danger" @click="adminDeletePost">Delete this post</button>
-            
+            <button v-if="$root.auth().user.isAdmin && !usersPost" class="btn btn-sm btn-danger"
+                    @click="adminDeletePost">Delete this post
+            </button>
+
             <br/><br/>
-            
+
         </div>
     </div>
 
@@ -117,8 +113,8 @@
             },
 
             addComment() {
-                API.Posts.addComment(this.postId, this.newComment).then(() => {
-                    let comment = new Models.PostComment(this.postId, this.$root.auth().username, this.newComment)
+                API.Posts.addComment(this.postId, this.newComment).then((id) => {
+                    let comment = new Models.PostComment(id, this.postId, this.$root.auth().username, this.newComment)
                     this.comments.push(comment)
                     this.post.comments = this.comments
                     this.newComment = ''
@@ -137,6 +133,21 @@
                     // Go back to the user's profile
                     router.push('/user/' + this.post.username)
                 })
+            },
+
+            removeComment(id) {
+                let pos = null
+
+                for (let i = 0; i < this.comments.length; i++) {
+                    if (this.comments[i].id === id) {
+                        pos = i
+                        break
+                    }
+                }
+
+                if (pos !== null) {
+                    this.comments.splice(pos, 1)
+                }
             }
         },
 

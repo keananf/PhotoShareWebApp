@@ -81,7 +81,7 @@
             })
         },
 
-        createPost(title, description, extension, albumId, base64contents){
+        createPost(title, description, extension, albumId, base64contents) {
             return new Promise((resolve, reject) => {
                 http.post(API.endpoints.POSTS_CREATE, {
                     extension,
@@ -103,16 +103,24 @@
             })
         },
 
-        upvotePost(id){
+        upvotePost(id) {
             return http.put(API.endpoints.UPVOTE_POST.replace(':id', id))
         },
 
-        downvotePost(id){
+        downvotePost(id) {
             return http.put(API.endpoints.DOWNVOTE_POST.replace(':id', id))
         },
 
-        addComment(id, comment){
-            return http.post(API.endpoints.ADD_COMMENT, {referenceId: id, commentContents: comment, eventType: 'PHOTO_COMMENT'})
+        addComment(id, comment) {
+            return new Promise((resolve, reject) => {
+                http.post(API.endpoints.ADD_COMMENT, {
+                    referenceId: id,
+                    commentContents: comment,
+                    eventType: 'PHOTO_COMMENT'
+                }).then(res => {
+                    resolve(res.referenceId)
+                }).catch(err => reject(err))
+            })
         },
 
         deletePost(id) {
@@ -121,6 +129,18 @@
 
         adminDeletePost(id) {
             return http.del(API.endpoints.POST_DELETE_ADMIN.replace(':id', id))
+        },
+
+        upvoteComment(id) {
+            return http.put(API.endpoints.COMMENT_UPVOTE.replace(':id', id))
+        },
+
+        downvoteComment(id) {
+            return http.put(API.endpoints.COMMENT_DOWNVOTE.replace(':id', id))
+        },
+
+        deleteCommentAdmin(id) {
+            return http.del(API.endpoints.COMMENT_DELETE_ADMIN.replace(':id', id))
         }
 
     }
